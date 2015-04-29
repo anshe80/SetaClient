@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <string name="email_account">461002724@qq.com</string>
+    <string name="email_password">88802422</string>
+    <string name="email_subject">欢迎使用setaAPP</string>
+    <string name="email_register_body">注册账号成功！</string>
+    
+</resources>

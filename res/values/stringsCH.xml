@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="email_format_error">邮箱格式错误！</string>
+</resources>
