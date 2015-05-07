@@ -3,7 +3,7 @@
     android:id="@+id/loginpage"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/login_bg"
+    android:background="@drawable/login_bg1"
     android:orientation="vertical" >
 
     <ImageView
@@ -13,7 +13,7 @@
         android:layout_marginLeft="28.0dip"
         android:layout_marginRight="28.0dip"
         android:layout_marginTop="10.0dip"
-        android:background="@drawable/login_pic2" />
+        android:background="@drawable/login_pic3" />
 
     <LinearLayout
         android:id="@+id/input"
@@ -60,30 +60,48 @@
             android:textColorHint="#ff666666"
             android:textSize="16.0sp" />
     </LinearLayout>
-
-    <Button
-        android:id="@+id/login_btn"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/input"
-        android:layout_marginLeft="28.0dip"
-        android:layout_marginRight="28.0dip"
-        android:layout_marginTop="12.0dip"
-        android:background="@drawable/login_button_bg"
-        android:gravity="center"
-        android:paddingTop="5.0dip"
-        android:text="@string/login"
-        android:textColor="#ff333333"
-        android:textSize="18.0sp" />
-
+    
+    <LinearLayout
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/input">
+	    <Button
+	        android:id="@+id/login_btn"
+	        android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:layout_marginLeft="28.0dip"
+	        android:layout_marginRight="28.0dip"
+	        android:layout_marginTop="12.0dip"
+	        android:background="@drawable/login_button_bg"
+	        android:gravity="center"
+	        android:paddingTop="5.0dip"
+	        android:text="@string/login"
+	        android:textColor="#ff333333"
+	        android:textSize="18.0sp" />
+	     <Button
+	            android:id="@+id/regist_btn"
+	            android:layout_width="0dp"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="1"
+	            android:layout_marginLeft="28.0dip"
+	        	android:layout_marginRight="28.0dip"
+	        	android:layout_marginTop="12.0dip"
+	            android:gravity="center"
+	            android:background="@drawable/login_button_bg"
+	            android:text="@string/register2"
+	            android:textColor="#ff333333"
+	            android:textSize="18.0sp" />
+	</LinearLayout>
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/login_btn"
+        android:layout_below="@id/button"
         android:layout_marginLeft="30.0dip"
         android:layout_marginRight="30.0dip"
         android:layout_marginTop="8.0dip"
-        android:layout_weight="1" >
+        android:orientation="horizontal" >
 
         <CheckBox
             android:id="@+id/auto_save_password"
@@ -100,17 +118,15 @@
             android:textSize="12.0sp" />
 
         <Button
-            android:id="@+id/regist_btn"
+            android:id="@+id/find_key"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/find_key"
             android:layout_alignParentRight="true"
-            android:background="@drawable/login_regist_bg"
-            android:gravity="left|center"
-            android:paddingLeft="8.0dip"
-            android:paddingRight="18.0dip"
-            android:text="@string/register2"
-            android:textColor="#ffffffff"
-            android:textSize="12.0sp" />
+            android:textSize="12.0sp"
+            android:background="@drawable/login_bg1"/>
+       
     </RelativeLayout>
     <!-- 
     <LinearLayout

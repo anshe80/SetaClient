@@ -224,7 +224,7 @@ public class FriendListActivity extends Activity implements
 			AlertDialog.Builder dialog = new AlertDialog.Builder(
 					FriendListActivity.this);
 			dialog.setTitle("好友申请")
-					.setIcon(R.drawable.log)
+					.setIcon(R.drawable.icon)
 					.setMessage("【" + fromUserJid + "】向你发来好友申请，是否添加对方为好友?")
 					.setPositiveButton("添加",
 							new DialogInterface.OnClickListener() {

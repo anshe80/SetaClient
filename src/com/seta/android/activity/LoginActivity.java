@@ -1,5 +1,6 @@
 ﻿package com.seta.android.activity;
 
+import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
@@ -25,6 +26,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private Button mBtnRegister;
 	private Button mBtnLogin;
 	private EditText mAccounts, mPassword;
+	//add by ling 2015.4.28
+	private Button mBtnFind_key;
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mBtnLogin.setOnClickListener(this);
 		mAccounts = (EditText) findViewById(R.id.lgoin_accounts);
 		mPassword = (EditText) findViewById(R.id.login_password);
+		//add by ling 2015.4.28
+		mBtnFind_key=(Button) findViewById(R.id.find_key);
+		mBtnFind_key.setOnClickListener(this);
 
 	}
 
@@ -56,9 +63,22 @@ public class LoginActivity extends Activity implements OnClickListener {
 		case R.id.login_btn:
 			submit();
 			break;
+			// start add by ling 2015.4.28 
+		case R.id.find_key:
+			find_key();
+			//end 
 		default:
 			break;
 		}
+	}
+	/*
+	 * add by ling 2015.4.28(。。。。。。。未完待续)
+	 * 找回密码：邮箱激活并重新设置密码*/
+	private void find_key() {
+		// TODO Auto-generated method stub
+		Intent intent = new Intent();
+		intent.setClass(LoginActivity.this, FindkeyActivity.class);
+		startActivity(intent);
 	}
 
 	private void register() {
@@ -75,7 +95,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 		String password = mPassword.getText().toString();
 		
 		if (accounts.length() == 0 || password.length() == 0) {
-			DialogFactory.ToastDialog(this, "登录提示", "亲！帐号或密码不能为空哦");
+			DialogFactory.ToastDialog(this, getString(R.string.login_Tips), getString(R.string.empty_or_error));
 		} else {
 			try {
 				SmackAndroid.init(LoginActivity.this);
@@ -86,11 +106,14 @@ public class LoginActivity extends Activity implements OnClickListener {
 				Presence presence = new Presence(Presence.Type.available);
 				XmppConnection.getConnection().sendPacket(presence);
 				// 弹出登录成功提示
-				DialogFactory.ToastDialog(this, "登录提示", "亲，恭喜你，登录成功了！");
+				DialogFactory.ToastDialog(this, getString(R.string.login_Tips), getString(R.string.login_success));
 				// 跳转到好友列表
 				Intent intent = new Intent();
 				intent.putExtra("USERID", accounts);
-				intent.setClass(LoginActivity.this, FriendListActivity.class);
+				//delete by ling 2015.4.29
+				//intent.setClass(LoginActivity.this, FriendListActivity.class);
+				//add by ling 2015.4.29
+				intent.setClass(LoginActivity.this, MainActivity.class);
 				startActivity(intent);
 			} catch (XMPPException e) {
 				XmppConnection.closeConnection();
@@ -103,8 +126,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			if (msg.what == 2) {
-				DialogFactory.ToastDialog(LoginActivity.this, "登录提示",
-						"亲，登录失败，请重新登录！");
+				DialogFactory.ToastDialog(LoginActivity.this, getString(R.string.login_Tips),
+						getString(R.string.loginFailed));
 			}
 		};
 	};
