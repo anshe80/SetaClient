@@ -102,12 +102,12 @@ public class RegisterActivity extends Activity implements OnClickListener {
 		                        // Stop queuing results
 		collector.cancel();// 停止请求results（是否成功的结果）
 		if (result == null) {
-			Toast.makeText(getApplicationContext(), "服务器没有返回结果", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), getString(R.string.link_error), Toast.LENGTH_SHORT).show();
 		} else if (result.getType() == IQ.Type.ERROR) {
 				if (result.getError().toString().equalsIgnoreCase("conflict(409)")) {
-				        Toast.makeText(getApplicationContext(), "这个账号已经存在", Toast.LENGTH_SHORT).show();
+				        Toast.makeText(getApplicationContext(), getString(R.string.account_tips), Toast.LENGTH_SHORT).show();
 				    } else {
-				        Toast.makeText(getApplicationContext(), "注册失败",Toast.LENGTH_SHORT).show();
+				        Toast.makeText(getApplicationContext(),getString(R.string.register_error),Toast.LENGTH_SHORT).show();
 				    }
 		} else if (result.getType() == IQ.Type.RESULT) {	
 			try 
@@ -136,7 +136,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 				XmppConnection.getConnection().login(accounts, password);
 				Presence presence = new Presence(Presence.Type.available);
 				XmppConnection.getConnection().sendPacket(presence);
-				DialogFactory.ToastDialog(this, "账号注册", "亲，恭喜你，注册成功了！");
+				DialogFactory.ToastDialog(this, getString(R.string.registerID), getString(R.string.register_success));
 				Intent intent = new Intent();
 				intent.putExtra("USERID", accounts);
 				intent.setClass(RegisterActivity.this, FriendListActivity.class);

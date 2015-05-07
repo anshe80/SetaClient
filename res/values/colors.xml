@@ -140,4 +140,5 @@
     <color name="setting_bg">#ffe3e6e8</color>
     <color name="Grey">#BEBEBE</color>
     <color name="LightGray">#D3D3D3</color>
+    <color name="dominant_hue">#00afc4</color>
 </resources>
