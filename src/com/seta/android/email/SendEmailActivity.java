@@ -81,6 +81,7 @@ public class SendEmailActivity extends Activity {
             		Toast.makeText(activity, "请填写所有项！", Toast.LENGTH_SHORT).show();            		
             		
             	}else{
+            		Toast.makeText(activity, activity.getString(R.string.sending_email), Toast.LENGTH_LONG).show();
             		Thread send=new sendEmail();
             		send.run();
             	}
@@ -119,7 +120,7 @@ public class SendEmailActivity extends Activity {
 						// sms.sendHtmlMail(mailInfo);//发送html格式
 						Toast.makeText(
 								activity,
-								activity.getString(R.string.email_send_success),
+								activity.getString(R.string.email_sendfile_success),
 								Toast.LENGTH_SHORT).show();
 
 					} catch (Exception e) {
