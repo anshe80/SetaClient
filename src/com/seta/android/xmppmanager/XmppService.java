@@ -13,7 +13,7 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 /**
  * xmpp方法
- * @author yuanqihesheng
+ * @author anshe
  * @date 2013-04-27
  */
 public class XmppService{

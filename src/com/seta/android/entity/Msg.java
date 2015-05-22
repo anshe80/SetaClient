@@ -10,7 +10,7 @@ import com.sys.android.util.TimeRender;
 
  
 public class Msg {
-	String userid;
+	String toUser;
 	String msg;
 	String date;
 	String from;
@@ -19,7 +19,7 @@ public class Msg {
 	String time;//语音时长
 	String filePath;
 	
-	public static final String USERID ="userid";
+	public static final String USERID ="toUser";
 	public static final String MSG_CONTENT ="msg";//消息内容
 	public static final String DATE ="date";
 	public static final String FROM ="from";
@@ -53,11 +53,12 @@ public class Msg {
 	public Msg(){
 		
 	}
-	public Msg(String userid, String msg, String date, String from) {
-		this.userid = userid;
+	public Msg(String toUser, String msg, String date, String from,String type) {
+		this.toUser = toUser;
 		this.msg = msg;
 		this.date = date;
 		this.from = from;
+		this.type=type;
 	}
 	
 	 
@@ -66,7 +67,7 @@ public class Msg {
 	public Msg(String userid, String msg, String date, String from,
 			String type, String receive, String time, String filePath) {
 		super();
-		this.userid = userid;
+		this.toUser = userid;
 		this.msg = msg;
 		this.date = date;
 		this.from = from;
@@ -82,7 +83,7 @@ public class Msg {
 
 	@Override
 	public String toString() {
-		return "Msg [userid=" + userid + ", msg=" + msg + ", date=" + date
+		return "Msg [userid=" + toUser + ", msg=" + msg + ", date=" + date
 				+ ", from=" + from + ", type=" + type + ", receive=" + receive
 				+ ", time=" + time + ", filePath=" + filePath + "]";
 	}
@@ -106,7 +107,7 @@ public class Msg {
 	public Msg(String userid, String msg, String date, String from,
 			String type, String receive) {
 		super();
-		this.userid = userid;
+		this.toUser = userid;
 		this.msg = msg;
 		this.date = date;
 		this.from = from;
@@ -114,12 +115,12 @@ public class Msg {
 		this.receive = receive;
 	}
 
-	public String getUserid() {
-		return userid;
+	public String getToUser() {
+		return toUser;
 	}
 
-	public void setUserid(String userid) {
-		this.userid = userid;
+	public void setToUser(String toUser) {
+		this.toUser = toUser;
 	}
 
 	public String getMsg() {
@@ -156,7 +157,7 @@ public class Msg {
 		// 获取用户、消息、时间、IN
 		try {
 			JSONObject jsonObject = new JSONObject(jsonStr);
-			msg.setUserid(jsonObject.getString(Msg.USERID));
+			msg.setToUser(jsonObject.getString(Msg.USERID));
 			msg.setFrom(jsonObject.getString(Msg.FROM));
 			msg.setMsg(jsonObject.getString(Msg.MSG_CONTENT));
 			msg.setDate(jsonObject.getString(Msg.DATE));
@@ -187,7 +188,7 @@ public class Msg {
 		JSONObject jsonObject=new JSONObject();
 		String jsonStr="";
 		try {
-			jsonObject.put(Msg.USERID, msg.getUserid()+"");
+			jsonObject.put(Msg.USERID, msg.getToUser()+"");
 			jsonObject.put(Msg.MSG_CONTENT, msg.getMsg()+"");
 			jsonObject.put(Msg.DATE, msg.getDate()+"");
 			jsonObject.put(Msg.FROM, msg.getFrom()+"");

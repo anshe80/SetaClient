@@ -141,4 +141,21 @@
     <color name="Grey">#BEBEBE</color>
     <color name="LightGray">#D3D3D3</color>
     <color name="dominant_hue">#00afc4</color>
+    
+    <!--start add by anshe 2015.5.11  -->
+        <!-- 画面背景色 -->
+    <drawable name="layout_backgroud">#000000</drawable>
+    
+    <!-- 分割线背景色 -->
+    <drawable name="line_background">#161823</drawable>
+
+    <color name="white">#FFFFFF</color>
+    <color name="background_tab_pressed">#6633B5E5</color>
+    <!-- 控件按下时显示的颜色 -->
+    <color name="list_backgroud_color">#2fb3cb</color>
+    <color name="title_color">#0f8ec5</color>
+    <color name="content_color">#737373</color>
+    <color name="red">#FF0000</color>
+    <!--end add by anshe 2015.5.11  -->
+    
 </resources>

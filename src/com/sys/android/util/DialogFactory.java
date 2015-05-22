@@ -1,6 +1,6 @@
 ﻿package com.sys.android.util;
 
-import com.sys.android.xmpp.R;
+import com.seta.android.recordchat.R;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

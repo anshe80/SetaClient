@@ -1,2 +1,4 @@
 eclipse.preferences.version=1
+encoding//jni/convert.c=UTF-8
+encoding//src/com/sys/android/util/JNIMp3Encode.java=UTF-8
 encoding/src=UTF-8

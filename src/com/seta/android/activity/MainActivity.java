@@ -2,28 +2,28 @@ package com.seta.android.activity;
 
 import java.util.ArrayList;
 
-
 import com.seta.android.fragment.accountManagerFragment;
-import com.seta.android.fragment.mainFragment;
 import com.seta.android.fragment.filemanagerFragment;
-import com.seta.android.fragment.thirdFragment;
-import com.sys.android.xmpp.R;
+import com.seta.android.fragment.mainFragment;
+import com.seta.android.fragment.privateFragment;
+import com.seta.android.recordchat.R;
+import com.seta.android.xmppmanager.XmppConnection;
 
-import android.app.ActionBar;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
 
 /*
  * create by ling on 2015.4.29*/
@@ -55,22 +55,29 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 	    {
 	        @Override
 	        public void onDrawerOpened(View drawerView) {
-	        super.onDrawerOpened(drawerView);
-	        getSupportActionBar().setTitle("Seta");
-	        invalidateOptionsMenu();//call onPrepareOptionmenu()
-	    }
+		        super.onDrawerOpened(drawerView);
+		        getSupportActionBar().setTitle("Seta");
+		        invalidateOptionsMenu();//call onPrepareOptionmenu()
+		    }
 
 	        @Override
 	        public void onDrawerClosed(View drawerView) {
-	        super.onDrawerClosed(drawerView);
-	        getSupportActionBar().setTitle(mTitle);
-	        invalidateOptionsMenu();
-	    }
+		        super.onDrawerClosed(drawerView);
+		        getSupportActionBar().setTitle(mTitle);
+		        invalidateOptionsMenu();
+	        }
 	    };
 	    mDrawerLayout.setDrawerListener(mDrawerToggle);
-	    //¿ªÆôActionBarÉÏAPPµÄÍ¼±ê¹¦ÄÜ
+	    //å¼€å¯ActionBarä¸ŠAPPçš„å›¾æ ‡åŠŸèƒ½
 	    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	    getSupportActionBar().setHomeButtonEnabled(true);
+	    if (savedInstanceState == null) {
+	    	 mainFragment mFragment=new mainFragment();
+             FragmentManager fragmentManager=getSupportFragmentManager();
+             fragmentManager.beginTransaction().replace(R.id.content_frame,mFragment).commit();
+             mDrawerLayout.closeDrawer(leftDrawerList);
+	    }
+	   
 	}
 	 @Override
 	    public boolean onPrepareOptionsMenu(Menu menu) {
@@ -86,7 +93,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 	    }
 	    @Override
 	    public boolean onOptionsItemSelected(MenuItem item) {
-	        //½«ActionBarÉÏµÄÍ¼±êÓëDrawer½áºÏÆğÀ´
+	        //å°†ActionBarä¸Šçš„å›¾æ ‡ä¸Drawerç»“åˆèµ·æ¥
 	        // Handle action bar item clicks here. The action bar will
 	        // automatically handle clicks on the Home/Up button, so long
 	        // as you specify a parent activity in AndroidManifest.xml.
@@ -107,8 +114,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 	    @Override
 	    public void onPostCreate(Bundle savedInstanceState) {
 	        super.onPostCreate(savedInstanceState);
-	        //ĞèÒª½«ActionDrawerToggleÓëDrawerLayoutµÄ×´Ì¬Í¬²½
-	        //½«ActionBarDrawerToggleÖĞµÄdrawerÍ¼±ê£¬ÉèÖÃÎªActionBarÖĞµÄHome_ButtonµÄIcon
+	        //éœ€è¦å°†ActionDrawerToggleä¸DrawerLayoutçš„çŠ¶æ€åŒæ­¥
+	        //å°†ActionBarDrawerToggleä¸­çš„drawerå›¾æ ‡ï¼Œè®¾ç½®ä¸ºActionBarä¸­çš„Home_Buttonçš„Icon
 	        mDrawerToggle.syncState();
 	    }
 
@@ -120,43 +127,74 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
 	    @Override
 	    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-	        //¶¯Ì¬²åÈëÒ»¸öfragmentµ½FrameLayoutÖĞ
-	        switch (position){
+	        //åŠ¨æ€æ’å…¥ä¸€ä¸ªfragmentåˆ°FrameLayoutä¸­
+	    	 switch (position){
 	            case 0:{
-	                Fragment mFragment=new mainFragment();
-	                FragmentManager fragmentManager=getFragmentManager();
+                    mainFragment mFragment=new mainFragment();
+	                FragmentManager fragmentManager=getSupportFragmentManager();
 	                fragmentManager.beginTransaction().replace(R.id.content_frame,mFragment).commit();
 	                mDrawerLayout.closeDrawer(leftDrawerList);
 	                break;
 	            }
 	            case 1:
 	            {
-	                Fragment mFragment=new accountManagerFragment();
-	                FragmentManager fragmentManager=getFragmentManager();
+	                accountManagerFragment mFragment=new accountManagerFragment();
+	                FragmentManager fragmentManager=getSupportFragmentManager();
 	                fragmentManager.beginTransaction().replace(R.id.content_frame,mFragment).commit();
 	                mDrawerLayout.closeDrawer(leftDrawerList);
 	                break;
 	            }
 	            case 2:
 	            {
-	                Fragment mFragment=new filemanagerFragment();
-	                FragmentManager fragmentManager=getFragmentManager();
+	                filemanagerFragment mFragment=new filemanagerFragment();
+	                FragmentManager fragmentManager=getSupportFragmentManager();
 	                fragmentManager.beginTransaction().replace(R.id.content_frame,mFragment).commit();
 	                mDrawerLayout.closeDrawer(leftDrawerList);
 	                break;
 	            }
 	            case 3:
 	            {
-	                Fragment mFragment=new thirdFragment();
-	                FragmentManager fragmentManager=getFragmentManager();
+	                privateFragment mFragment=new privateFragment();
+	                FragmentManager fragmentManager=getSupportFragmentManager();
 	                fragmentManager.beginTransaction().replace(R.id.content_frame,mFragment).commit();
 	                mDrawerLayout.closeDrawer(leftDrawerList);
 	                break;
 	            }
-
 	        }
-
-	        }
-
-
+	   }
+	    //delete by anshe 2015.5.17
+	    /*public boolean onKeyDown(int keyCode, KeyEvent event) {
+	    	
+	    	if (keyCode== KeyEvent.KEYCODE_BACK) {
+	    			XmppConnection.closeConnection();
+	    			finish();
+	    			return true;
+	    	}
+	    	return super.onKeyDown(keyCode, event);
+	    }*/
+	  //end delete by anshe 2015.5.17
+	    
+	    //start add by anshe 2015.5.17
+	    public void onBackPressed() { 
+	        new AlertDialog.Builder(this).setTitle("ç¡®è®¤é€€å‡ºå—ï¼Ÿ") 
+	            .setIcon(android.R.drawable.ic_dialog_info) 
+	            .setPositiveButton("ç¡®å®š", new DialogInterface.OnClickListener() { 
+	         
+	                @Override 
+	                public void onClick(DialogInterface dialog, int which) { 
+	                // ç‚¹å‡»â€œç¡®è®¤â€åçš„æ“ä½œ 
+		    			XmppConnection.closeConnection();
+	                    MainActivity.this.finish(); 
+	         
+	                } 
+	            }) 
+	            .setNegativeButton("è¿”å›", new DialogInterface.OnClickListener() { 
+	         
+	                @Override 
+	                public void onClick(DialogInterface dialog, int which) { 
+	                // ç‚¹å‡»â€œè¿”å›â€åçš„æ“ä½œ,è¿™é‡Œä¸è®¾ç½®æ²¡æœ‰ä»»ä½•æ“ä½œ 
+	                } 
+	            }).show(); 
+       }
+	    //end add by anshe 2015.5.17
 }
