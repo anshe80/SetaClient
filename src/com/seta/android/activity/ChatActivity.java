@@ -1,15 +1,18 @@
 ﻿package com.seta.android.activity;
 
 import java.io.File;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.ChatManager;
-import org.jivesoftware.smack.ChatManagerListener;
-import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.SmackConfiguration;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smackx.filetransfer.FileTransfer;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jivesoftware.smackx.filetransfer.FileTransferListener;
@@ -17,17 +20,18 @@ import org.jivesoftware.smackx.filetransfer.FileTransferManager;
 import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
+import org.jivesoftware.smackx.muc.DiscussionHistory;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
-
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -41,13 +45,24 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.iflytek.cloud.ErrorCode;
+import com.iflytek.cloud.InitListener;
+import com.iflytek.cloud.RecognizerListener;
+import com.iflytek.cloud.RecognizerResult;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechRecognizer;
+import com.iflytek.cloud.SpeechUtility;
 import com.seta.android.activity.adapter.ChatListAdapter;
 import com.seta.android.entity.Msg;
-import com.seta.android.selfview.RecordButton;
-import com.seta.android.selfview.RecordButton.OnFinishedRecordListener;
+import com.seta.android.record.IatSettings;
+import com.seta.android.record.JsonParser;
 import com.seta.android.xmppmanager.XmppConnection;
+import com.sys.android.util.JNIMp3Encode;
+import com.sys.android.util.MutilUserChatUtil;
 import com.sys.android.util.TimeRender;
-import com.sys.android.xmpp.R;
+import com.sys.android.util.Utils;
+import com.seta.android.recordchat.R;
 
 public class ChatActivity extends Activity {
 
@@ -60,96 +75,223 @@ public class ChatActivity extends Activity {
 	private EditText msgText;
 	private TextView chat_name;
 	private NotificationManager mNotificationManager;
-	private ChatManager cm;
-	private RecordButton mRecordButton;
-
+	private MultiUserChat muc;
+	private Button mRecordButton;
+	private XMPPConnection connection;
+	private SpeechRecognizer mIat;// 语音听写对象	
+	private SharedPreferences mSharedPreferences;
+	private static String TAG = ChatActivity.class.getSimpleName();
+	private Activity context;
+	private String caseAudio=RECORD_ROOT_PATH;
+	private String audioPath;
+	private boolean recording=false;
+	private long startTime;
+	private long time;
+    private StringBuffer rStr;
+    
 	// 发送文件
 	private OutgoingFileTransfer sendTransfer;
 	public static String FILE_ROOT_PATH = Environment
-			.getExternalStorageDirectory().getPath() + "/chat/file";
+			.getExternalStorageDirectory().getPath() + "/seta/file";
 	public static String RECORD_ROOT_PATH = Environment
-			.getExternalStorageDirectory().getPath() + "/chat/record";
-	Chat newchat;
-
+			.getExternalStorageDirectory().getPath() + "/seta/record";
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.chat_client);
-
+		context=this;
 		init();
+		SpeechUtility.createUtility(this, SpeechConstant.APPID + "="+getString(R.string.app_id));
+		// 初始化识别对象     +","+ SpeechConstant.FORCE_LOGIN +"=true"
+		mIat = SpeechRecognizer.createRecognizer(this, mInitListener);
+		// 初始化听写Dialog，如果只使用有UI听写功能，无需创建SpeechRecognizer
+		mSharedPreferences = this.getSharedPreferences(IatSettings.PREFER_NAME,
+				Activity.MODE_PRIVATE);
+		mRecordButton = (Button) findViewById(R.id.record_button);
+		File file = new File(caseAudio);
+		if(!file.exists()){
+			file.mkdirs();
+		}
+		mRecordButton.setOnClickListener(new OnClickListener() {
 
-		mRecordButton = (RecordButton) findViewById(R.id.record_button);
-
-		String path = RECORD_ROOT_PATH;
-		File file = new File(path);
-		file.mkdirs();
-		path += "/" + System.currentTimeMillis() + ".amr";
-		mRecordButton.setSavePath(path);
-		mRecordButton
-				.setOnFinishedRecordListener(new OnFinishedRecordListener() {
-
-					@Override
-					public void onFinishedRecord(String audioPath, int time) {
-						Log.i("RECORD!!!", "finished!!!!!!!!!! save to "
-								+ audioPath);
-
-						if (audioPath != null) {
-							try {
-								// 自己显示消息
-								Msg myChatMsg = new Msg(pUSERID, time + "”语音消息",
-										TimeRender.getDate(), Msg.FROM_TYPE[1],
-										Msg.TYPE[0], Msg.STATUS[3], time + "",
-										audioPath);
-								listMsg.add(myChatMsg);
-								String[] pathStrings = audioPath.split("/"); // 文件名
-								
-								//发送 对方的消息
-								String fileName = null ;
-								if (pathStrings!=null && pathStrings.length>0) {
-									fileName = pathStrings[pathStrings.length-1];
-								}
-								Msg sendChatMsg = new Msg(pUSERID, time + "”语音消息",
-										TimeRender.getDate(), Msg.FROM_TYPE[0],
-										Msg.TYPE[0], Msg.STATUS[3], time + "",
-										fileName);
-								
-								// 刷新适配器
-								adapter.notifyDataSetChanged();
-
-								// 发送消息
-								newchat.sendMessage(Msg.toJson(sendChatMsg));
-								sendFile(audioPath, myChatMsg);//
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						} else {
-							Toast.makeText(ChatActivity.this, "发送失败",
-									Toast.LENGTH_SHORT).show();
-						}
-
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub		
+				if (!recording){
+					recording=true;
+					startTime = System.currentTimeMillis();
+					rStr = new StringBuffer();
+					mRecordButton.setText(getString(R.string.recording));
+					caseAudio =RECORD_ROOT_PATH+ "/" + System.currentTimeMillis() + ".pcm";
+					record();
+				} else {
+					recording=false;
+					mIat.stopListening();
+					msgText.setText(rStr.toString());
+					msgText.setSelection(msgText.length());
+					mRecordButton.setText(getString(R.string.start_record));
+					time = (System.currentTimeMillis() - startTime)/1000;
+					audioPath=caseAudio.replace("pcm", "mp3");
+					Log.e("缓存的音频路径：", "caseAudio="+caseAudio);				
+					Log.e("转码后的音频路径：", "audioPath="+audioPath);
+					Thread convert=new Thread(new convertToMp3());
+					convert.start();	
+					try {			
+						//发送 对方的消息
+						Msg sendChatMsg = new Msg(pFRIENDID, time + "”语音消息",
+								TimeRender.getDate(), pUSERID,
+								Msg.TYPE[0], Msg.STATUS[3], time + "",
+								audioPath);						
+						// 刷新适配器
+						adapter.notifyDataSetChanged();
+						// 发送消息
+						muc.sendMessage(Msg.toJson(sendChatMsg));
+					} catch (Exception e) {
+						e.printStackTrace();
+						Toast.makeText(ChatActivity.this, "发送异常",
+								Toast.LENGTH_SHORT).show();
 					}
-				});
-
+			}
+			}
+			
+		});
+		
 	}
+	//start add by anshe 2015.5.20
+	class convertToMp3 extends Thread{
 
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			Log.e("正在转码","开始进行。。。。");
+			File file=new File(caseAudio);
+			while(!file.exists());//waiting for audio 
+			try{
+				if(file.exists()){
+					JNIMp3Encode.convertmp3(caseAudio, audioPath, 8000);
+				}else{
+					Log.e("转码完成","转码失败。。。。文件不存在");
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+				Log.e("转码完成","转码失败。。。。");
+				
+			}
+			file=new File(audioPath);	
+			if(file.exists()){
+				Msg myChatMsg = new Msg(pUSERID, time + "”语音消息",
+						TimeRender.getDate(), pUSERID,
+						Msg.TYPE[0], Msg.STATUS[3], time + "",
+						audioPath);	
+				sendFile(audioPath, myChatMsg);
+				file=new File(caseAudio);
+				file.delete();	
+			}else{
+				Log.e("发送文件情况：", "发送失败");
+			}
+		}
+		
+	}
+	//end add by anshe 2015.5.20
+	//start add by anshe 2015.5.18
+	
+	/**
+	 * 初始化监听器。
+	 */
+	private InitListener mInitListener = new InitListener() {
+
+		@Override
+		public void onInit(int code) {
+			Log.d(TAG, "SpeechRecognizer init() code = " + code);
+			if (code != ErrorCode.SUCCESS) {
+				showTip("初始化失败，错误码：" + code);
+			}
+		}
+	};
+	/**
+	 * 听写监听器。
+	 */
+	public void recognizeStream(RecognizerListener listener, String ent, String params, String grammar){
+		
+	}
+	private RecognizerListener recognizerListener = new RecognizerListener() {
+
+		@Override
+		public void onBeginOfSpeech() {
+			mRecordButton.setText(getString(R.string.recording));
+		}
+
+		@Override
+		public void onError(SpeechError error) {
+			// Tips：
+			// 错误码：10118(您没有说话)，可能是录音机权限被禁，需要提示用户打开应用的录音权限。
+			// 如果使用本地功能（语音+）需要提示用户开启语音+的录音权限。
+			showTip(error.getPlainDescription(true));
+		}
+
+		@Override
+		public void onEndOfSpeech() {			
+			showTip("结束说话");
+		}
+
+		@Override
+		public void onResult(RecognizerResult results, boolean isLast) {
+			Log.d(TAG, results.getResultString());
+			String resultsString=printResult(results);
+
+			msgText.setText(resultsString.toString());
+			Log.e("语音识别后的消息：", resultsString.toString());
+			msgText.setSelection(msgText.length());
+			if (isLast) {
+				// TODO 最后的结果				
+				mRecordButton.setText(getString(R.string.start_record));				
+			}
+		}
+
+		@Override
+		public void onVolumeChanged(int volume) {			
+			//showTip("当前正在说话，音量大小：" + volume);
+		}
+
+		@Override
+		public void onEvent(int eventType, int arg1, int arg2, Bundle obj) {
+		}
+	};
+	private String printResult(RecognizerResult results) {
+		String text = JsonParser.parseIatResult(results.getResultString());
+		// 用HashMap存储听写结果
+		HashMap<String, String> mIatResults = new LinkedHashMap<String, String>();
+		String sn = null;
+		// 读取json结果中的sn字段
+		try {
+			JSONObject resultJson = new JSONObject(results.getResultString());
+			sn = resultJson.optString("sn");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		mIatResults.put(sn, text);
+		StringBuffer resultBuffer = new StringBuffer();
+		for (String key : mIatResults.keySet()) {
+			resultBuffer.append(mIatResults.get(key));
+		}
+		return resultBuffer.toString();
+		
+	}
+	
+	private void showTip(final String str) {
+		Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
+	}
+	//end add by anshe 2015.5.18
 	private void init() {
 		mNotificationManager = (NotificationManager) this
 				.getSystemService(Service.NOTIFICATION_SERVICE);
 		// 获取Intent传过来的用户名
 		this.pUSERID = getIntent().getStringExtra("USERID");
-		this.userChat = getIntent().getStringExtra("user");/*
-															 * + "/" +
-															 * FriendListActivity
-															 * .RESOUCE_NAME;
-															 */
-		userChatSendFile = userChat + "/" + FriendListActivity.MY_RESOUCE_NAME;
-		this.pFRIENDID = getIntent().getStringExtra("FRIENDID");
-		/*
-		 * System.out.println("接收消息的用户pFRIENDID是：" + userChat);
-		 * System.out.println("发送消息的用户pUSERID是：" + pUSERID);
-		 * System.out.println(" 消息的用户pFRIENDID是：" + pFRIENDID);
-		 */
+		this.userChat = getIntent().getStringExtra("user");
+		userChatSendFile = userChat + "/Smack";
+		this.pFRIENDID = getIntent().getStringExtra("FRIENDID");		
 
 		chat_name = (TextView) findViewById(R.id.chat_name);
 		chat_name.setText(pFRIENDID);
@@ -160,7 +302,6 @@ public class ChatActivity extends Activity {
 		// 获取文本信息
 		this.msgText = (EditText) findViewById(R.id.formclient_text);
 		// 消息监听
-		cm = XmppConnection.getConnection().getChatManager();
 
 		// 返回按钮
 		Button mBtnBack = (Button) findViewById(R.id.chat_back);
@@ -168,9 +309,14 @@ public class ChatActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				finish();
+				muc.leave();
+				
 			}
 		});
-
+		connection=XmppConnection.getConnection();		
+		final MutilUserChatUtil mutilUserRoomList=new MutilUserChatUtil(connection);
+		muc=mutilUserRoomList.joinMultiUserChat(userChat, pFRIENDID, "");
+	  
 		receivedMsg();// 接收消息
 		sendMsg();// 发送消息
 		receivedFile();// 接收文件
@@ -181,34 +327,29 @@ public class ChatActivity extends Activity {
 	 * 接收消息
 	 */
 	public void receivedMsg() {
+		  muc.addMessageListener(new PacketListener() {   
+	           @Override   
+	           public void processPacket(Packet packet) {   
+	               Message message = (Message) packet;   
+	               String from=Utils.getJidToUsername(message.getFrom());
+	               String toUser=Utils.getJidToUsername(message.getTo());
+	               String nowUser=Utils.getJidToUsername(XmppConnection.getConnection().getUser());
+	               Log.e("接收到的消息：","nowUser="+nowUser+" from="+from + "   toUser=" + toUser);
 
-		cm.addChatListener(new ChatManagerListener() {
-			@Override
-			public void chatCreated(Chat chat, boolean able) {
-				chat.addMessageListener(new MessageListener() {
-					@Override
-					public void processMessage(Chat chat2, Message message) {
-						// 收到来自pc服务器的消息（获取自己好友发来的信息）
-						if (message.getFrom().contains(userChat)) {
-							// Msg.analyseMsgBody(message.getBody(),userChat);
-							// 获取用户、消息、时间、IN
-							/*
-							 * String[] args = new String[] { userChat,
-							 * message.getBody(), TimeRender.getDate(), "IN" };
-							 */
-							// 在handler里取出来显示消息
-							android.os.Message msg = handler.obtainMessage();
-							System.out.println("服务器发来的消息是 chat："
-									+ message.getBody());
-							msg.what = 1;
-							msg.obj = message.getBody();
-							msg.sendToTarget();
+	               if (!from.equals(toUser)&&!nowUser.equals(from)) {
+						// Msg.analyseMsgBody(message.getBody(),userChat);
+						// 获取用户、消息、时间、IN
+						// 在handler里取出来显示消息
+						android.os.Message msg = handler.obtainMessage();
+						System.out.println("服务器发来的消息是 chat："+ message.getBody());
+						msg.what = 1;
+						msg.obj = message.getBody();
+						msg.sendToTarget();
 
-						}
 					}
-				});
-			}
-		});
+	           }
+	        });
+		
 	}
 
 	/**
@@ -220,39 +361,85 @@ public class ChatActivity extends Activity {
 	public void sendMsg() {
 		// 发送消息
 		Button btsend = (Button) findViewById(R.id.formclient_btsend);
-		// 发送消息给pc服务器的好友（获取自己的服务器，和好友）
-		newchat = cm.createChat(userChat, null);
 		btsend.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				// 获取text文本
 				final String msg = msgText.getText().toString();
-				if (msg.length() > 0) {
-					// 自己显示消息
-					Msg chatMsg = new Msg(pUSERID, msg, TimeRender.getDate(),
-							Msg.FROM_TYPE[1]);
- 					listMsg.add(chatMsg);
+				if (msg.length() > 0) {					
  					//发送对方
- 					Msg sendChatMsg = new Msg(pUSERID, msg, TimeRender.getDate(),
-							Msg.FROM_TYPE[0]); 
+ 					Msg sendChatMsg = new Msg(pFRIENDID, msg, TimeRender.getDate(),
+ 							pUSERID,Msg.TYPE[2]);					
 					// 刷新适配器
 					adapter.notifyDataSetChanged();
 					try {
 						// 发送消息
-						newchat.sendMessage(Msg.toJson(sendChatMsg));
+						muc.sendMessage(Msg.toJson(sendChatMsg));
 
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
+					
 				} else {
 					Toast.makeText(ChatActivity.this, "发送信息不能为空",
 							Toast.LENGTH_SHORT).show();
 				}
 				// 清空text
-				msgText.setText("");
+				msgText.setText("");				
+				
 			}
 		});
 	}
+	public void record(){
+		setParam();
+		int ret = 0; // 函数调用返回值
+		ret = mIat.startListening(recognizerListener);
+		if (ret != ErrorCode.SUCCESS) {
+			showTip("听写失败,错误码：" + ret);
+		} else {
+			showTip(getString(R.string.text_begin));			
+		}
+	}
+	/**
+	 * 参数设置
+	 * 
+	 * @param param
+	 * @return
+	 */
+	public void setParam() {
+		// 清空参数
+		mIat.setParameter(SpeechConstant.PARAMS, null);
+
+		// 设置听写引擎 云端
+		mIat.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
+		// 设置返回结果格式
+		mIat.setParameter(SpeechConstant.RESULT_TYPE, "json");
+
+		String lag = mSharedPreferences.getString("iat_language_preference",
+				"mandarin");
+		if (lag.equals("en_us")) {
+			// 设置语言
+			mIat.setParameter(SpeechConstant.LANGUAGE, "en_us");
+		} else {
+			// 设置语言
+			mIat.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
+			// 设置语言区域
+			mIat.setParameter(SpeechConstant.ACCENT, lag);
+		}
+		// 设置语音前端点
+		mIat.setParameter(SpeechConstant.VAD_BOS, mSharedPreferences.getString("iat_vadbos_preference", "4000"));
+		// 设置语音后端点
+		mIat.setParameter(SpeechConstant.VAD_EOS, mSharedPreferences.getString("iat_vadeos_preference", "10000"));
+		// 设置标点符号
+		mIat.setParameter(SpeechConstant.ASR_PTT, mSharedPreferences.getString("iat_punc_preference", "1"));
+		// 设置音频保存路径
+		mIat.setParameter(SpeechConstant.ASR_AUDIO_PATH, caseAudio);
+		// 设置听写结果是否结果动态修正，为“1”则在听写过程中动态递增地返回结果，否则只在听写结束之后返回最终结果
+		// 注：该参数暂时只对在线听写有效
+		mIat.setParameter(SpeechConstant.ASR_DWA, mSharedPreferences.getString("iat_dwa_preference", "1"));
+		
+	}
+
 
 	/**
 	 * 接收文件
@@ -278,10 +465,8 @@ public class ChatActivity extends Activity {
 					IncomingFileTransfer transfer = request.accept();
 					try {
 
-						System.out.println(request.getFileName());
-						File file = new File(RECORD_ROOT_PATH
-								+ request.getFileName());
-						
+						Log.e("receivedFile",request.getFileName());
+						File file = new File(request.getFileName());						
 						android.os.Message msg = handler.obtainMessage();
 						transfer.recieveFile(file);
 						Msg msgInfo = queryMsgForListMsg(file.getName());
@@ -295,13 +480,13 @@ public class ChatActivity extends Activity {
 					// Reject it
 					request.reject();
 					String[] args = new String[] { userChat,
-							request.getFileName(), TimeRender.getDate(), "IN",
+							request.getFileName(), TimeRender.getDate(), pFRIENDID,
 							Msg.TYPE[0], Msg.STATUS[1] };
 					Msg msgInfo = new Msg(args[0], "redio", args[2], args[3],
 							Msg.TYPE[0], Msg.STATUS[1]);
 					// 在handler里取出来显示消息
 					android.os.Message msg = handler.obtainMessage();
-					msg.what = 5;
+					msg.what = 4;
 					msg.obj = msgInfo;
 					handler.sendMessage(msg);
 				}
@@ -323,8 +508,7 @@ public class ChatActivity extends Activity {
 				XmppConnection.getConnection());
 
 		// Create the outgoing file transfer
-		sendTransfer = sendFilemanager
-				.createOutgoingFileTransfer(userChatSendFile);
+		sendTransfer = sendFilemanager.createOutgoingFileTransfer(userChatSendFile);
 		// Send the file
 		try {
 
@@ -373,7 +557,6 @@ public class ChatActivity extends Activity {
 				msg.setReceive(Msg.STATUS[0]);// 成功
 
 			}
-
 			handler.sendMessage(message);
 			/*
 			 * System.out.println(transfer.getStatus());
@@ -391,15 +574,16 @@ public class ChatActivity extends Activity {
 					listMsg.add(chatMsg);// 添加到聊天消息
 					adapter.notifyDataSetChanged();
 				}
-
 				break;
-			case 2: // 发送文件
-
+			case 2: // 发送文件 add by anshe 2015.5.11
+				//sendMsg();
+				//2015.5.11
 				break;
 			case 3: // 更新文件发送状态
+				Toast.makeText(context, getString(R.string.record_send_success), Toast.LENGTH_SHORT).show();
 				adapter.notifyDataSetChanged();
 				break;
-			case 5: // 接收文件
+			case 4: // 接收文件
 				Msg msg2 = (Msg) msg.obj;
 				System.out.println(msg2.getFrom());
 				listMsg.add(msg2);
@@ -416,7 +600,7 @@ public class ChatActivity extends Activity {
 		// XmppConnection.closeConnection();
 		System.exit(0);
 	}
-
+	
 	protected void setNotiType(int iconId, String s) {
 		Intent intent = new Intent();
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -426,7 +610,7 @@ public class ChatActivity extends Activity {
 		myNoti.tickerText = s;
 		myNoti.defaults = Notification.DEFAULT_SOUND;
 		myNoti.flags |= Notification.FLAG_AUTO_CANCEL;
-		myNoti.setLatestEventInfo(this, "Seta消息", s, appIntent);
+		myNoti.setLatestEventInfo(this, getString(R.string.seta_info), s, appIntent);
 		mNotificationManager.notify(0, myNoti);
 	}
 
@@ -469,5 +653,9 @@ public class ChatActivity extends Activity {
 			}
 		}
 		return msg;
+	}
+	
+	public void onDestroy(){
+		super.onDestroy();
 	}
 }

@@ -56,6 +56,7 @@
     <string name="login">登 录</string>
     <string name="account">输入Seta号码</string>
     <string name="password">输入密码</string>
+    <string name="repeat_password">请再次输入密码</string>
     <string name="login_prompt">正在验证帐号…</string>
     <string name="timeout_prompt">操作超时！</string>
     <string name="loginFailed">登录失败，请稍后重试</string>
@@ -573,6 +574,7 @@
     <string name="qr_verify_code">验证码</string>
     <string name="qr_sending_verify_code">正在发送短信</string>
     <string name="qr_password">设置密码</string>
+    <string name="qr_repeat_password">确认密码</string>
     <string name="qr_re_password">再次输入</string>
     <string name="qr_input_verify_code">请输入收到的验证码</string>
     <string name="qr_commit_verify_code">提交验证码</string>
@@ -1177,8 +1179,7 @@
     <string name="mainpage">首页</string>
     <string name="manage_ID">帐号管理</string>
     <string name="manage_files">文件管理</string>
-    <string name="private_notes">私人记录</string>
-    <string name="find_key_Tips">您将收到激活帐号的邮件，请点击链接邮件中的链接找回密码。</string>
+    <string name="private_notes">私人记录</string>    
     <string name="back">返回</string>
     <string name="input_email">请输入邮箱</string>
     <string name="email">邮箱</string>
@@ -1189,10 +1190,19 @@
     <string name="voice_file">语音文件</string>
     <string name="text_file">文本文件</string>
     <string name="cache">缓存</string>
-    <string name="del_cache">清除缓存</string>
+    <string name="del_file">清除文件</string>
+    <string name="del_record">清除录音</string>
     <string name="account_tips">这个帐号已经存在</string>
     <string name="register_error">注册失败</string>
     <string name="link_error">远程连接失败</string>
     <string name="register_success">注册成功</string>
     <string name="registerID">注册帐号</string>
+    <string name="square">广场</string>
+    <string name="str_recorder_normal">按住说话</string>
+    <string name="str_recorder_recording">松开结束</string>
+    <string name="str_recorder_want_cancel">松开手指，取消发送</string>
+    <string name="group_name">群组名</string>
+    <string name="create_group">创建群组</string>
+    <string name="info_null">群组名不能为空</string>
+    <string name="create">创建</string>
 </resources>

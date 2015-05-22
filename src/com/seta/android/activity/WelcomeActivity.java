@@ -1,6 +1,6 @@
 ﻿package com.seta.android.activity;
 
-import com.sys.android.xmpp.R;
+import com.seta.android.recordchat.R;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,7 +10,7 @@ import android.os.Parcelable;
 import android.view.Window;
 /**
  * 欢迎界面
- * @author yuanqihesheng
+ * @author anshe
  * @date 2013-04-27
  */
 public class WelcomeActivity extends Activity {

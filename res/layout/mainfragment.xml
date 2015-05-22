@@ -3,7 +3,12 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white">
-    <include layout="@layout/tab_layout"/>
+    <!--  <include layout="@layout/tab_layout"/>-->
+    <com.astuetz.PagerSlidingTabStrip
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="48dip"
+        android:background="@drawable/background_tab" />
     <android.support.v4.view.ViewPager
         android:id="@+id/id_viewpager"
         android:layout_width="match_parent"

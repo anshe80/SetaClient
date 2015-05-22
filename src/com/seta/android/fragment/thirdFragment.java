@@ -1,6 +1,6 @@
 package com.seta.android.fragment;
 
-import com.sys.android.xmpp.R;
+import com.seta.android.recordchat.R;
 
 import android.app.Fragment;
 import android.os.Bundle;
@@ -16,7 +16,7 @@ public class thirdFragment extends Fragment {
     private TextView tv_third;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.thirdfragment, container, false);
+        View view = inflater.inflate(R.layout.iatdemo, container, false);
         tv_third = (TextView) view.findViewById(R.id.tv_third);
         return view;
     }

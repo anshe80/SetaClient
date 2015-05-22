@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.FocusFinder;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -24,12 +26,12 @@ import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Registration;
 
-import com.seta.android.email.util.EmailFormat;
-import com.seta.android.email.util.MailSenderInfo;
-import com.seta.android.email.util.SimpleMailSender;
+import com.seta.android.email.EmailFormat;
+import com.seta.android.email.MailSenderInfo;
+import com.seta.android.email.SimpleMailSender;
 import com.seta.android.xmppmanager.XmppConnection;
 import com.sys.android.util.DialogFactory;
-import com.sys.android.xmpp.R;
+import com.seta.android.recordchat.R;
 
 @SuppressWarnings("all")
 public class RegisterActivity extends Activity implements OnClickListener {
@@ -49,10 +51,36 @@ public class RegisterActivity extends Activity implements OnClickListener {
 
 		nameMCH = (EditText) findViewById(R.id.reg_nameMCH);
 		mEmailEt = (EditText) findViewById(R.id.reg_email);
+		mEmailEt.setOnFocusChangeListener(new android.view.View.OnFocusChangeListener() {  
+
+		    @Override
+		    public void onFocusChange(View v, boolean hasFocus) {  
+
+		        if(hasFocus) {
+
+				// 此处为得到焦点时的处理内容
+		
+				} else {
+		
+				// 此处为失去焦点时的处理内容
+					String email = mEmailEt.getText().toString();
+					if(!EmailFormat.isEmail(email)){
+						Toast.makeText(getApplicationContext(), getString(R.string.email_format_error), Toast.LENGTH_SHORT).show();
+						mEmailEt.findFocus();
+						mBtnRegister.setClickable(false);
+					}else{
+						mBtnRegister.setClickable(true);
+					}				
+		
+				}
+
+		    }
+
+		});
 		mNameEt = (EditText) findViewById(R.id.reg_name);
 		mPasswdEt = (EditText) findViewById(R.id.reg_password);
 		mPasswdEt2 = (EditText) findViewById(R.id.reg_password2);
-	}
+	}	
 
 	@Override
 	public void onClick(View v) {
@@ -60,6 +88,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 		switch (v.getId()) {
 		case R.id.reg_back_btn:
 			login();
+			finish();
 			break;
 		case R.id.register_btn:
 			registered();
@@ -76,13 +105,8 @@ public class RegisterActivity extends Activity implements OnClickListener {
 		String accounts = mNameEt.getText().toString();
 		String password = mPasswdEt.getText().toString();
 		String email = mEmailEt.getText().toString();
-		String name = nameMCH.getText().toString();
+		String name = nameMCH.getText().toString();		
 		
-		if(!EmailFormat.isEmail(email)){
-			Toast.makeText(getApplicationContext(), getString(R.string.email_format_error), Toast.LENGTH_SHORT).show();
-			mEmailEt.findFocus();
-			return;
-		}
 		Registration reg = new Registration();
 		reg.setType(IQ.Type.SET);
 		reg.setTo(XmppConnection.getConnection().getServiceName());
@@ -123,11 +147,12 @@ public class RegisterActivity extends Activity implements OnClickListener {
              mailInfo.setSubject(getString(R.string.email_subject));    
              mailInfo.setContent(getString(R.string.email_register_body));  
              
+             /*start add by anshe 2015.5.13*/
                 //这个类主要来发送邮件   
              SimpleMailSender sms = new SimpleMailSender();   
              sms.sendTextMail(mailInfo);//发送文体格式    
                  //sms.sendHtmlMail(mailInfo);//发送html格式 
-
+             /*end add by anshe 2015.5.13*/
             } 
             catch (Exception e) { 
                 Log.e("SendMail", e.getMessage(), e); 
@@ -139,7 +164,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 				DialogFactory.ToastDialog(this, getString(R.string.registerID), getString(R.string.register_success));
 				Intent intent = new Intent();
 				intent.putExtra("USERID", accounts);
-				intent.setClass(RegisterActivity.this, FriendListActivity.class);
+				intent.setClass(RegisterActivity.this, MainActivity.class);
 				startActivity(intent);
 			} catch (XMPPException e) {
 				e.printStackTrace();

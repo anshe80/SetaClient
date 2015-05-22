@@ -1,6 +1,8 @@
 ﻿package com.seta.android.xmppmanager;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
@@ -32,7 +34,7 @@ import org.jivesoftware.smackx.provider.XHTMLExtensionProvider;
 import org.jivesoftware.smackx.search.UserSearch;
 /**
  * xmpp配置页面
- * @author yuanqihesheng
+ * @author anshe
  * @date 2013-04-27
  */
 public class XmppConnection {
@@ -40,7 +42,7 @@ public class XmppConnection {
 	//public static String SERVER_HOST = "192.168.1.99";//你openfire服务器所在的ip
 	//public static  String SERVER_NAME = "aa";//设置openfire时的服务器名
 	public static int    SERVER_PORT = 5222;//服务端口 可以在openfire上设置
-	public static String SERVER_HOST = "192.168.253.34";//你openfire服务器所在的ip
+	public static  String SERVER_HOST = "172.18.19.7";//你openfire服务器所在的ip
 	public static  String SERVER_NAME = "seta";//设置openfire时的服务器名
     private static XMPPConnection connection = null;
     
@@ -48,6 +50,8 @@ public class XmppConnection {
 		try {
 			if (null == connection || !connection.isAuthenticated()) {
 				XMPPConnection.DEBUG_ENABLED = true;//开启DEBUG模式
+				InetAddress addr = InetAddress.getLocalHost();
+				//SERVER_HOST=addr.getHostAddress().toString();//获得本机IP
 				//配置连接
 				ConnectionConfiguration config = new ConnectionConfiguration(
 						SERVER_HOST, SERVER_PORT,
@@ -58,7 +62,9 @@ public class XmppConnection {
 				config.setSecurityMode(ConnectionConfiguration.SecurityMode.enabled);       
 				config.setSASLAuthenticationEnabled(false);     
 				File file =new File("/mnt/sdcard/security/");
-				file.mkdirs();
+				if(!file.exists()){
+					file.mkdirs();
+				}
 				config.setTruststorePath("/mnt/sdcard/security/cacerts.bks");       
 				config.setTruststorePassword("123456");       
 				config.setTruststoreType("bks"); 
@@ -71,6 +77,9 @@ public class XmppConnection {
 			}
 		} catch (XMPPException xe) {
 			xe.printStackTrace();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

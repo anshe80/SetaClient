@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" 
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="match_parent">
+	<ListView 
+	    android:id="@+id/lv_dialog"
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp"
+	    android:layout_weight="1"
+	    android:divider="@null"
+	    android:dividerHeight="10dp">
+	    
+	</ListView>
+	<LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFEEEEEE" >
+	<EditText
+            android:id="@+id/formclient_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:textColor="#FFFFFF"
+            android:hint="语音识别结果"/>
+	</LinearLayout>
+	<FrameLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content">
+	    <Button 
+	        android:id="@+id/record_button"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="50dp"
+	        android:layout_marginRight="50dp"
+	        android:layout_marginTop="6dp"
+	        android:layout_marginBottom="7dp"
+	        android:gravity="center"
+	        android:padding="5dp"
+	        android:text="@string/str_recorder_normal"
+	        android:textColor="@color/white"
+	        android:background="@drawable/chat_send_button_bg"
+	        android:minHeight="0dp"/>
+	    <View 
+	    android:layout_width="match_parent"
+	    android:layout_height="1dp"
+	    android:background="@color/LightGray"/>
+	</FrameLayout>
+	
+</LinearLayout>
