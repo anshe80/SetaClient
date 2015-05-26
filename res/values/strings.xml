@@ -1170,7 +1170,7 @@
     <string name="reply_my_shuoshuo">回复了我 :</string>
     <string name="gift">送了一个语音祝福给你，赶快听听吧~</string>
     <string name="file">[文件]</string>
-    <string name="register_tip">提示 \n带*项为必填项\n填写邮箱方便您找回密码以及了解更多Seta Voice的信息</string>
+    <string name="register_tip">提示 \n带*项为必填项\n填写邮箱方便您找回密码以及了解更多Seta Voice的信息\n目前仅支持QQ、163邮箱注册</string>
     <string name="drawer_open">打开</string>
     <string name="drawer_close">关闭</string>
     <string name="login_Tips">登录提示</string>

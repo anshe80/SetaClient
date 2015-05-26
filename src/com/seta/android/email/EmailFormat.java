@@ -38,6 +38,9 @@ public class EmailFormat {
     	return mailInfo;
     	
     }
+    public static  void main(String[] arg){
+    	System.out.print("邮箱检测："+EmailFormat.isEmail("1073025537@qq.com"));
+    }
     
 
 }

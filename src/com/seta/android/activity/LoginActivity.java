@@ -2,6 +2,7 @@
 
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.SmackAndroid;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 
@@ -137,30 +138,36 @@ public class LoginActivity extends Activity implements OnClickListener {
 			try {
 				SmackAndroid.init(LoginActivity.this);
 				// 连接服务器
-				XmppConnection.getConnection().login(accounts, password);
-				// 连接服务器成功，更改在线状态
-				Presence presence = new Presence(Presence.Type.available);
-				XmppConnection.getConnection().sendPacket(presence);
-				//登录成功和记住密码框为选中状态才保存用户信息
-				if(auto_save_password.isChecked())
-				{
-				 //记住用户名、密码、
-				  Editor editor = rememberPassword.edit();
-				  editor.putString("USER_NAME", accounts);
-				  editor.putString("PASSWORD",password);
-				  editor.apply();
+				XMPPConnection connection=XmppConnection.openConnection();
+				if(connection!=null){
+					connection.login(accounts, password);
+					// 连接服务器成功，更改在线状态
+					Presence presence = new Presence(Presence.Type.available);
+					XmppConnection.getConnection(this).sendPacket(presence);
+
+					// 登录成功和记住密码框为选中状态才保存用户信息
+					if (auto_save_password.isChecked()) {
+						// 记住用户名、密码、
+						Editor editor = rememberPassword.edit();
+						editor.putString("USER_NAME", accounts);
+						editor.putString("PASSWORD", password);
+						editor.apply();
+					}
+					// 跳转到好友列表
+					Intent intent = new Intent();
+					// delete by ling 2015.4.29
+					// intent.putExtra("USERID", accounts);
+					// intent.setClass(LoginActivity.this,
+					// FriendListActivity.class);
+					// add by ling 2015.4.29
+					intent.putExtra("pUSERID", accounts);
+					intent.setClass(LoginActivity.this, MainActivity.class);
+					startActivity(intent);
+					finish();
+				}else{
+					DialogFactory.ToastDialog(LoginActivity.this, getString(R.string.login_Tips),
+							getString(R.string.service_not_open));
 				}
-				// 跳转到好友列表
-				Intent intent = new Intent();
-				//delete by ling 2015.4.29
-				//intent.putExtra("USERID", accounts);
-				//intent.setClass(LoginActivity.this, FriendListActivity.class);
-				//add by ling 2015.4.29
-				intent.putExtra("Accounts", accounts);
-				intent.putExtra("Password", password);
-				intent.setClass(LoginActivity.this, MainActivity.class);
-				startActivity(intent);
-				finish();
 			} catch (XMPPException e) {
 				XmppConnection.closeConnection();
 				handler.sendEmptyMessage(2);

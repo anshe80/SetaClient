@@ -56,7 +56,7 @@ public class groupFragment extends Fragment {
 				}
 			});
 			activity=this.getActivity();
-			final XMPPConnection connection=XmppConnection.getConnection();
+			final XMPPConnection connection=XmppConnection.getConnection(activity);
 			final MutilUserChatUtil mutilUserRoomList=new MutilUserChatUtil(connection);
 			try {
 				mRoomListData = mutilUserRoomList.getConferenceRoom();

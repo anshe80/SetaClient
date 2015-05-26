@@ -15,6 +15,7 @@
 	<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
 	<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/> 
+	<permission android:name="android.permission.WRITE_MEDIA_STORAGE" />
    <!-- end add by anshe 2015.5.12  -->
    <!-- modify by ling: modify logo -->
     <application

@@ -3,12 +3,19 @@
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collection;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.provider.PrivacyProvider;
 import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.GroupChatInvitation;
 import org.jivesoftware.smackx.PrivateDataManager;
 import org.jivesoftware.smackx.bytestreams.socks5.provider.BytestreamsProvider;
@@ -32,6 +39,14 @@ import org.jivesoftware.smackx.provider.StreamInitiationProvider;
 import org.jivesoftware.smackx.provider.VCardProvider;
 import org.jivesoftware.smackx.provider.XHTMLExtensionProvider;
 import org.jivesoftware.smackx.search.UserSearch;
+
+import com.sys.android.util.OpenfileFunction;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Environment;
+import android.util.Log;
 /**
  * xmpp配置页面
  * @author anshe
@@ -45,8 +60,9 @@ public class XmppConnection {
 	public static  String SERVER_HOST = "172.18.19.7";//你openfire服务器所在的ip
 	public static  String SERVER_NAME = "seta";//设置openfire时的服务器名
     private static XMPPConnection connection = null;
+	private static SharedPreferences rememberPassword;
     
-	private static void openConnection() {
+	public static XMPPConnection openConnection() {
 		try {
 			if (null == connection || !connection.isAuthenticated()) {
 				XMPPConnection.DEBUG_ENABLED = true;//开启DEBUG模式
@@ -60,13 +76,16 @@ public class XmppConnection {
 				config.setSendPresence(true);
 				config.setReconnectionAllowed(true);
 				config.setSecurityMode(ConnectionConfiguration.SecurityMode.enabled);       
-				config.setSASLAuthenticationEnabled(false);     
-				File file =new File("/mnt/sdcard/security/");
+				config.setSASLAuthenticationEnabled(false);
+				OpenfileFunction.makeFilePath(Environment.getExternalStorageDirectory().getPath()+"/seta/security/", "cacerts.bks");
+				//delete by anshe 2015.5.26
+				/*File file =new File(Environment.getExternalStorageDirectory().getPath()+"/seta/security/");
 				if(!file.exists()){
 					file.mkdirs();
-				}
-				config.setTruststorePath("/mnt/sdcard/security/cacerts.bks");       
-				config.setTruststorePassword("123456");       
+				}*/
+				//delete by anshe 2015.5.26
+				config.setTruststorePath(Environment.getExternalStorageDirectory().getPath()+"/seta/security/cacerts.bks");       
+				//config.setTruststorePassword("123456");       
 				config.setTruststoreType("bks"); 
 				config.setSASLAuthenticationEnabled(true);
 				 
@@ -77,29 +96,115 @@ public class XmppConnection {
 			}
 		} catch (XMPPException xe) {
 			xe.printStackTrace();
+			return null;
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
+		return connection;
 	}
 
 	/**
 	 * 创建连接
+	 * @param activity TODO
 	 */	
-	public static XMPPConnection getConnection() {
-		if (connection == null) {
-			openConnection();
+	public static XMPPConnection getConnection(Activity activity) {
+		if (connection == null&&activity!=null) {
+			connection=openConnection();
+			rememberPassword = activity.getSharedPreferences("userInfo", Context.MODE_WORLD_READABLE);
+			String accounts=rememberPassword.getString("USER_NAME", "admin");
+			String password=rememberPassword.getString("PASSWORD", "admin");
+			if (accounts != null && password != null){
+				try {
+					connection.login(accounts, password);
+				} catch (XMPPException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return null;
+				}
+				// 连接服务器成功，更改在线状态
+				Presence presence = new Presence(Presence.Type.available);
+				XmppConnection.getConnection(activity).sendPacket(presence);
+			}
+		}else{
+			if(connection == null&&activity==null){
+				connection=openConnection();
+			}
 		}
 		return connection;
 	}
-	
+	/** 
+     * 更改用户状态 
+     */  
+    public void setPresence(Activity activity,int code) {  
+        XMPPConnection con = getConnection(activity);  
+        if (con == null)  
+            return;  
+        Presence presence;  
+        switch (code) {  
+        case 0:  
+            presence = new Presence(Presence.Type.available);  
+            con.sendPacket(presence);  
+            Log.v("state", "设置在线");  
+            break;  
+        case 1:  
+            presence = new Presence(Presence.Type.available);  
+            presence.setMode(Presence.Mode.chat);  
+            con.sendPacket(presence);  
+            Log.v("state", "设置Q我吧");  
+            break;  
+        case 2:  
+            presence = new Presence(Presence.Type.available);  
+            presence.setMode(Presence.Mode.dnd);  
+            con.sendPacket(presence);  
+            Log.v("state", "设置忙碌");  
+            break;  
+        case 3:  
+            presence = new Presence(Presence.Type.available);  
+            presence.setMode(Presence.Mode.away);  
+            con.sendPacket(presence);  
+            Log.v("state", "设置离开");  
+            break;  
+        case 4:  
+            Roster roster = con.getRoster();  
+            Collection<RosterEntry> entries = roster.getEntries();  
+            for (RosterEntry entry : entries) {  
+                presence = new Presence(Presence.Type.unavailable);  
+                presence.setPacketID(Packet.ID_NOT_AVAILABLE);  
+                presence.setFrom(con.getUser());  
+                presence.setTo(entry.getUser());  
+                con.sendPacket(presence);  
+                Log.v("state", presence.toXML());  
+            }  
+            // 向同一用户的其他客户端发送隐身状态  
+            presence = new Presence(Presence.Type.unavailable);  
+            presence.setPacketID(Packet.ID_NOT_AVAILABLE);  
+            presence.setFrom(con.getUser());  
+            presence.setTo(StringUtils.parseBareAddress(con.getUser()));  
+            con.sendPacket(presence);  
+            Log.v("state", "设置隐身");  
+            break;  
+        case 5:  
+            presence = new Presence(Presence.Type.unavailable);  
+            con.sendPacket(presence);  
+            Log.v("state", "设置离线");  
+            break;  
+        default:  
+            break;  
+        }  
+    }  
+  
 	/**
 	 * 关闭连接
 	 */	
 	public static void closeConnection() {
-		connection.disconnect();
+		if(connection!=null){
+			connection.disconnect();
+		}
 		connection = null;
 	}
+	
 	/**
 	 * xmpp配置
 	 */
@@ -143,6 +248,7 @@ public class XmppConnection {
 		// Version
 		try {
 			pm.addIQProvider("query", "jabber:iq:version",Class.forName("org.jivesoftware.smackx.packet.Version"));
+			
 		} catch (ClassNotFoundException e) {
 			// Not sure what's happening here.
 		}
@@ -170,4 +276,67 @@ public class XmppConnection {
 		pm.addExtensionProvider("bad-sessionid","http://jabber.org/protocol/commands",new AdHocCommandDataProvider.BadSessionIDError());
 		pm.addExtensionProvider("session-expired","http://jabber.org/protocol/commands",new AdHocCommandDataProvider.SessionExpiredError());
 	}
-}
+
+    //start add by anshe 2015.5.23
+    /*
+     * 用于监控断线
+     * 15秒检测一次
+     * */
+    public static class  reConnnectionListener extends Thread {
+		
+            public void run() {
+                while(XmppConnection.getConnection(null).isConnected()){
+                    try {
+                        sleep(15*1000);
+                 
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            };	        
+    }
+    //end add by anshe 2015.5.23
+
+	public static ConnectionListener connectionListener = new ConnectionListener() {  
+		  
+        @Override  
+        public void reconnectionSuccessful() {  
+            Log.i("connection", "来自连接监听,conn重连成功");  
+        }  
+  
+        @Override  
+        public void reconnectionFailed(Exception arg0) {  
+            Log.i("connection", "来自连接监听,conn失败："+arg0.getMessage());  
+        }  
+  
+        @Override  
+        public void reconnectingIn(int arg0) {  
+            Log.i("connection", "来自连接监听,conn重连中..."+arg0);  
+        }  
+  
+        @Override  
+        public void connectionClosedOnError(Exception arg0) { 
+        	 //这里就是网络不正常或者被挤掉断线激发的事件
+            if(arg0.getMessage().contains("conflict")){ //被挤掉线
+/*              log.e("来自连接监听,conn非正常关闭");
+                log.e("非正常关闭异常:"+arg0.getMessage());
+                log.e(con.isConnected());*/
+            //关闭连接，由于是被人挤下线，可能是用户自己，所以关闭连接，让用户重新登录是一个比较好的选择                           
+            XmppConnection.closeConnection();
+            //接下来你可以通过发送一个广播，提示用户被挤下线，重连很简单，就是重新登录
+            }else if(arg0.getMessage().contains("Connection timed out")){//连接超时
+                // 不做任何操作，会实现自动重连
+            }
+            Log.i("connection", "connectionClosedOnError");  
+              
+        }
+        
+		@Override
+		public void connectionClosed() {
+			// TODO Auto-generated method stub
+            Log.e("connection","来自连接监听,conn正常关闭");
+			
+		} 
+	};
+	}

@@ -1,20 +1,29 @@
 package com.seta.android.activity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+
+import com.seta.android.activity.adapter.UserListAdapter;
 import com.seta.android.fragment.accountManagerFragment;
 import com.seta.android.fragment.filemanagerFragment;
 import com.seta.android.fragment.mainFragment;
 import com.seta.android.fragment.privateFragment;
 import com.seta.android.recordchat.R;
 import com.seta.android.xmppmanager.XmppConnection;
+import com.sys.android.util.MutilUserChatUtil;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -35,11 +44,25 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     private ArrayAdapter<String> adapter;
     private ActionBarDrawerToggle mDrawerToggle;
     private String mTitle;
+
+	private XMPPConnection conn = null;
+	private MultiUserChat pubicRoomMuc = null;
+	final String PUBLICROOM = "publicroom";
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);	
 		setContentView(R.layout.activity_main);
+
+		// 把登录后的用户都加入到公共聊天室
+		String userName = this.getIntent().getStringExtra("pUSERID");
+		conn = XmppConnection.getConnection(this);
+		// System.out.println("当前用户："+userName);
+		// 创建公共聊天室，并把所有登录用户加入其中
+		if (this.pubicRoomMuc == null)
+			this.pubicRoomMuc = JoinCommonGroup(conn, PUBLICROOM, userName);
+		
 	    mTitle=(String)getTitle();
 	    mDrawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout);
 	    leftDrawerList=(ListView)findViewById(R.id.left_drawer);
@@ -51,6 +74,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 	    adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,menuList);
 	    leftDrawerList.setAdapter(adapter);
 	    leftDrawerList.setOnItemClickListener(this);
+
 	    mDrawerToggle=new ActionBarDrawerToggle(this,mDrawerLayout,R.drawable.database,R.string.drawer_open,R.string.drawer_close)
 	    {
 	        @Override
@@ -67,6 +91,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 		        invalidateOptionsMenu();
 	        }
 	    };
+		XmppConnection.getConnection(this).addConnectionListener(
+				XmppConnection.connectionListener);
 	    mDrawerLayout.setDrawerListener(mDrawerToggle);
 	    //开启ActionBar上APP的图标功能
 	    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -77,39 +103,93 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
              fragmentManager.beginTransaction().replace(R.id.content_frame,mFragment).commit();
              mDrawerLayout.closeDrawer(leftDrawerList);
 	    }
-	   
+		// 显示右侧的在线用户列表
+		right_drawer();
 	}
-	 @Override
-	    public boolean onPrepareOptionsMenu(Menu menu) {
-	        boolean isDrawerOpen=mDrawerLayout.isDrawerOpen(leftDrawerList);
-	        menu.findItem(R.id.action_settings).setVisible(!isDrawerOpen);
-	        return super.onPrepareOptionsMenu(menu);
-	    }
-	    @Override
-	    public boolean onCreateOptionsMenu(Menu menu) {
-	        // Inflate the menu; this adds items to the action bar if it is present.
-	        getMenuInflater().inflate(R.menu.menu_main, menu);
-	        return true;
-	    }
-	    @Override
-	    public boolean onOptionsItemSelected(MenuItem item) {
-	        //将ActionBar上的图标与Drawer结合起来
-	        // Handle action bar item clicks here. The action bar will
-	        // automatically handle clicks on the Home/Up button, so long
-	        // as you specify a parent activity in AndroidManifest.xml.
-	        if(mDrawerToggle.onOptionsItemSelected(item))
-	        {
-	            return true;
-	        }
-	        int id = item.getItemId();
+	/**
+	 * 创建公共聊天分组，所有用户登录进去都加入这个分组
+	 * 
+	 * @author WYG
+	 * @param conn
+	 *            连接
+	 * @param groupName
+	 *            = "commonRoom"
+	 * @param userName
+	 *            用户昵称
+	 * 
+	 */
+	public MultiUserChat JoinCommonGroup(XMPPConnection conn, String groupName, String userName) {
+		System.out.println("当前用户：" + conn.getUser()+"未知用户："+userName+"groupName="+groupName);
+		MutilUserChatUtil mucUtil = new MutilUserChatUtil(conn);
+		MultiUserChat muc = null;
+		muc = mucUtil.joinMultiUserChat(userName, groupName, "");
 
-	        //noinspection SimplifiableIfStatement
-	        if (id == R.id.action_settings) {
-	            return true;
-	        }
+		if (muc == null) {
+			muc=mucUtil.createRoom("admin", groupName, "");
+			System.out.println("房间不存在！创建情况："+muc);
+		}
 
-	        return super.onOptionsItemSelected(item);
-	    }
+		System.out.println("muc:" + muc);
+
+		return muc;
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		boolean isDrawerOpen = mDrawerLayout.isDrawerOpen(leftDrawerList);
+		menu.findItem(R.id.action_settings).setVisible(!isDrawerOpen);
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu_main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (mDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
+		}
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction fx = fragmentManager.beginTransaction();
+		Fragment mFragment = null;
+
+		int id = item.getItemId();
+		switch (id) {
+		case R.id.action_settings:
+			break;
+		case R.id.accountManagerFragment:
+			mFragment = new accountManagerFragment();
+			fx.replace(R.id.content_frame, mFragment);
+			fx.addToBackStack(null);
+			fx.commit();
+			break;
+		case R.id.GroupSquareListFragment:
+			mFragment = new mainFragment();
+			fx.replace(R.id.content_frame, mFragment);
+			fx.addToBackStack(null); // 将此fragment加入到回退栈
+			fx.commit();
+			break;
+		case R.id.filemanagerFragment:
+			mFragment = new filemanagerFragment();
+			fx.replace(R.id.content_frame, mFragment);
+			fx.addToBackStack(null);
+			fx.commit();
+			break;
+		case R.id.IatDemoFragment:
+			mFragment = new privateFragment();
+			fx.replace(R.id.content_frame, mFragment);
+			fx.addToBackStack(null);
+			fx.commit();
+			break;
+		default:
+			break;
+		}
+		return true;
+	}
 
 	    @Override
 	    public void onPostCreate(Bundle savedInstanceState) {
@@ -185,7 +265,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 	                // 点击“确认”后的操作 
 		    			XmppConnection.closeConnection();
 	                    MainActivity.this.finish(); 
-	         
+	                    System.exit(0);
 	                } 
 	            }) 
 	            .setNegativeButton("返回", new DialogInterface.OnClickListener() { 
@@ -197,4 +277,45 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 	            }).show(); 
        }
 	    //end add by anshe 2015.5.17
+	    
+	    //start add by anshe 2015.5.23
+	    /*
+	     * 用于监控断线
+	     * 15秒检测一次
+	     * */
+	    public class  reConnnectionListener extends Thread {
+			
+	            public void run() {
+	                while(XmppConnection.getConnection(null).isConnected()){
+	                    try {
+	                        sleep(15*1000);
+	                 
+	                    } catch (InterruptedException e) {
+	                        // TODO Auto-generated catch block
+	                        e.printStackTrace();
+	                    }
+	                }
+	            };	        
+	    }
+	    //end add by anshe 2015.5.23
+	    
+	    
+		public void right_drawer() {
+			// 获取服务器连接
+			if (conn == null) {
+				conn = XmppConnection.getConnection(this);
+			}
+			if (null == this.pubicRoomMuc) {
+				return;
+			}
+			List<String> userNameList = MutilUserChatUtil.findMulitUser(this.pubicRoomMuc);
+			Collections.sort(userNameList);
+			for(int i=0;i<userNameList.size();i++)
+				System.out.println(userNameList.get(i));
+
+			rightDrawerList = (ListView) findViewById(R.id.right_drawer);			
+			UserListAdapter adapter = new UserListAdapter(this, userNameList);
+			rightDrawerList.setAdapter(adapter);
+			adapter.notifyDataSetChanged();
+		}
 }

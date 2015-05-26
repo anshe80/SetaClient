@@ -61,7 +61,7 @@ public class CreatRoomActivity extends Activity{
 		super.onCreate(savedInstanceState);
 		//requestWindowFeature(Window.FEATURE_NO_TITLE);// 去掉标题栏
 		setContentView(R.layout.create_room);
-		this.pUSERID = XmppConnection.getConnection().getUser();
+		this.pUSERID = XmppConnection.getConnection(this).getUser();
 		list = (ListView) findViewById(R.id.testlistshow);
 		create_button = (Button) findViewById(R.id.create_button);
 		create_button.setOnClickListener(new OnClickListener() {
@@ -82,28 +82,30 @@ public class CreatRoomActivity extends Activity{
 	 * date 2015.5.19
 	 * 
 	 * */
-	public void createRoom() 
-	{
-		String search_text = ((EditText) findViewById(R.id.search_text)).getText().toString();
-		
+	public void createRoom() {
+		String search_text = null;
+		queryResult = "";
+		search_text = ((EditText) findViewById(R.id.search_text)).getText().toString();
+
 		if (search_text.equals("")) {
 			Toast.makeText(CreatRoomActivity.this, getString(R.string.info_null), Toast.LENGTH_SHORT).show();
 		} else {
-			final XMPPConnection connection = XmppConnection.getConnection();
+			final XMPPConnection connection = XmppConnection.getConnection(this);
 			final MutilUserChatUtil muc=new MutilUserChatUtil(connection);
 			try {
-				roomList=muc.getConferenceRoom();
-				ServerRooms serverRooms=new ServerRooms();
-				for(int i=0;i<roomList.size();i++)
-				{
-					serverRooms=roomList.get(i);
-					if(serverRooms.getName().equals(search_text))
-					{
-						queryResult=serverRooms.getName();
+				roomList = muc.getConferenceRoom();
+				ServerRooms serverRooms = new ServerRooms();
+				for (int i = 0; i < roomList.size(); i++) {
+					serverRooms = roomList.get(i);
+					if (serverRooms.getName().equals(search_text.trim())) {
+						queryResult = serverRooms.getName();
 						break;
 					}
-					
-				}if(!queryResult.equals("")){
+
+				}
+				if (!queryResult.equals("")) {
+					Toast.makeText(CreatRoomActivity.this, "房间已经存在，可以加入或者创建新房间", Toast.LENGTH_SHORT)
+							.show();
 					// 生成动态数组，加入数据
 					ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
 					    HashMap<String, Object> map = new HashMap<String, Object>();	     
@@ -120,61 +122,59 @@ public class CreatRoomActivity extends Activity{
 					list.setAdapter(listItemAdapter);
 					// 添加短点击事件
 					list.setOnItemClickListener(new OnItemClickListener() {
-						public void onItemClick(AdapterView<?> parent, View view,
-								int position, long id) {
-							HashMap<String, String> map = (HashMap<String, String>) list.getItemAtPosition(position);
+						public void onItemClick(AdapterView<?> parent, View view, int position,
+								long id) {
+							HashMap<String, String> map = (HashMap<String, String>) list
+									.getItemAtPosition(position);
 							final String groupName = map.get("groupName");
-							AlertDialog.Builder dialog=new AlertDialog.Builder(CreatRoomActivity.this);
+							AlertDialog.Builder dialog = new AlertDialog.Builder(
+									CreatRoomActivity.this);
 							dialog.setTitle("加入群组")
-							      .setIcon(R.drawable.icon)
-							      .setMessage("该群组已存在，你是否加入【"+groupName+"】")
-							      .setPositiveButton("确定", new DialogInterface.OnClickListener() {
-						                     @Override
-						                     public void onClick(DialogInterface dialog, int which) {		 
-						                         // TODO Auto-generated method stub	
-						                    	 String GroupName = groupName;						                    	 
-						                    	 muc.joinMultiUserChat(pUSERID, GroupName, "");
-						                    	 Intent intent = new Intent(CreatRoomActivity.this, ChatActivity.class);
-						     					 intent.putExtra("FRIENDID", GroupName);
-						     					 intent.putExtra("user", pUSERID);
-						     					 intent.putExtra("USERID",pUSERID);
-						     					 startActivity(intent);
-						     					 
-						                     }
-						                   })
-							       .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-							                 public void onClick(DialogInterface dialog, int which) {			 
-							                     // TODO Auto-generated method stub
-							                     dialog.cancel();//取消弹出框
-							                 }
-							               }).create().show();
-						       }
-					     });	
-				  }else{
-					  //创建新群组
-					  
-					  MultiUserChat mmuc=muc.createRoom(pUSERID, search_text, "");
-					  Roster roster = XmppConnection.getConnection().getRoster();
-                 	  String groupName = search_text;
-					  XmppService.addGroup(roster, groupName);
-					  Toast.makeText(CreatRoomActivity.this,"成功创建："+groupName, Toast.LENGTH_SHORT).show();
-					  XmppService.addUserToGroup(XmppConnection.getConnection().getUser(), groupName, connection);
-					  muc.joinMultiUserChat(pUSERID, groupName, "");
-                 	 Intent intent = new Intent(CreatRoomActivity.this, ChatActivity.class);
-  					 intent.putExtra("FRIENDID", groupName);
-  					 intent.putExtra("user", pUSERID);
-  					 intent.putExtra("USERID",pUSERID);
-  					 startActivity(intent);
-					  
-					  
-				  }
-			}catch (Exception e) {
-					// TODO: handle exception
-					  e.printStackTrace();
+									.setIcon(R.drawable.icon)
+									.setMessage("该群组已存在，你是否加入【" + groupName + "】")
+									.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											// TODO Auto-generated method stub
+											String GroupName = groupName;
+											//muc.joinMultiUserChat(pUSERID, GroupName, "");
+											Intent intent = new Intent(CreatRoomActivity.this,
+													ChatActivity.class);
+											intent.putExtra("FRIENDID", GroupName);
+											intent.putExtra("user", pUSERID);
+											intent.putExtra("USERID", pUSERID);
+											startActivity(intent);
+
+										}
+									})
+									.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+										public void onClick(DialogInterface dialog, int which) {
+											// TODO Auto-generated method stub
+											dialog.cancel();// 取消弹出框
+										}
+									}).create().show();
+						}
+					});
+				} else {
+					list.setAdapter(null);			 
+					String groupName = search_text;
+					// 创建新群组
+					muc.createRoom(pUSERID, groupName, "").leave();
+					Toast.makeText(CreatRoomActivity.this, "成功创建：" + groupName, Toast.LENGTH_SHORT)
+					.show();
+					
+					//只要跳转到ChatActivity都会把用户重新加入MUC
+					Intent intent = new Intent(CreatRoomActivity.this, ChatActivity.class); 
+					intent.putExtra("FRIENDID", groupName);
+					intent.putExtra("user", pUSERID);
+					intent.putExtra("USERID", pUSERID);
+					startActivity(intent);
 				}
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
 			}
-				
-		
+		}
 	}
 	//add by ling 2015.5.21
 	@Override

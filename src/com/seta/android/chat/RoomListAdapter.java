@@ -5,6 +5,7 @@ import java.util.List;
 import com.seta.android.entity.ServerRooms;
 import com.seta.android.recordchat.R;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +64,7 @@ public class RoomListAdapter extends BaseAdapter{
 		String groupName = mServerRoomsList.get(position).getName();
 		String groupEntryCount = "(在聊人数：" + mServerRoomsList.get(position).getOccupants() + ")";
 		groupNameTv.setText(groupName + groupEntryCount);
+		
 		return convertView;
 	}
 

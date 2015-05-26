@@ -29,6 +29,7 @@ import android.widget.Toast;
 public class MutilUserChatUtil extends BaseAdapter{
 	
 	private static XMPPConnection mConnection = null;
+	private final String publicroom="publicroom";
 	
 	public MutilUserChatUtil(XMPPConnection connection) {
 		// TODO Auto-generated constructor stub
@@ -46,28 +47,31 @@ public class MutilUserChatUtil extends BaseAdapter{
 	   */
 	  public  List<ServerRooms> getConferenceRoom() throws XMPPException {
 	    List<ServerRooms> list = new ArrayList<ServerRooms>();
-	    new ServiceDiscoveryManager(mConnection);
-	    if (!MultiUserChat.getHostedRooms(mConnection,mConnection.getServiceName()).isEmpty()) {
+	    if(mConnection!=null){
+			new ServiceDiscoveryManager(mConnection);
+			if (!MultiUserChat.getHostedRooms(mConnection,
+					mConnection.getServiceName()).isEmpty()) {
 
-	      for (HostedRoom k : MultiUserChat.getHostedRooms(mConnection,mConnection.getServiceName())) {
+				for (HostedRoom k : MultiUserChat.getHostedRooms(mConnection,
+						mConnection.getServiceName())) {
 
-	        for (HostedRoom j : MultiUserChat.getHostedRooms(mConnection,
-	            k.getJid())) {
-	          RoomInfo info2 = MultiUserChat.getRoomInfo(mConnection,
-	              j.getJid());
-	          if (j.getJid().indexOf("@") > 0) {
-
-	            ServerRooms friendrooms = new ServerRooms();
-	            friendrooms.setName(j.getName());//聊天室的名称
-	            friendrooms.setJid(j.getJid());//聊天室JID
-	            friendrooms.setOccupants(info2.getOccupantsCount());//聊天室中占有者数量
-	            friendrooms.setDescription(info2.getDescription());//聊天室的描述
-	            friendrooms.setSubject(info2.getSubject());//聊天室的主题
-	            list.add(friendrooms);
-	          }
-	        }
-	      }
-	    }
+					for (HostedRoom j : MultiUserChat.getHostedRooms(
+							mConnection, k.getJid())) {
+						RoomInfo info2 = MultiUserChat.getRoomInfo(mConnection,
+								j.getJid());
+						if (j.getJid().indexOf("@") > 0&&!j.getName().equalsIgnoreCase(publicroom)) {
+							ServerRooms friendrooms = new ServerRooms();
+							friendrooms.setName(j.getName());// 聊天室的名称
+							friendrooms.setJid(j.getJid());// 聊天室JID
+							friendrooms.setOccupants(info2.getOccupantsCount());// 聊天室中占有者数量
+							friendrooms.setDescription(info2.getDescription());// 聊天室的描述
+							friendrooms.setSubject(info2.getSubject());// 聊天室的主题
+							list.add(friendrooms);
+						}
+					}
+				}
+			}
+		}
 	    return list;
 	  }
 	/**
@@ -139,7 +143,7 @@ public class MutilUserChatUtil extends BaseAdapter{
 	 * 加入会议室
 	 * 
 	 * @param user
-	 *            昵称
+	 *            昵称 默认不包含@
 	 * @param password
 	 *            会议室密码
 	 * @param roomsName
@@ -147,7 +151,7 @@ public class MutilUserChatUtil extends BaseAdapter{
 	 */
 	public MultiUserChat joinMultiUserChat(String user, String roomsName,
 			String password) {
-		if (getMConnection() == null)
+		if (getMConnection() == null||user==null||roomsName==null)
 			return null;
 		try {
 			// 使用XMPPConnection创建一个MultiUserChat窗口
@@ -161,13 +165,16 @@ public class MutilUserChatUtil extends BaseAdapter{
 			calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 30);
 			history.setSince(calendar.getTime());
 			// 用户加入聊天室
+			if(user.contains("@")){
+				user=user.split("@")[0];
+			}
 			muc.join(user, password, history,
 					SmackConfiguration.getPacketReplyTimeout());			
-			Log.i("MultiUserChat", "用户："+user+"成功加入会议室【"+roomsName+"】........");
+			Log.e("MultiUserChat", "用户："+user+"成功加入会议室【"+roomsName+"】........");
 			return muc;
 		} catch (XMPPException e) {
 			e.printStackTrace();
-			Log.i("MultiUserChat", "用户："+user+"成功加入会议室【"+roomsName+"】........");
+			Log.e("MultiUserChat", "用户："+user+"加入会议室【"+roomsName+"】失败........");
 			return null;
 		}
 	}

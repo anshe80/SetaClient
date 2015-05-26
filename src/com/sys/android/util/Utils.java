@@ -18,7 +18,10 @@ public class Utils {
 	 * 根据jid获取用户名
 	 */
 	public static String getJidToUsername(String jid){
-		return jid.split("@")[0];
+		if(jid!=null)
+			return jid.split("@")[0];
+		else
+			return null;
 	}
 	
 	public static String getUserNameToJid(String username){

@@ -138,6 +138,7 @@ public class FindkeyActivity extends ActionBarActivity implements OnClickListene
 		}
 	}
 	
+	//start modify by anshe 2015.5.23
 	private void find_key() {
 		// TODO Auto-generated method stub
 		String code_Edit=mverifycode_input_prompt.getText().toString();		
@@ -146,7 +147,7 @@ public class FindkeyActivity extends ActionBarActivity implements OnClickListene
 			mverifycode_input_prompt.setFocusable(true);
 		}else{
 			try {
-				XmppConnection.getConnection().getAccountManager().changePassword(password);
+				XmppConnection.getConnection(this).getAccountManager().changePassword(password);
 			} catch (XMPPException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -156,6 +157,7 @@ public class FindkeyActivity extends ActionBarActivity implements OnClickListene
 		
 		
 	}
+	
 	private void get_code() {
 		// TODO Auto-generated method stub
 
@@ -165,31 +167,8 @@ public class FindkeyActivity extends ActionBarActivity implements OnClickListene
 			time = new TimeCount(60000, 1000);
 			mget_verifycode.setOnClickListener(new OnClickListener() {
 				@Override
-				public void onClick(View v) {
-					
-					try {
-						String email_conent = getString(R.string.email_verycode)
-								+ code + getString(R.string.email_warning);
-						MailSenderInfo mailInfo = EmailFormat
-								.getMailSender(getString(R.string.email_account));
-						mailInfo.setUserName(getString(R.string.email_account)); // 你的邮箱地址
-						mailInfo.setPassword(getString(R.string.email_password));// 您的邮箱密码
-						mailInfo.setFromAddress(getString(R.string.email_account));
-						mailInfo.setToAddress(mfind_email.getText().toString());
-						mailInfo.setSubject(getString(R.string.email_subject));
-						mailInfo.setContent(email_conent);
-
-						// 这个类主要来发送邮件
-						SimpleMailSender sms = new SimpleMailSender();
-						sms.sendTextMail(mailInfo);// 发送文体格式
-						// sms.sendHtmlMail(mailInfo);//发送html格式
-						Toast.makeText(activity,
-								getString(R.string.email_send_success),
-								Toast.LENGTH_SHORT).show();
-
-					} catch (Exception e) {
-						Log.e("SendMail", e.getMessage(), e);
-					}
+				public void onClick(View v) {					
+					(new sendEmail()).run();
 					time.start();
 				}
 			});
@@ -208,7 +187,7 @@ public class FindkeyActivity extends ActionBarActivity implements OnClickListene
  
         @Override
         public void onTick(long millisUntilFinished) {
-            mget_verifycode.setBackgroundColor(Color.parseColor("#B6B6D8"));
+            mget_verifycode.setBackgroundColor(Color.parseColor("#4EB84A"));
             mget_verifycode.setClickable(false);
             mget_verifycode.setText(millisUntilFinished / 1000 +getString(R.string.qr_time_reget_verify_code));
         }
@@ -218,7 +197,7 @@ public class FindkeyActivity extends ActionBarActivity implements OnClickListene
     		mrepeat_get=getString(R.string.qr_reget_verify_code);
             mget_verifycode.setText(mrepeat_get);
             mget_verifycode.setClickable(true);
-            mget_verifycode.setBackgroundColor(Color.parseColor("#4EB84A"));
+            mget_verifycode.setBackgroundColor(Color.parseColor("#B6B6D8"));
  
         }
     }		
@@ -229,5 +208,35 @@ public class FindkeyActivity extends ActionBarActivity implements OnClickListene
 		intent.setClass(FindkeyActivity.this, LoginActivity.class);
 		startActivity(intent);
 	}
+	
+	public class sendEmail extends Thread {
 
+		public void run() {
+			try {
+				String email_conent = getString(R.string.email_verycode) + code
+						+ getString(R.string.email_warning);
+				MailSenderInfo mailInfo = EmailFormat
+						.getMailSender(getString(R.string.email_account));
+				mailInfo.setUserName(getString(R.string.email_account)); // 你的邮箱地址
+				mailInfo.setPassword(getString(R.string.email_password));// 您的邮箱密码
+				mailInfo.setFromAddress(getString(R.string.email_account));
+				mailInfo.setToAddress(mfind_email.getText().toString());
+				mailInfo.setSubject(getString(R.string.email_subject));
+				mailInfo.setContent(email_conent);
+
+				// 这个类主要来发送邮件
+				SimpleMailSender sms = new SimpleMailSender();
+				sms.sendTextMail(mailInfo);// 发送文体格式
+				// sms.sendHtmlMail(mailInfo);//发送html格式
+				Toast.makeText(activity,
+						getString(R.string.email_send_success),
+						Toast.LENGTH_SHORT).show();
+
+			} catch (Exception e) {
+				Log.e("SendMail", e.getMessage(), e);
+			}
+		}
+
+	}
+	//end modify by anshe 2015.5.23
 }

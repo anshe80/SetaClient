@@ -59,13 +59,18 @@
     <string name="stop_record">停止录音</string>
     <string name="recording">录音中</string>
     <string name="seta_info">Seta消息</string>
-    <string name="record_sending">音频正在发送，请稍后重试！</string>
+    <string name="record_sending">音频正在处理，请稍后重试！</string>
+    <string name="record_receiving_lose">音频文件丢失！</string>
     <string name="record_send_success">音频发送成功！</string>
+    <string name="record_receive_success">音频接收成功！</string>
+    <string name="record_info">”语音消息</string>
     <!-- end add by anshe 2015.5.18 -->
     
     <!-- start add by anshe 2015.5.22 -->
     <string name="file_delete_success">文件清除成功</string>
     <string name="record_delete_success">录音文件清除成功</string>
     <string name="file_not_exits">文件不存在</string>
+    <string name="file_create_error">服务异常，无法以文件的形式发送邮件！</string>
+    <string name="service_not_open">服务器异常，请稍后重试！</string>
     <!-- end add by anshe 2015.5.22 -->
 </resources>

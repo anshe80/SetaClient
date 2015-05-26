@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,16 +26,22 @@ import com.seta.android.activity.CreatRoomActivity;
 import com.seta.android.email.SendEmailActivity;
 import com.seta.android.entity.Msg;
 import com.seta.android.xmppmanager.XmppConnection;
+import com.sys.android.util.OpenfileFunction;
 import com.sys.android.util.Utils;
 import com.seta.android.recordchat.R;
 
 public class ChatListAdapter extends BaseAdapter {
-	private Context context;
+	private Activity context;
 	private LayoutInflater inflater;
 	private List<Msg> listMsg;
 	private SoundPlayer mSoundPlayer;
+	public static String FILE_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
+			+ "/seta/file/";
+	public static String RECORD_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
+			+ "/seta/record/";
+	String filePath=null;
 
-	public ChatListAdapter(Context formClient, List<Msg> list) {
+	public ChatListAdapter(Activity formClient, List<Msg> list) {
 		this.context = formClient;
 		listMsg = list;
 	}
@@ -57,9 +65,9 @@ public class ChatListAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		this.inflater = (LayoutInflater) this.context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		String fromUser=Utils.getJidToUsername(listMsg.get(position).getFrom());
-        String toUser=Utils.getJidToUsername(listMsg.get(position).getToUser());
-        String nowUser=Utils.getJidToUsername(XmppConnection.getConnection().getUser());
+		final String fromUser=Utils.getJidToUsername(listMsg.get(position).getFrom());
+        final String toUser=Utils.getJidToUsername(listMsg.get(position).getToUser());
+        final String nowUser=Utils.getJidToUsername(XmppConnection.getConnection(this.context).getUser());
         
         if (!fromUser.equals(toUser)&&!nowUser.equals(fromUser)){
 			convertView = this.inflater.inflate(R.layout.formclient_chat_in,
@@ -75,41 +83,96 @@ public class ChatListAdapter extends BaseAdapter {
 				.findViewById(R.id.formclient_row_date);
 		TextView msgView = (TextView) convertView
 				.findViewById(R.id.formclient_row_msg);
-		
-		fromUserView.setText(listMsg.get(position).getFrom().split("@")[0]);
-		dateView.setText(listMsg.get(position).getDate());
-		msgView.setText(listMsg.get(position).getMsg());
+		final Msg msg = listMsg.get(position);
+		fromUserView.setText(msg.getFrom().split("@")[0]);
+		dateView.setText(msg.getDate());
+		msgView.setText(msg.getMsg());		
 		
 		if (!Msg.TYPE[2].equals(listMsg.get(position).getType())) {// normal 普通msg
-			Log.e("显示的消息：","第"+position+"条  now="+nowUser+" from="+fromUser + "   toUser=" + toUser);
-			final Msg msg = listMsg.get(position);
 			TextView msgStatus = (TextView) convertView
 					.findViewById(R.id.msg_status);
 			msgStatus.setText(listMsg.get(position).getReceive() + "");
-			convertView.setOnClickListener(new OnClickListener() {// 点击查看
-						@Override
-						public void onClick(View v) {
-							mSoundPlayer=new SoundPlayer();
-							File file=new File(msg.getFilePath());
-							if(file.exists()){
-								mSoundPlayer.startPlaying(msg.getFilePath());
-							}else{
-								Toast.makeText(context, context.getString(R.string.record_sending), Toast.LENGTH_SHORT).show();
+		}else {
+			TextView msgStatus = (TextView) convertView
+					.findViewById(R.id.msg_status);
+			msgStatus.setVisibility(View.GONE);// 影藏
+		}
+		convertView.setOnClickListener(new OnClickListener() {// 点击查看
+					@Override
+					public void onClick(View v) {
+						mSoundPlayer = new SoundPlayer();
+						File file = new File(RECORD_ROOT_PATH
+								+ msg.getFilePath());
+						Log.e("打开的音频路径：", RECORD_ROOT_PATH + msg.getFilePath());
+						if (file.exists()) {
+							mSoundPlayer.stopPlaying();
+							mSoundPlayer.startPlaying(RECORD_ROOT_PATH
+									+ msg.getFilePath());
+						} else {
+
+							if (!fromUser.equals(toUser)
+									&& !nowUser.equals(fromUser)
+									&& msg.getMsg().contains(context.getString(R.string.record_info))) {
+								Toast.makeText(
+										context,
+										context.getString(R.string.record_receiving_lose),
+										Toast.LENGTH_SHORT).show();
+							} else {
+								if(msg.getMsg().contains(context.getString(R.string.record_info))){
+									Toast.makeText(
+											context,
+											context.getString(R.string.record_sending),
+											Toast.LENGTH_SHORT).show();
+								}
 							}
 						}
-					});
-			convertView.setOnLongClickListener(new OnLongClickListener(){
+					}
+				});
+		convertView.setOnLongClickListener(new OnLongClickListener() {
 
-				@Override
-				public boolean onLongClick(View arg0) {
-					// TODO Auto-generated method stub
-					File file = new File(msg.getFilePath());
-					if (file.exists()) {
+			@Override
+			public boolean onLongClick(View arg0) {
+				// TODO Auto-generated method stub
+				File file = new File(RECORD_ROOT_PATH + msg.getFilePath());
+				if (file.exists()) {
+					AlertDialog.Builder dialog = new AlertDialog.Builder(
+							context);
+					dialog.setTitle("发送邮件")
+							.setIcon(R.drawable.icon)
+							.setMessage("确定将此音频文件发送给好友吗？")
+							.setPositiveButton("确定",
+									new DialogInterface.OnClickListener() {
+										@Override
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											// TODO Auto-generated method
+											// stub
+											Intent intent = new Intent(context,
+													SendEmailActivity.class);
+											intent.putExtra("filePath",
+													msg.getFilePath());
+											context.startActivity(intent);
+
+										}
+									})
+							.setNegativeButton("取消",
+									new DialogInterface.OnClickListener() {
+										public void onClick(
+												DialogInterface dialog,
+												int which) {
+											// TODO Auto-generated method
+											// stub
+											dialog.cancel();// 取消弹出框
+										}
+									}).create().show();
+				} else {					
+					if (msg.getMsg() != null) {
 						AlertDialog.Builder dialog = new AlertDialog.Builder(
 								context);
 						dialog.setTitle("发送邮件")
 								.setIcon(R.drawable.icon)
-								.setMessage("确定将此文件发送给好友吗？")
+								.setMessage("确定将此内容以文本的形式发送给好友吗？")
 								.setPositiveButton("确定",
 										new DialogInterface.OnClickListener() {
 											@Override
@@ -118,11 +181,17 @@ public class ChatListAdapter extends BaseAdapter {
 													int which) {
 												// TODO Auto-generated method
 												// stub
+												filePath = System.currentTimeMillis() + ".txt";
+												OpenfileFunction.writeTxtToFile(msg.getMsg(),
+														FILE_ROOT_PATH, filePath);
+												filePath = FILE_ROOT_PATH + filePath;
+												File file = new File(filePath);
+												while (!file.exists());
 												Intent intent = new Intent(
 														context,
 														SendEmailActivity.class);
 												intent.putExtra("filePath",
-														msg.getFilePath());
+														filePath);
 												context.startActivity(intent);
 
 											}
@@ -139,18 +208,13 @@ public class ChatListAdapter extends BaseAdapter {
 										}).create().show();
 					} else {
 						Toast.makeText(context,
-								context.getString(R.string.record_sending),
+								context.getString(R.string.file_create_error),
 								Toast.LENGTH_SHORT).show();
 					}
-					return true;
 				}
-				
-			});
-		} else {
-			TextView msgStatus = (TextView) convertView
-					.findViewById(R.id.msg_status);
-			msgStatus.setVisibility(View.GONE);// 影藏
-		}
+				return true;
+			}
+		});
 
 		return convertView;
 	}
@@ -170,8 +234,10 @@ public class ChatListAdapter extends BaseAdapter {
 		}
 
 		public void stopPlaying() {
-			mPlayer.release();
-			mPlayer = null;
+			if(mPlayer!=null&&mPlayer.isPlaying()){
+				mPlayer.release();
+				mPlayer = null;
+			}
 		}
 	}	
 	

@@ -1,38 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical" >
-   <ListView 
-       android:id="@+id/lv_public_dialog"
-       android:layout_width="match_parent"
-       android:layout_height="0dp"
-       android:layout_weight="1"
-       android:divider="@null"
-       android:dividerHeight="10dp">
-       
-   </ListView>
-   <FrameLayout 
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content">
-	    <Button 
-	        android:id="@+id/public_record_button"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="50dp"
-	        android:layout_marginRight="50dp"
-	        android:layout_marginTop="6dp"
-	        android:layout_marginBottom="7dp"
-	        android:gravity="center"
-	        android:padding="5dp"
-	        android:text="@string/str_recorder_normal"
-	        android:textColor="@color/white"
-	        android:background="@drawable/chat_send_button_bg"
-	        android:minHeight="0dp"/>
-	    <View 
-	    android:layout_width="match_parent"
-	    android:layout_height="1dp"
-	    android:background="@color/LightGray"/>
-	</FrameLayout>
+    
+    <ListView
+        android:id="@+id/formclient_listview"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.0"
+        android:background="#FFFFFFFF"
+        android:cacheColorHint="@null"
+        android:divider="@null"
+        android:listSelector="@android:color/transparent"
+        android:stackFromBottom="true" />
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFEEEEEE" >
+
+        <Button
+            android:id="@+id/record_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"   
+            android:background="@drawable/chat_send_button_bg"       
+            android:text="点击录音" />
+
+        <EditText
+            android:id="@+id/formclient_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:textColor="#000000"
+            android:hint="请输入发送内容"/>
+<!--             android:inputType="textWebEditText" -->
+        <Button
+            android:id="@+id/formclient_btsend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/chat_send_button_bg" 
+            android:text="发送" />
+    </LinearLayout>
 </LinearLayout>
