@@ -51,7 +51,7 @@ public class mainFragment extends Fragment {
     		super(fm);
     		
     	}
-    	private final String[] TITLES={"广场","群组"};
+    	private final String[] TITLES={"广场","聊天室"};
     	public CharSequence getPageTitle(int position)
     	{
     		return TITLES[position];

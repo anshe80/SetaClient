@@ -12,12 +12,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnLongClickListener;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +71,7 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 		}
 		TextView fileName = (TextView) convertView.findViewById(R.id.file_name);
 		TextView fileSize = (TextView) convertView.findViewById(R.id.file_size);
+		View imageView=(View) convertView.findViewById(R.id.file_button);
 		String strName = this.list.get(groupPosition).get(childPosition).getName();
 		filePath=this.list.get(groupPosition).get(childPosition).getPath();
 		fileName.setText(strName);
@@ -76,7 +80,7 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 		} else if(this.recordMap.containsKey(strName)){
 			fileSize.setText(this.recordMap.get(strName));
 		}
-		fileName.setOnLongClickListener(new OnLongClickListener(){
+		imageView.setOnLongClickListener(new OnLongClickListener(){
 
 			@Override
 			public boolean onLongClick(View arg0) {

@@ -73,4 +73,10 @@
     <string name="file_create_error">服务异常，无法以文件的形式发送邮件！</string>
     <string name="service_not_open">服务器异常，请稍后重试！</string>
     <!-- end add by anshe 2015.5.22 -->
+    
+    <!-- start add by anshe 2015.7.5 -->
+    <string name="not_Connect_to_Server">与服务器断开连接，请重新登录！</string>
+    <string name="room_is_exist">聊天室已经存在，可以加入或者创建其它名称的聊天室</string>
+    <string name="reconnection_fail">重新连接失败！请重新登录！</string>
+    <!-- end add by anshe 2015.7.5 -->
 </resources>

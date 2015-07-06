@@ -1,4 +1,4 @@
-package com.seta.android.record;
+package com.seta.android.record.utils;
 
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -7,7 +7,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.view.Window;
 
-import com.seta.android.record.SettingTextWatcher;
+import com.seta.android.record.utils.SettingTextWatcher;
 import com.seta.android.recordchat.R;
 
 /**

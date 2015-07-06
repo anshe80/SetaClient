@@ -34,7 +34,12 @@ public class EmailFormat {
             mailInfo.setMailServerPort("25");   
             mailInfo.setValidate(true);
     		
-    	}
+    	}else if (email.contains("@sina.com")||email.contains("@sina.cn")) {
+    		mailInfo.setMailServerHost("smtp.sina.com");
+    		mailInfo.setMailServerPort("25");
+    		mailInfo.setValidate(true);
+			
+		}
     	return mailInfo;
     	
     }

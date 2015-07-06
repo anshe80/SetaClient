@@ -32,6 +32,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 /*
@@ -54,58 +55,81 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);	
 		setContentView(R.layout.activity_main);
-
+		if (savedInstanceState==null) {
+			mainFragment mFragment = new mainFragment();
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction()
+					.replace(R.id.content_frame, mFragment).commit();
+		}
+		initView();		
+	}
+	//start add by anshe 2015.7.5
+	protected void initView(){
 		// 把登录后的用户都加入到公共聊天室
-		String userName = this.getIntent().getStringExtra("pUSERID");
 		conn = XmppConnection.getConnection(this);
+		String userName = null;
+		if (conn != null) {
+			userName = conn.getUser();
+		} else {
+			userName = this.getIntent().getStringExtra("pUSERID");
+		}
 		// System.out.println("当前用户："+userName);
 		// 创建公共聊天室，并把所有登录用户加入其中
-		if (this.pubicRoomMuc == null)
+		if (conn != null && this.pubicRoomMuc == null) {
 			this.pubicRoomMuc = JoinCommonGroup(conn, PUBLICROOM, userName);
-		
-	    mTitle=(String)getTitle();
-	    mDrawerLayout=(DrawerLayout)findViewById(R.id.drawer_layout);
-	    leftDrawerList=(ListView)findViewById(R.id.left_drawer);
-	    menuList=new ArrayList<String>();
-	    menuList.add(getString(R.string.mainpage));
-	    menuList.add(getString(R.string.manage_ID));
-	    menuList.add(getString(R.string.manage_files));
-	    menuList.add(getString(R.string.private_notes));
-	    adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,menuList);
-	    leftDrawerList.setAdapter(adapter);
-	    leftDrawerList.setOnItemClickListener(this);
+		} else {
+			if (conn == null) {
+				Toast.makeText(MainActivity.this,
+						getString(R.string.not_Connect_to_Server),
+						Toast.LENGTH_SHORT).show();
+			}
+		}
 
-	    mDrawerToggle=new ActionBarDrawerToggle(this,mDrawerLayout,R.drawable.database,R.string.drawer_open,R.string.drawer_close)
-	    {
-	        @Override
-	        public void onDrawerOpened(View drawerView) {
-		        super.onDrawerOpened(drawerView);
-		        getSupportActionBar().setTitle("Seta");
-		        invalidateOptionsMenu();//call onPrepareOptionmenu()
-		    }
+		mTitle = (String) getTitle();
+		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		leftDrawerList = (ListView) findViewById(R.id.left_drawer);
+		menuList = new ArrayList<String>();
+		menuList.add(getString(R.string.mainpage));
+		menuList.add(getString(R.string.manage_ID));
+		menuList.add(getString(R.string.manage_files));
+		menuList.add(getString(R.string.private_notes));
+		adapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_list_item_1, menuList);
+		leftDrawerList.setAdapter(adapter);
+		leftDrawerList.setOnItemClickListener(this);
 
-	        @Override
-	        public void onDrawerClosed(View drawerView) {
-		        super.onDrawerClosed(drawerView);
-		        getSupportActionBar().setTitle(mTitle);
-		        invalidateOptionsMenu();
-	        }
-	    };
-		XmppConnection.getConnection(this).addConnectionListener(
-				XmppConnection.connectionListener);
-	    mDrawerLayout.setDrawerListener(mDrawerToggle);
-	    //开启ActionBar上APP的图标功能
-	    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-	    getSupportActionBar().setHomeButtonEnabled(true);
-	    if (savedInstanceState == null) {
-	    	 mainFragment mFragment=new mainFragment();
-             FragmentManager fragmentManager=getSupportFragmentManager();
-             fragmentManager.beginTransaction().replace(R.id.content_frame,mFragment).commit();
-             mDrawerLayout.closeDrawer(leftDrawerList);
-	    }
+		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+				R.drawable.database, R.string.drawer_open,
+				R.string.drawer_close) {
+			@Override
+			public void onDrawerOpened(View drawerView) {
+				super.onDrawerOpened(drawerView);
+				getSupportActionBar().setTitle("Seta");
+				invalidateOptionsMenu();// call onPrepareOptionmenu()
+			}
+
+			@Override
+			public void onDrawerClosed(View drawerView) {
+				super.onDrawerClosed(drawerView);
+				getSupportActionBar().setTitle(mTitle);
+				invalidateOptionsMenu();
+			}
+		};
+
+		if (conn != null) {
+			conn.addConnectionListener(XmppConnection.connectionListener);
+		}
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		// 开启ActionBar上APP的图标功能
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setHomeButtonEnabled(true);
+		mDrawerLayout.closeDrawer(leftDrawerList);
+
 		// 显示右侧的在线用户列表
 		right_drawer();
 	}
+	//end add by anshe 2015.7.5
+	
 	/**
 	 * 创建公共聊天分组，所有用户登录进去都加入这个分组
 	 * 
@@ -123,10 +147,9 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 		MutilUserChatUtil mucUtil = new MutilUserChatUtil(conn);
 		MultiUserChat muc = null;
 		muc = mucUtil.joinMultiUserChat(userName, groupName, "");
-
 		if (muc == null) {
 			muc=mucUtil.createRoom("admin", groupName, "");
-			System.out.println("房间不存在！创建情况："+muc);
+			System.out.println("聊天室不存在！创建情况："+muc);
 		}
 
 		System.out.println("muc:" + muc);
@@ -305,7 +328,9 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 			if (conn == null) {
 				conn = XmppConnection.getConnection(this);
 			}
-			if (null == this.pubicRoomMuc) {
+			if (conn==null||null == this.pubicRoomMuc) {
+				Toast.makeText(MainActivity.this,
+						getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();
 				return;
 			}
 			List<String> userNameList = MutilUserChatUtil.findMulitUser(this.pubicRoomMuc);
@@ -317,5 +342,15 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 			UserListAdapter adapter = new UserListAdapter(this, userNameList);
 			rightDrawerList.setAdapter(adapter);
 			adapter.notifyDataSetChanged();
+		}
+		
+		protected void onResume() {
+			super.onResume();
+			//initView();
+		}
+		
+		protected void onDestroy(){
+			super.onDestroy();
+			conn.removeConnectionListener(XmppConnection.connectionListener);
 		}
 }

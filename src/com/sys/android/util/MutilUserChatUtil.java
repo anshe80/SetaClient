@@ -19,6 +19,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.RoomInfo;
 
 import com.seta.android.entity.ServerRooms;
+import com.seta.android.xmppmanager.XmppConnection;
 
 import android.util.Log;
 import android.view.View;
@@ -47,7 +48,10 @@ public class MutilUserChatUtil extends BaseAdapter{
 	   */
 	  public  List<ServerRooms> getConferenceRoom() throws XMPPException {
 	    List<ServerRooms> list = new ArrayList<ServerRooms>();
-	    if(mConnection!=null){
+	    if (!mConnection.isAuthenticated()) {
+			mConnection=XmppConnection.reConnection();
+		}
+	    if(mConnection!=null&&mConnection.isAuthenticated()){
 			new ServiceDiscoveryManager(mConnection);
 			if (!MultiUserChat.getHostedRooms(mConnection,
 					mConnection.getServiceName()).isEmpty()) {
@@ -75,12 +79,15 @@ public class MutilUserChatUtil extends BaseAdapter{
 	    return list;
 	  }
 	/**
-	 * 创建房间
+	 * 创建聊天室
 	 * 
-	 * @param roomName  房间名称
+	 * @param roomName  聊天室名称
 	 */
 	public MultiUserChat createRoom(String user, String roomName,String password) {
-		if (getMConnection() == null)
+		if (!mConnection.isAuthenticated()) {
+			mConnection=XmppConnection.reConnection();
+		}
+		if (getMConnection() == null||!mConnection.isAuthenticated())
 			return null;
 		MultiUserChat muc = null;
 		try {
@@ -109,7 +116,7 @@ public class MutilUserChatUtil extends BaseAdapter{
 			submitForm.setAnswer("muc#roomconfig_roomowners", owners);
 			// 设置聊天室是持久聊天室，即将要被保存下来
 			submitForm.setAnswer("muc#roomconfig_persistentroom", true);
-			// 房间仅对成员开放
+			// 聊天室仅对成员开放
 			submitForm.setAnswer("muc#roomconfig_membersonly", false);
 			// 允许占有者邀请其他人
 			submitForm.setAnswer("muc#roomconfig_allowinvites", true);
@@ -122,13 +129,13 @@ public class MutilUserChatUtil extends BaseAdapter{
 			}
 			// 能够发现占有者真实 JID 的角色
 			// submitForm.setAnswer("muc#roomconfig_whois", "anyone");
-			// 登录房间对话
+			// 登录聊天室对话
 			submitForm.setAnswer("muc#roomconfig_enablelogging", true);
 			// 仅允许注册的昵称登录
 			submitForm.setAnswer("x-muc#roomconfig_reservednick", true);
 			// 允许使用者修改昵称
 			submitForm.setAnswer("x-muc#roomconfig_canchangenick", false);
-			// 允许用户注册房间
+			// 允许用户注册聊天室
 			submitForm.setAnswer("x-muc#roomconfig_registration", false);
 			// 发送已完成的表单（有默认值）到服务器来配置聊天室
 			muc.sendConfigurationForm(submitForm);
@@ -151,7 +158,10 @@ public class MutilUserChatUtil extends BaseAdapter{
 	 */
 	public MultiUserChat joinMultiUserChat(String user, String roomsName,
 			String password) {
-		if (getMConnection() == null||user==null||roomsName==null)
+		if (!mConnection.isAuthenticated()) {
+			mConnection=XmppConnection.reConnection();
+		}
+		if (getMConnection() == null||user==null||roomsName==null||!mConnection.isAuthenticated())
 			return null;
 		try {
 			// 使用XMPPConnection创建一个MultiUserChat窗口

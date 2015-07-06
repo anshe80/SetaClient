@@ -207,6 +207,7 @@ public class FindkeyActivity extends ActionBarActivity implements OnClickListene
 		Intent intent = new Intent();
 		intent.setClass(FindkeyActivity.this, LoginActivity.class);
 		startActivity(intent);
+		finish();
 	}
 	
 	public class sendEmail extends Thread {
@@ -239,4 +240,8 @@ public class FindkeyActivity extends ActionBarActivity implements OnClickListene
 
 	}
 	//end modify by anshe 2015.5.23
+	
+	public void onDestroy(){
+		super.onDestroy();
+	}
 }

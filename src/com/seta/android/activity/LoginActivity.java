@@ -56,8 +56,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mAccounts = (EditText) findViewById(R.id.lgoin_accounts);
 		mPassword = (EditText) findViewById(R.id.login_password);
         auto_save_password = (CheckBox) findViewById(R.id.auto_save_password);
-        auto_save_password.setChecked(true);
-		rememberPassword.edit().putBoolean("ISCHECK", true).commit();
+        auto_save_password.setChecked(true);        
+		//rememberPassword.edit().putBoolean("ISCHECK", true).commit();delete by anshe 2015.7.5
 		//监听记住密码多选框按钮事件
 	  	auto_save_password.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 	  		public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
@@ -65,8 +65,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	  				Log.e("密码","记住密码已选中");
 	  				rememberPassword.edit().putBoolean("ISCHECK", true).commit();
 	  				
-	  			}else {
-	  				
+	  			}else {	  				
 	  				Log.e("密码","记住密码没有选中");
 	  				rememberPassword.edit().putBoolean("ISCHECK", false).commit();
 	  				
@@ -123,6 +122,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 		Intent intent = new Intent();
 		intent.setClass(LoginActivity.this, RegisterActivity.class);
 		startActivity(intent);
+		finish();
 	}
 
 	/**
@@ -138,13 +138,14 @@ public class LoginActivity extends Activity implements OnClickListener {
 			try {
 				SmackAndroid.init(LoginActivity.this);
 				// 连接服务器
-				XMPPConnection connection=XmppConnection.openConnection();
+				XMPPConnection connection=XmppConnection.openConnection(this);
 				if(connection!=null){
 					connection.login(accounts, password);
 					// 连接服务器成功，更改在线状态
 					Presence presence = new Presence(Presence.Type.available);
 					XmppConnection.getConnection(this).sendPacket(presence);
-
+					
+					//start modify by anshe 2015.7.5
 					// 登录成功和记住密码框为选中状态才保存用户信息
 					if (auto_save_password.isChecked()) {
 						// 记住用户名、密码、
@@ -152,7 +153,14 @@ public class LoginActivity extends Activity implements OnClickListener {
 						editor.putString("USER_NAME", accounts);
 						editor.putString("PASSWORD", password);
 						editor.apply();
+					}else{
+						// 为保证用户离线后自动重连，默认记住用户名、密码.
+						Editor editor = rememberPassword.edit();
+						editor.putString("USER_NAME", accounts);
+						editor.putString("PASSWORD", password);
+						editor.apply();
 					}
+					//end modify by anshe 2015.7.5
 					// 跳转到好友列表
 					Intent intent = new Intent();
 					// delete by ling 2015.4.29

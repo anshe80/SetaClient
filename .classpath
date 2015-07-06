@@ -2,8 +2,6 @@
 <classpath>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/activation.jar"/>
 	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/additionnal.jar"/>
 	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/android-support-v4.jar"/>
@@ -13,5 +11,7 @@
 	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/Msc.jar"/>
 	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/Sunflower.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

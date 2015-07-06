@@ -7,7 +7,7 @@ import org.jivesoftware.smack.XMPPException;
 import com.seta.android.activity.ChatActivity;
 import com.seta.android.activity.ChatConvertActivity;
 import com.seta.android.activity.CreatRoomActivity;
-import com.seta.android.chat.RoomListAdapter;
+import com.seta.android.activity.adapter.RoomListAdapter;
 import com.seta.android.entity.ServerRooms;
 import com.seta.android.xmppmanager.XmppConnection;
 import com.seta.android.recordchat.R;
@@ -32,16 +32,18 @@ import android.widget.AdapterView.OnItemClickListener;
 public class groupFragment extends Fragment {
 	
 
-	List<ServerRooms> mRoomListData;
-	RoomListAdapter mRoomListAdapter;
-	Button creatRoomButton;
-	Activity activity;
-	ListView mRoomListView;
-	View view;
+	private List<ServerRooms> mRoomListData;
+	private RoomListAdapter mRoomListAdapter;
+	private Button creatRoomButton;
+	private Activity activity;
+	private ListView mRoomListView;
+	private View view;
+	private XMPPConnection connection;
 	 @Override
 	    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 	        view = inflater.inflate(R.layout.group_layout, container, false);
 	        getRoomListView();
+			activity=this.getActivity();
 	        return view;
 	    }
 	 
@@ -53,34 +55,46 @@ public class groupFragment extends Fragment {
 				@Override
 				public void onClick(View v) {
 					startActivity(new Intent(activity,CreatRoomActivity.class));
+					
 				}
 			});
-			activity=this.getActivity();
-			final XMPPConnection connection=XmppConnection.getConnection(activity);
-			final MutilUserChatUtil mutilUserRoomList=new MutilUserChatUtil(connection);
-			try {
-				mRoomListData = mutilUserRoomList.getConferenceRoom();
-				mRoomListAdapter = new RoomListAdapter(this.getActivity(),
-				mRoomListData, R.layout.group_friend_list_item_layout);
-				mRoomListView.setAdapter(mRoomListAdapter);
-			} catch (XMPPException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			connection=XmppConnection.getConnection(activity);
+			if (connection!=null) {
+				final MutilUserChatUtil mutilUserRoomList=new MutilUserChatUtil(connection);
+				try {
+					mRoomListData = mutilUserRoomList.getConferenceRoom();
+					mRoomListAdapter = new RoomListAdapter(this.getActivity(),
+					mRoomListData, R.layout.group_friend_list_item_layout);
+					mRoomListView.setAdapter(mRoomListAdapter);
+				} catch (XMPPException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+			
 			mRoomListView.setOnItemClickListener(new OnItemClickListener() {
 
 				@Override
 				public void onItemClick(AdapterView<?> parentView, View v,
 						int position, long itemId) {
-					/*进入房间*/
+					/*进入聊天室*/
 					ServerRooms room=mRoomListData.get(position);
-					String LoginUser=connection.getUser();
-					Toast.makeText(activity, "成功加入房间["+room.getName()+"]", Toast.LENGTH_LONG).show();
-					Intent ChatListIntent = new Intent(activity, ChatActivity.class);
-					ChatListIntent.putExtra("FRIENDID", room.getName());
-					ChatListIntent.putExtra("user", LoginUser);
-					ChatListIntent.putExtra("USERID",LoginUser);
-					startActivity(ChatListIntent);
+					if (connection==null) {
+						connection=XmppConnection.reConnection();
+					}
+					if (connection!=null) {
+						String LoginUser=connection.getUser();
+						if (LoginUser!=null) {
+							Toast.makeText(activity, "成功加入聊天室["+room.getName()+"]", Toast.LENGTH_LONG).show();
+							Intent ChatListIntent = new Intent(activity, ChatActivity.class);
+							ChatListIntent.putExtra("FRIENDID", room.getName());
+							ChatListIntent.putExtra("user", LoginUser);
+							ChatListIntent.putExtra("USERID",LoginUser);
+							startActivity(ChatListIntent);
+						}else{
+							Toast.makeText(activity, getString(R.string.not_Connect_to_Server), Toast.LENGTH_LONG).show();
+						}
+					}
 				}
 			});
 		}

@@ -1,4 +1,4 @@
-package com.seta.android.chat;
+package com.seta.android.activity.adapter;
 
 import java.util.List;
 

@@ -7,7 +7,7 @@ import javax.mail.internet.MimeMultipart;
 import com.seta.android.activity.FindkeyActivity;
 import com.seta.android.activity.LoginActivity;
 import com.seta.android.recordchat.R;
-import com.sys.android.util.netWorkConnection;
+import com.sys.android.util.NetWorkConnection;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -90,7 +90,7 @@ public class SendEmailActivity extends Activity {
         				String[] fileName = activity.getIntent()
         						.getStringExtra("filePath").split(",");
         				if (fileName.length > 0 && (new File(fileName[0])).exists()) {
-		            		if(netWorkConnection.isNetworkAvailable(activity)){
+		            		if(NetWorkConnection.isNetworkAvailable(activity)){
 	        					Toast.makeText(activity, activity.getString(R.string.sending_email), Toast.LENGTH_LONG).show();
 			            		Thread send=new sendEmail(fileName);
 			            		send.run();

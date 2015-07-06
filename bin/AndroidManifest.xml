@@ -42,7 +42,7 @@
     <!-- start add by anshe 2015.5.12 -->
     <activity android:name="com.seta.android.activity.MainActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
     <activity android:name="com.seta.android.activity.FindkeyActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
-    <activity android:name="com.seta.android.record.IatSettings" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" ></activity>
+    <activity android:name="com.seta.android.record.utils.IatSettings" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" ></activity>
     <activity android:name="com.seta.android.activity.GroupSquareListActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" ></activity>
     <activity android:name="com.seta.android.activity.LogoActivity"></activity>
     <activity android:name="com.seta.android.activity.ChatConvertActivity"></activity>

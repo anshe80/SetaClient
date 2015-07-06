@@ -1,4 +1,4 @@
-package com.seta.android.record;
+package com.seta.android.record.utils;
 
 import java.util.regex.Pattern;
 import android.content.Context;

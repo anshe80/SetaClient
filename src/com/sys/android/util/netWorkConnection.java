@@ -5,11 +5,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
-/*
- * add by anshe 2015.5.24
- * */
+/**
+ * 判断是否有网络连接
+ * @author anshe
+ * @date 2015.5.24
+ */
 
-public class netWorkConnection {
+public class NetWorkConnection {
 
 	
 	/*	

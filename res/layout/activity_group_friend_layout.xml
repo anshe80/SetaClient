@@ -31,7 +31,7 @@
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
             android:background="@drawable/commit_button_bg"
-            android:text="创建房间"
+            android:text="创建聊天室"
             android:textSize="18sp" />
 
         <TextView

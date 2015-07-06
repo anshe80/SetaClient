@@ -69,8 +69,9 @@ public class UserListAdapter extends BaseAdapter {
 		// convertView.findViewById(R.id.user_icon);
 		final TextView tvUuserName = (TextView) convertView.findViewById(R.id.user_name);
 		final String userName = this.list.get(position);
-		if (conn.getUser().split("@")[0].equalsIgnoreCase(userName)) {
+		if (conn!=null&&conn.getUser()!=null&&conn.getUser().split("@")[0].equalsIgnoreCase(userName)) {
 			tvUuserName.setText(userName.split("@")[0] + " [本人]");
+			tvUuserName.setClickable(false);
 		} else {
 			tvUuserName.setText(userName.split("@")[0]);
 		}
@@ -84,8 +85,8 @@ public class UserListAdapter extends BaseAdapter {
 
 				System.out.println("连接用户名：" + conn.getUser());
 				System.out.println("聊天名字：" + userName);
-				if (conn.getUser().split("@")[0].equalsIgnoreCase(userName)) {
-					Toast.makeText(context, "本人不能和本人聊天", Toast.LENGTH_SHORT).show();
+				if (conn!=null&&conn.getUser().split("@")[0].equalsIgnoreCase(userName)) {
+					Toast.makeText(context, "不能和自己聊天", Toast.LENGTH_SHORT).show();
 					return;
 				}
 				AlertDialog.Builder dialog = new AlertDialog.Builder(context);

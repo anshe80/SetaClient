@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="white">#ffffff</color>
     <color name="gold">#b89766</color>
     <color name="window_bg">#ffeef1f3</color>
     <color name="title_bg">#ff54acea</color>
@@ -59,7 +58,6 @@
     <color name="system_item_bg_unread">#fff0f4f6</color>
     <color name="system_item_name_read">#ff798089</color>
     <color name="system_item_name_unread">#ff000000</color>
-    <color name="qq_normal">#ff000000</color>
     <color name="black">#ff000000</color>
     <color name="video_bg_color">#ffecf3f9</color>
     <color name="video_edge_color">#ffd0deee</color>
@@ -76,7 +74,6 @@
     <color name="color_divider_lbs_filter">#ffc2c8cd</color>
     <color name="extrainfo">#ff333333</color>
     <color name="info_panel_bg">#ffeeeeee</color>
-    <color name="sqqname">#ffee860a</color>
     <color name="list_item_bg">#fff0f4f6</color>
     <color name="list_item_bg_focus">#ffe2e7eb</color>
     <color name="list_item_bg_for_friendlist">#ffeef1f3</color>

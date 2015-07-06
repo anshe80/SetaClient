@@ -2,7 +2,10 @@
 
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -36,7 +39,7 @@ import com.seta.android.email.MailSenderInfo;
 import com.seta.android.email.SimpleMailSender;
 import com.seta.android.xmppmanager.XmppConnection;
 import com.sys.android.util.DialogFactory;
-import com.sys.android.util.netWorkConnection;
+import com.sys.android.util.NetWorkConnection;
 import com.seta.android.recordchat.R;
 
 @SuppressWarnings("all")
@@ -67,50 +70,70 @@ public class RegisterActivity extends Activity implements OnClickListener {
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				time = new TimeCount(60000, 1000);
-				if(netWorkConnection.isNetworkAvailable(activity)){
-					email_conent = getString(R.string.email_register_info) + code
-							+ getString(R.string.email_warning);
-					(new sendEmail()).run();
+				String email = mEmailEt.getText().toString();
+				if (email != null&&!email.contains(getString(R.string.input_email))) {
+					if (!EmailFormat.isEmail(email)) {
+						Toast.makeText(getApplicationContext(), getString(R.string.email_format_error), Toast.LENGTH_SHORT).show();
+						return;			
+					}
+					if (NetWorkConnection.isNetworkAvailable(activity)) {
+						email_conent = getString(R.string.email_register_info)
+								+ code + getString(R.string.email_warning);
+						(new sendEmail()).run();
+					} else {
+						Toast.makeText(
+								activity,
+								activity.getString(R.string.failedconnection_info),
+								Toast.LENGTH_SHORT).show();
+					}
+					time.start();
 				}else{
-					Toast.makeText(activity,activity.getString(R.string.failedconnection_info), Toast.LENGTH_SHORT).show();
+					Toast.makeText(
+							activity,
+							activity.getString(R.string.email_null),
+							Toast.LENGTH_SHORT).show();
 				}
-				time.start();
 			}
 		});
 		verifycode_input_prompt=(EditText) findViewById(R.id.verifycode_input_prompt);
 		nameMCH = (EditText) findViewById(R.id.reg_nameMCH);
 		mEmailEt = (EditText) findViewById(R.id.reg_email);
-		mEmailEt.setOnFocusChangeListener(new android.view.View.OnFocusChangeListener() {  
+		/*delete by anshe 2015.5.29
+		mEmailEt.setOnFocusChangeListener(new android.view.View.OnFocusChangeListener() {
 
-		    @Override
-		    public void onFocusChange(View v, boolean hasFocus) {  
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
 
-		        if(hasFocus) {
+				if (hasFocus) {
 
-				// 此处为得到焦点时的处理内容
-		
+					// 此处为得到焦点时的处理内容
+
 				} else {
-		
-				// 此处为失去焦点时的处理内容
+
+					// 此处为失去焦点时的处理内容
 					String email = mEmailEt.getText().toString();
-					if(email!=null){
-						if(!EmailFormat.isEmail(email)){
-							Toast.makeText(getApplicationContext(), getString(R.string.email_format_error), Toast.LENGTH_SHORT).show();
+					if (email != null) {
+						if (!EmailFormat.isEmail(email)) {
+							Toast.makeText(getApplicationContext(),
+									getString(R.string.email_format_error),
+									Toast.LENGTH_SHORT).show();
 							mEmailEt.findFocus();
 							mBtnRegister.setClickable(false);
-						}else{
+						} else {
 							mBtnRegister.setClickable(true);
-						}	
-					}else{
-						Toast.makeText(getApplicationContext(), getString(R.string.email_null), Toast.LENGTH_SHORT).show();
-						
+						}
+					} else {
+						Toast.makeText(getApplicationContext(),
+								getString(R.string.email_null),
+								Toast.LENGTH_SHORT).show();
+
 					}
-		
+
 				}
 
-		    }
+			}
 
-		});
+		});*/
 		mNameEt = (EditText) findViewById(R.id.reg_name);
 		mPasswdEt = (EditText) findViewById(R.id.reg_password);
 		mPasswdEt2 = (EditText) findViewById(R.id.reg_password2);
@@ -126,7 +149,8 @@ public class RegisterActivity extends Activity implements OnClickListener {
 			break;
 		case R.id.register_btn:
 			//start modify by anshe 2015.5.24
-			if(code.equalsIgnoreCase(verifycode_input_prompt.getText().toString())){
+			boolean like=mPasswdEt.getText().toString().equals(mPasswdEt2.getText().toString());
+			if(code.equalsIgnoreCase(verifycode_input_prompt.getText().toString())&&like){				
 				registered();
 				finish();
 			}else{
@@ -146,7 +170,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 		String accounts = mNameEt.getText().toString();
 		String password = mPasswdEt.getText().toString();
 		String email = mEmailEt.getText().toString();
-		String name = nameMCH.getText().toString();		
+		String name = nameMCH.getText().toString();			
 		
 		Registration reg = new Registration();
 		reg.setType(IQ.Type.SET);
@@ -176,20 +200,26 @@ public class RegisterActivity extends Activity implements OnClickListener {
 		} else if (result.getType() == IQ.Type.RESULT) {
 			//start modify by anshe 2015.5.24
 			//发送成功注册邮件
-			if(netWorkConnection.isNetworkAvailable(activity)){
+			if(NetWorkConnection.isNetworkAvailable(activity)){
 				email_conent =getString(R.string.email_register_body);
 				(new sendEmail()).run();
 			}
+			// 记住用户名、密码、
+			SharedPreferences rememberPassword;
+			rememberPassword = this.getSharedPreferences("userInfo", Context.MODE_WORLD_READABLE);
+			rememberPassword.edit().putBoolean("ISCHECK", true).commit();
+			Editor editor = rememberPassword.edit();
+			editor.putString("USER_NAME", accounts);
+			editor.putString("PASSWORD", password);
+			editor.apply();
 			Toast.makeText(this, getString(R.string.email_register_body)+getString(R.string.email_subject), Toast.LENGTH_LONG).show();
 			//end modify by anshe 2015.5.24
-			/*XmppConnection.openConnection().login(accounts, password);
-			Presence presence = new Presence(Presence.Type.available);
-			XmppConnection.getConnection(this).sendPacket(presence);*/
 			DialogFactory.ToastDialog(this, getString(R.string.registerID), getString(R.string.register_success));
 			Intent intent = new Intent();
-			intent.putExtra("USERID", accounts);
+			intent.putExtra("pUSERID", name);
 			intent.setClass(RegisterActivity.this, MainActivity.class);
-			startActivity(intent);	
+			startActivity(intent);
+			finish();
 		}
 		
 	}

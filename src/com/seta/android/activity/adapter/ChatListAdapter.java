@@ -21,8 +21,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.seta.android.activity.ChatActivity;
-import com.seta.android.activity.CreatRoomActivity;
 import com.seta.android.email.SendEmailActivity;
 import com.seta.android.entity.Msg;
 import com.seta.android.xmppmanager.XmppConnection;
@@ -35,11 +33,11 @@ public class ChatListAdapter extends BaseAdapter {
 	private LayoutInflater inflater;
 	private List<Msg> listMsg;
 	private SoundPlayer mSoundPlayer;
-	public static String FILE_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
-			+ "/seta/file/";
-	public static String RECORD_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
-			+ "/seta/record/";
-	String filePath=null;
+	public static String FILE_ROOT_PATH = Environment
+			.getExternalStorageDirectory().getPath() + "/seta/file/";
+	public static String RECORD_ROOT_PATH = Environment
+			.getExternalStorageDirectory().getPath() + "/seta/record/";
+	String filePath = null;
 
 	public ChatListAdapter(Activity formClient, List<Msg> list) {
 		this.context = formClient;
@@ -65,11 +63,14 @@ public class ChatListAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		this.inflater = (LayoutInflater) this.context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		final String fromUser=Utils.getJidToUsername(listMsg.get(position).getFrom());
-        final String toUser=Utils.getJidToUsername(listMsg.get(position).getToUser());
-        final String nowUser=Utils.getJidToUsername(XmppConnection.getConnection(this.context).getUser());
-        
-        if (!fromUser.equals(toUser)&&!nowUser.equals(fromUser)){
+		final String fromUser = Utils.getJidToUsername(listMsg.get(position)
+				.getFrom());
+		final String toUser = Utils.getJidToUsername(listMsg.get(position)
+				.getToUser());
+		final String nowUser = Utils.getJidToUsername(XmppConnection
+				.getConnection(this.context).getUser());
+
+		if (fromUser!=null&&toUser!=null&&nowUser!=null&&!fromUser.equals(toUser) && !nowUser.equals(fromUser)) {
 			convertView = this.inflater.inflate(R.layout.formclient_chat_in,
 					null);
 		} else {
@@ -86,13 +87,14 @@ public class ChatListAdapter extends BaseAdapter {
 		final Msg msg = listMsg.get(position);
 		fromUserView.setText(msg.getFrom().split("@")[0]);
 		dateView.setText(msg.getDate());
-		msgView.setText(msg.getMsg());		
-		
-		if (!Msg.TYPE[2].equals(listMsg.get(position).getType())) {// normal 普通msg
+		msgView.setText(msg.getMsg());
+
+		if (!Msg.TYPE[2].equals(listMsg.get(position).getType())) {// normal
+																	// 普通msg
 			TextView msgStatus = (TextView) convertView
 					.findViewById(R.id.msg_status);
 			msgStatus.setText(listMsg.get(position).getReceive() + "");
-		}else {
+		} else {
 			TextView msgStatus = (TextView) convertView
 					.findViewById(R.id.msg_status);
 			msgStatus.setVisibility(View.GONE);// 影藏
@@ -112,13 +114,17 @@ public class ChatListAdapter extends BaseAdapter {
 
 							if (!fromUser.equals(toUser)
 									&& !nowUser.equals(fromUser)
-									&& msg.getMsg().contains(context.getString(R.string.record_info))) {
+									&& msg.getMsg()
+											.contains(
+													context.getString(R.string.record_info))) {
 								Toast.makeText(
 										context,
 										context.getString(R.string.record_receiving_lose),
 										Toast.LENGTH_SHORT).show();
 							} else {
-								if(msg.getMsg().contains(context.getString(R.string.record_info))){
+								if (msg.getMsg()
+										.contains(
+												context.getString(R.string.record_info))) {
 									Toast.makeText(
 											context,
 											context.getString(R.string.record_sending),
@@ -151,7 +157,7 @@ public class ChatListAdapter extends BaseAdapter {
 											Intent intent = new Intent(context,
 													SendEmailActivity.class);
 											intent.putExtra("filePath",
-													msg.getFilePath());
+													RECORD_ROOT_PATH +msg.getFilePath());
 											context.startActivity(intent);
 
 										}
@@ -166,7 +172,7 @@ public class ChatListAdapter extends BaseAdapter {
 											dialog.cancel();// 取消弹出框
 										}
 									}).create().show();
-				} else {					
+				} else {
 					if (msg.getMsg() != null) {
 						AlertDialog.Builder dialog = new AlertDialog.Builder(
 								context);
@@ -181,12 +187,19 @@ public class ChatListAdapter extends BaseAdapter {
 													int which) {
 												// TODO Auto-generated method
 												// stub
-												filePath = System.currentTimeMillis() + ".txt";
-												OpenfileFunction.writeTxtToFile(msg.getMsg(),
-														FILE_ROOT_PATH, filePath);
-												filePath = FILE_ROOT_PATH + filePath;
+												filePath = System
+														.currentTimeMillis()
+														+ ".txt";
+												OpenfileFunction
+														.writeTxtToFile(
+																msg.getMsg(),
+																FILE_ROOT_PATH,
+																filePath);
+												filePath = FILE_ROOT_PATH
+														+ filePath;
 												File file = new File(filePath);
-												while (!file.exists());
+												while (!file.exists())
+													;
 												Intent intent = new Intent(
 														context,
 														SendEmailActivity.class);
@@ -218,7 +231,7 @@ public class ChatListAdapter extends BaseAdapter {
 
 		return convertView;
 	}
-	
+
 	public class SoundPlayer {
 		private MediaPlayer mPlayer;
 
@@ -234,12 +247,11 @@ public class ChatListAdapter extends BaseAdapter {
 		}
 
 		public void stopPlaying() {
-			if(mPlayer!=null&&mPlayer.isPlaying()){
+			if (mPlayer != null && mPlayer.isPlaying()) {
 				mPlayer.release();
 				mPlayer = null;
 			}
 		}
-	}	
-	
-	
+	}
+
 }

@@ -10,7 +10,7 @@
         app:showAsAction="never"/>
     <item
         android:id="@+id/GroupSquareListFragment"        
-        android:title="聊天房间列表"/>
+        android:title="聊天室列表"/>
     <item
         android:id="@+id/accountManagerFragment"
         android:title="账户管理"/>
