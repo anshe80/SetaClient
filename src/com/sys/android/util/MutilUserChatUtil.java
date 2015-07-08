@@ -40,6 +40,10 @@ public class MutilUserChatUtil extends BaseAdapter{
 	public XMPPConnection getMConnection(){
 		return this.mConnection;
 	}
+	
+	public  void setMConnection(XMPPConnection mConnection){
+		this.mConnection=mConnection;
+	}
 
 	/**
 	   * 获取服务器上所有会议室
@@ -48,7 +52,7 @@ public class MutilUserChatUtil extends BaseAdapter{
 	   */
 	  public  List<ServerRooms> getConferenceRoom() throws XMPPException {
 	    List<ServerRooms> list = new ArrayList<ServerRooms>();
-	    if (!mConnection.isAuthenticated()) {
+	    if (mConnection!=null&&!mConnection.isAuthenticated()&&XmppConnection.reConnectSuccess) {
 			mConnection=XmppConnection.reConnection();
 		}
 	    if(mConnection!=null&&mConnection.isAuthenticated()){
@@ -84,10 +88,10 @@ public class MutilUserChatUtil extends BaseAdapter{
 	 * @param roomName  聊天室名称
 	 */
 	public MultiUserChat createRoom(String user, String roomName,String password) {
-		if (!mConnection.isAuthenticated()) {
+		if (mConnection!=null&&!mConnection.isAuthenticated()&&XmppConnection.reConnectSuccess) {
 			mConnection=XmppConnection.reConnection();
 		}
-		if (getMConnection() == null||!mConnection.isAuthenticated())
+		if (getMConnection() == null||(mConnection!=null&&!mConnection.isAuthenticated()))
 			return null;
 		MultiUserChat muc = null;
 		try {
@@ -158,10 +162,11 @@ public class MutilUserChatUtil extends BaseAdapter{
 	 */
 	public MultiUserChat joinMultiUserChat(String user, String roomsName,
 			String password) {
-		if (!mConnection.isAuthenticated()) {
+		if (mConnection!=null&&!mConnection.isAuthenticated()&&XmppConnection.reConnectSuccess) {
 			mConnection=XmppConnection.reConnection();
 		}
-		if (getMConnection() == null||user==null||roomsName==null||!mConnection.isAuthenticated())
+		if (getMConnection() == null||user==null||roomsName==null
+				||(mConnection!=null&&!mConnection.isAuthenticated()) )
 			return null;
 		try {
 			// 使用XMPPConnection创建一个MultiUserChat窗口
@@ -195,13 +200,15 @@ public class MutilUserChatUtil extends BaseAdapter{
 	   */
 	  public static List<String> findMulitUser(MultiUserChat muc){
 	    List<String> listUser = new ArrayList<String>();
-	    Iterator<String> it = muc.getOccupants();
-	    //遍历出聊天室人员名称
-	    while (it.hasNext()) {
-	      // 聊天室成员名字
-	      String name = StringUtils.parseResource(it.next());
-	      listUser.add(name);
-	    }
+	    if (muc!=null) {//modify by anshe 2015.7.7
+	    	 Iterator<String> it = muc.getOccupants();
+	 	    //遍历出聊天室人员名称
+	 	    while (it.hasNext()) {
+	 	      // 聊天室成员名字
+	 	      String name = StringUtils.parseResource(it.next());
+	 	      listUser.add(name);
+	 	    }
+		}	   
 	    return listUser;
 	  }
 

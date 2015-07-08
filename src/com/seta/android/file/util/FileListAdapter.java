@@ -1,12 +1,15 @@
 package com.seta.android.file.util;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.seta.android.email.SendEmailActivity;
+import com.seta.android.fragment.privateFragment;
 import com.seta.android.recordchat.R;
+import com.sys.android.util.OpenfileFunction;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -16,6 +19,7 @@ import android.media.Image;
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.View.OnLongClickListener;
 import android.widget.BaseExpandableListAdapter;
@@ -31,19 +35,18 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 			+ "/seta/record";
 
 	private String[] fileTypes = new String[] {  "传输文件列表","录音文件列表" };
-	private List<List<File>> list = null;
+	private List<List<File>> list = new ArrayList<List<File>>();
 	private Map<String,String> fileMap = new HashMap<String,String>();
 	private Map<String,String> recordMap = new HashMap<String,String>();
 	private FileUtil fileUtil = new FileUtil();
-	private Context cxt;
+	private Context context;
 	private LayoutInflater inflater = null;
 	private String filePath;
-
 	public FileListAdapter() {
 	}
 
 	public FileListAdapter(Context context,List<List<File>> list ) {
-		this.cxt = context;
+		this.context = context;
 		this.list = list;	
 		this.inflater = LayoutInflater.from(context);
 		this.fileMap = fileUtil.getFileNameSizeMap(FILE_ROOT_PATH);
@@ -63,7 +66,7 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 	}
 
 	@Override
-	public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
+	public View getChildView(final int groupPosition, final int childPosition, boolean isLastChild,
 			View convertView, ViewGroup parent) {
 		// TODO Auto-generated method stub
 		if (convertView == null) {
@@ -73,22 +76,41 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 		TextView fileSize = (TextView) convertView.findViewById(R.id.file_size);
 		View imageView=(View) convertView.findViewById(R.id.file_button);
 		String strName = this.list.get(groupPosition).get(childPosition).getName();
-		filePath=this.list.get(groupPosition).get(childPosition).getPath();
 		fileName.setText(strName);
 		if(this.fileMap.containsKey(strName)){
 			fileSize.setText(this.fileMap.get(strName));
 		} else if(this.recordMap.containsKey(strName)){
 			fileSize.setText(this.recordMap.get(strName));
 		}
+		imageView.setOnClickListener(new OnClickListener() {			
+
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				/**
+				 *anshe
+				 *2015-7-7下午8:44:35
+				 *@param
+				 */
+				filePath=list.get(groupPosition).get(childPosition).getPath();
+				System.out.println("文件路径："+filePath);
+				Intent intent = OpenfileFunction.openFile(filePath);
+				if (intent != null) {
+					context.startActivity(intent);
+				}
+			}
+		});
 		imageView.setOnLongClickListener(new OnLongClickListener(){
 
 			@Override
 			public boolean onLongClick(View arg0) {
 				// TODO Auto-generated method stub
+				filePath=list.get(groupPosition).get(childPosition).getPath();
+				System.out.println("文件路径："+filePath);
 				File file = new File(filePath);
 				if (file.exists()) {
 					AlertDialog.Builder dialog = new AlertDialog.Builder(
-							cxt);
+							context);
 					dialog.setTitle("发送邮件")
 							.setIcon(R.drawable.icon)
 							.setMessage("确定将此文件发送给好友吗？")
@@ -101,11 +123,11 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 											// TODO Auto-generated method
 											// stub
 											Intent intent = new Intent(
-													cxt,
+													context,
 													SendEmailActivity.class);
 											intent.putExtra("filePath",
 													filePath);
-											cxt.startActivity(intent);
+											context.startActivity(intent);
 
 										}
 									})
@@ -120,8 +142,8 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 										}
 									}).create().show();
 				} else {
-					Toast.makeText(cxt,
-							cxt.getString(R.string.record_sending),
+					Toast.makeText(context,
+							context.getString(R.string.record_sending),
 							Toast.LENGTH_SHORT).show();
 				}
 				return true;

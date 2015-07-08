@@ -441,7 +441,7 @@ public class ChatActivity extends Activity {
 					msgText.setText("");
 
 				} else {
-					Toast.makeText(ChatActivity.this, "发送信息不能为空",
+					Toast.makeText(ChatActivity.this, getString(R.string.send_message_is_null),
 							Toast.LENGTH_SHORT).show();
 				}
 
@@ -469,9 +469,11 @@ public class ChatActivity extends Activity {
 	public void setParam() {
 		// 清空参数
 		mIat.setParameter(SpeechConstant.PARAMS, null);
-
+		//add by anshe 2015.7.8
+		String typeString=mSharedPreferences.getString("iat_type_preference",SpeechConstant.TYPE_CLOUD);
+		typeString=typeString.equals(SpeechConstant.TYPE_AUTO)?SpeechConstant.TYPE_MIX:typeString;
 		// 设置听写引擎 云端
-		mIat.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
+		mIat.setParameter(SpeechConstant.ENGINE_TYPE, typeString);
 		// 设置返回结果格式
 		mIat.setParameter(SpeechConstant.RESULT_TYPE, "json");
 

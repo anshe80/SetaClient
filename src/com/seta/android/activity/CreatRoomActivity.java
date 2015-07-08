@@ -138,12 +138,20 @@ public class CreatRoomActivity extends ActionBarActivity{
 
 		if (search_text.equals("")) {
 			Toast.makeText(CreatRoomActivity.this, getString(R.string.info_null), Toast.LENGTH_SHORT).show();
-		} else {			
-			if (connection==null) {
+		} else {
+						
+			if (connection==null&&XmppConnection.reConnectSuccess) {
 				connection=XmppConnection.getConnection(this);
 				if (connection!=null) {
 					this.pUSERID=connection.getUser();
 				}				
+			}
+			//add by anshe 2015.7.7			
+			if (connection==null||(connection!=null&&connection.getUser()==null)) {
+				Toast.makeText(this,
+						getString(R.string.failedconnection_info),
+						Toast.LENGTH_SHORT).show();
+				return;
 			}
 			final MutilUserChatUtil muc=new MutilUserChatUtil(connection);
 			try {
@@ -264,9 +272,9 @@ public class CreatRoomActivity extends ActionBarActivity{
 	@Override
     public void onBackPressed() { 
 
-		Intent intent = new Intent(CreatRoomActivity.this, MainActivity.class);
+		/*Intent intent = new Intent(CreatRoomActivity.this, MainActivity.class);
 		intent.putExtra("pUSERID", pUSERID);
-		startActivity(intent);        
+		startActivity(intent);*///delete by anshe 2015.7.7        
         CreatRoomActivity.this.finish(); 
          
    }

@@ -12,6 +12,7 @@ import com.seta.android.fragment.accountManagerFragment;
 import com.seta.android.fragment.filemanagerFragment;
 import com.seta.android.fragment.mainFragment;
 import com.seta.android.fragment.privateFragment;
+import com.seta.android.fragment.settingFragment;
 import com.seta.android.recordchat.R;
 import com.seta.android.xmppmanager.XmppConnection;
 import com.sys.android.util.MutilUserChatUtil;
@@ -70,6 +71,10 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 		String userName = null;
 		if (conn != null) {
 			userName = conn.getUser();
+			if (conn.getUser()==null&&XmppConnection.reConnectSuccess) {
+				conn=XmppConnection.reConnection();
+				userName=conn.getUser();
+			}
 		} else {
 			userName = this.getIntent().getStringExtra("pUSERID");
 		}
@@ -93,6 +98,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 		menuList.add(getString(R.string.manage_ID));
 		menuList.add(getString(R.string.manage_files));
 		menuList.add(getString(R.string.private_notes));
+		menuList.add(getString(R.string.menu_settings));
 		adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1, menuList);
 		leftDrawerList.setAdapter(adapter);
@@ -116,7 +122,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 			}
 		};
 
-		if (conn != null) {
+		if (conn != null&&XmppConnection.reConnectSuccess) {
 			conn.addConnectionListener(XmppConnection.connectionListener);
 		}
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
@@ -144,6 +150,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 	 */
 	public MultiUserChat JoinCommonGroup(XMPPConnection conn, String groupName, String userName) {
 		System.out.println("当前用户：" + conn.getUser()+"未知用户："+userName+"groupName="+groupName);
+		
 		MutilUserChatUtil mucUtil = new MutilUserChatUtil(conn);
 		MultiUserChat muc = null;
 		muc = mucUtil.joinMultiUserChat(userName, groupName, "");
@@ -263,6 +270,14 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 	                mDrawerLayout.closeDrawer(leftDrawerList);
 	                break;
 	            }
+	            case 4:
+	            {
+	            	settingFragment mFragment=new settingFragment();
+	                FragmentManager fragmentManager=getSupportFragmentManager();
+	                fragmentManager.beginTransaction().replace(R.id.content_frame,mFragment).commit();
+	                mDrawerLayout.closeDrawer(leftDrawerList);
+	                break;
+	            }
 	        }
 	   }
 	    //delete by anshe 2015.5.17
@@ -304,14 +319,14 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 	    //start add by anshe 2015.5.23
 	    /*
 	     * 用于监控断线
-	     * 15秒检测一次
+	     * 3秒检测一次
 	     * */
 	    public class  reConnnectionListener extends Thread {
 			
 	            public void run() {
 	                while(XmppConnection.getConnection(null).isConnected()){
 	                    try {
-	                        sleep(15*1000);
+	                        sleep(3*1000);
 	                 
 	                    } catch (InterruptedException e) {
 	                        // TODO Auto-generated catch block
@@ -325,9 +340,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 	    
 		public void right_drawer() {
 			// 获取服务器连接
-			if (conn == null) {
-				conn = XmppConnection.getConnection(this);
-			}
 			if (conn==null||null == this.pubicRoomMuc) {
 				Toast.makeText(MainActivity.this,
 						getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();

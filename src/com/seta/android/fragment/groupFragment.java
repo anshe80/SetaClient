@@ -79,7 +79,7 @@ public class groupFragment extends Fragment {
 						int position, long itemId) {
 					/*进入聊天室*/
 					ServerRooms room=mRoomListData.get(position);
-					if (connection==null) {
+					if (connection==null&&XmppConnection.reConnectSuccess) {
 						connection=XmppConnection.reConnection();
 					}
 					if (connection!=null) {

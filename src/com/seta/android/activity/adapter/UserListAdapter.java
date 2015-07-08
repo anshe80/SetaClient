@@ -27,7 +27,7 @@ import com.seta.android.xmppmanager.XmppConnection;
 import com.seta.android.xmppmanager.XmppService;
 
 public class UserListAdapter extends BaseAdapter {
-	private Context context = null;
+	private Activity context = null;
 	private LayoutInflater inflater = null;
 	private List<String> list = null;
 	private XMPPConnection conn = null;
@@ -69,9 +69,15 @@ public class UserListAdapter extends BaseAdapter {
 		// convertView.findViewById(R.id.user_icon);
 		final TextView tvUuserName = (TextView) convertView.findViewById(R.id.user_name);
 		final String userName = this.list.get(position);
+		if (conn!=null&&conn.getUser()==null) {
+			if (XmppConnection.reConnectSuccess) {
+				conn=XmppConnection.reConnection();
+			}else {
+				conn=XmppConnection.getConnection(context);
+			}
+		}
 		if (conn!=null&&conn.getUser()!=null&&conn.getUser().split("@")[0].equalsIgnoreCase(userName)) {
 			tvUuserName.setText(userName.split("@")[0] + " [本人]");
-			tvUuserName.setClickable(false);
 		} else {
 			tvUuserName.setText(userName.split("@")[0]);
 		}
@@ -82,11 +88,22 @@ public class UserListAdapter extends BaseAdapter {
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				System.out.println("点击邀请用户参与聊天");
-
 				System.out.println("连接用户名：" + conn.getUser());
 				System.out.println("聊天名字：" + userName);
-				if (conn!=null&&conn.getUser().split("@")[0].equalsIgnoreCase(userName)) {
+				if (conn!=null&&conn.getUser()==null) {
+					if (XmppConnection.reConnectSuccess) {
+						conn=XmppConnection.reConnection();
+					}else {
+						conn=XmppConnection.getConnection(context);
+					}
+				}
+				if (conn.getUser()==null) {
+					Toast.makeText(context, context.getString(R.string.not_Connect_to_Server), Toast.LENGTH_LONG).show();
+					return;
+				}
+				if (conn!=null&&conn.getUser()!=null&&conn.getUser().split("@")[0].equalsIgnoreCase(userName)) {
 					Toast.makeText(context, "不能和自己聊天", Toast.LENGTH_SHORT).show();
+					tvUuserName.setText(userName.split("@")[0] + " [本人]");
 					return;
 				}
 				AlertDialog.Builder dialog = new AlertDialog.Builder(context);

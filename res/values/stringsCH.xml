@@ -6,8 +6,8 @@
     <!-- 提示安装语音+对话框 -->
     <string name="superman_ok">确 定</string>
     <string name="superman_cancel">取 消</string>
-    <string name="superman_title">来 吧 !</string>
-    <string name="superman_content">让我把你的应用变的能听会说吧！</string>
+    <string name="superman_title">提 示 !</string>
+    <string name="superman_content">需要下载离线服务APK</string>
     <!-- 语言 -->
     <string-array name="language_entries">
         <item>普通话</item>
@@ -20,6 +20,11 @@
         <item>cantonese</item>
         <item>henanese</item>
         <item>en_us</item>
+    </string-array>
+    <string-array name="type_values">
+        <item>cloud</item>
+        <item>mix</item>
+        <item>local</item>
     </string-array>
     <!-- 标点符号 -->
     <string-array name="punc_entries">
@@ -78,5 +83,10 @@
     <string name="not_Connect_to_Server">与服务器断开连接，请重新登录！</string>
     <string name="room_is_exist">聊天室已经存在，可以加入或者创建其它名称的聊天室</string>
     <string name="reconnection_fail">重新连接失败！请重新登录！</string>
+    <string name="send_message_is_null">发送信息不能为空</string>
+    <string name="record_auto_choose">根据网络自动选择</string>
+    <string name="record_type_cloud">仅使用云端</string>
+    <string name="record_type_mix">云端和本地混合</string>
+    <string name="record_type_local">仅使用本地</string>
     <!-- end add by anshe 2015.7.5 -->
 </resources>

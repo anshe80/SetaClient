@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/user_icon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="语音识别引擎设置"
+            android:textColor="#000000" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.1dip"
+        android:layout_margin="5dp"
+        android:background="@color/Grey" />
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dip"
+        android:padding="5dip" >
+
+        <Button
+            android:id="@+id/chooseRecordText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/clock_list"
+            android:clickable="false"
+            android:gravity="center_vertical"
+            android:padding="10dip"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <com.seta.android.selfview.SlipButton
+            android:id="@+id/chooseRecordButton"
+            android:layout_width="100dip"
+            android:layout_height="40dip"
+            android:layout_alignRight="@id/chooseRecordText"
+            android:layout_alignTop="@id/chooseRecordText"
+            android:layout_marginTop="10dip" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/spinner_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:gravity="right"
+        android:padding="5dip"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="45dp"
+            android:layout_marginTop="1dp"
+            android:text="自定义 :"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <com.seta.android.selfview.CustomerSpinner
+            android:id="@+id/spinner"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="1dp"
+            android:background="@drawable/bg_spinner"
+            android:textColor="@android:color/black" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/language"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="语言设置"
+            android:textColor="#000000" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.1dip"
+        android:layout_margin="5dp"
+        android:background="@color/Grey" /> 
+
+    <LinearLayout
+        android:id="@+id/language_spinner_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:padding="5dip"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="1dp"
+            android:text="识别语言:"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <com.seta.android.selfview.CustomerSpinner
+            android:id="@+id/language_spinner"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="1dp"
+            android:background="@drawable/bg_spinner"
+            android:textColor="@android:color/black" />
+    </LinearLayout>
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.1dip"
+        android:layout_margin="5dp"
+        android:background="@color/Grey" />
+
+</LinearLayout>

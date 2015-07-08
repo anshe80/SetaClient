@@ -44,6 +44,7 @@ import org.jivesoftware.smackx.search.UserSearch;
 
 import com.seta.android.fragment.privateFragment;
 import com.seta.android.recordchat.R;
+import com.sys.android.util.MutilUserChatUtil;
 import com.sys.android.util.NetWorkConnection;
 import com.sys.android.util.OpenfileFunction;
 
@@ -72,8 +73,7 @@ public class XmppConnection {
 	private static SharedPreferences rememberPassword;
 	private static Activity mActivity;
 	private static Timer tExit;
-	private static int logintime = 10000;
-
+	public static boolean reConnectSuccess = false;
 	// end add by anshe 2015.7.6
 
 	public static XMPPConnection openConnection(Activity context) {
@@ -82,12 +82,11 @@ public class XmppConnection {
 					&& (null == connection || !connection.isAuthenticated())) {
 				mActivity = context;
 				XMPPConnection.DEBUG_ENABLED = true;// 开启DEBUG模式
-				InetAddress addr = InetAddress.getLocalHost();
+				//InetAddress addr = InetAddress.getLocalHost();
 				// SERVER_HOST=addr.getHostAddress().toString();//获得本机IP
 				// 配置连接
 				ConnectionConfiguration config = new ConnectionConfiguration(
 						SERVER_HOST, SERVER_PORT, SERVER_NAME);
-				config.setReconnectionAllowed(true);
 				config.setSendPresence(true);
 				config.setReconnectionAllowed(true);
 				config.setSecurityMode(ConnectionConfiguration.SecurityMode.enabled);
@@ -124,11 +123,7 @@ public class XmppConnection {
 		} catch (XMPPException xe) {
 			xe.printStackTrace();
 			return null;
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		} 
 		return connection;
 	}
 
@@ -139,7 +134,7 @@ public class XmppConnection {
 	 *            TODO
 	 */
 	public static XMPPConnection getConnection(Activity activity) {
-		if (connection == null && activity != null) {
+		if ((null == connection)&& activity != null) {
 			mActivity = activity;
 			connection = openConnection(activity);
 			rememberPassword = activity.getSharedPreferences("userInfo",
@@ -147,7 +142,8 @@ public class XmppConnection {
 			String accounts = rememberPassword.getString("USER_NAME", "admin");
 			String password = rememberPassword.getString("PASSWORD", "admin");
 			if (NetWorkConnection.isNetworkAvailable(activity)
-					&& accounts != null && password != null) {
+					&& accounts != null && password != null
+					&&!connection.isAuthenticated()) {
 				try {
 					connection.login(accounts, password);
 				} catch (XMPPException e) {
@@ -362,10 +358,9 @@ public class XmppConnection {
 	public static class reConnnectionListener extends Thread {
 
 		public void run() {
-			while (XmppConnection.getConnection(null).isConnected()) {
+			while (XmppConnection.getConnection(mActivity).isConnected()) {
 				try {
 					sleep(15 * 1000);
-
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -381,16 +376,19 @@ public class XmppConnection {
 		@Override
 		public void reconnectionSuccessful() {
 			Log.i("connection", "来自连接监听,conn重连成功");
+			reConnectSuccess=true;
 		}
 
 		@Override
 		public void reconnectionFailed(Exception arg0) {
 			Log.i("connection", "来自连接监听,conn失败：" + arg0.getMessage());
+			reConnectSuccess=false;
 		}
 
 		@Override
 		public void reconnectingIn(int arg0) {
 			Log.i("connection", "来自连接监听,conn重连中..." + arg0);
+			reConnectSuccess=false;
 			if (mActivity!=null&&NetWorkConnection.isNetworkAvailable(mActivity)) {
 				rememberPassword = mActivity.getSharedPreferences("userInfo",
 						Context.MODE_WORLD_READABLE);
@@ -415,6 +413,8 @@ public class XmppConnection {
 		@Override
 		public void connectionClosedOnError(Exception arg0) {
 			// 这里就是网络不正常或者被挤掉断线激发的事件
+			reConnectSuccess=false;
+			Log.i("connection", "connectionClosedOnError");
 			if (arg0.getMessage().contains("conflict")) { // 被挤掉线
 				/*
 				 * log.e("来自连接监听,conn非正常关闭");
@@ -446,7 +446,6 @@ public class XmppConnection {
 			} else if (arg0.getMessage().contains("Connection timed out")) {// 连接超时
 				// 不做任何操作，会实现自动重连
 			}
-			Log.i("connection", "connectionClosedOnError");
 
 		}
 
@@ -454,7 +453,7 @@ public class XmppConnection {
 		public void connectionClosed() {
 			// TODO Auto-generated method stub
 			Log.e("connection", "来自连接监听,conn正常关闭");
-
+			reConnectSuccess=false;
 		}
 	};
 
@@ -499,6 +498,7 @@ public class XmppConnection {
 						// 连接服务器成功，更改在线状态
 						Presence presence = new Presence(Presence.Type.available);
 						connection.sendPacket(presence);
+						XmppConnection.reConnectSuccess=false;
 					}
 				}				
 			}

@@ -115,11 +115,11 @@ public class publicFragment extends Fragment {
 
 	private void init(View view) {
 		mNotificationManager = (NotificationManager) context
-				.getSystemService(Service.NOTIFICATION_SERVICE);		
+				.getSystemService(Service.NOTIFICATION_SERVICE);
 		connection = XmppConnection.getConnection(context);
-		if (connection!=null) {
+		if (connection != null) {
 			this.userChat = connection.getUser();
-		}else {
+		} else {
 			userChat = this.getActivity().getIntent().getStringExtra("pUSERID");
 		}
 		joinChatRoom();
@@ -166,24 +166,28 @@ public class publicFragment extends Fragment {
 
 	}
 
-	public boolean joinChatRoom() {		
+	public boolean joinChatRoom() {
 		connection = XmppConnection.getConnection(context);
-		if (connection!=null) {
-			final MutilUserChatUtil mutilUserRoomList = new MutilUserChatUtil(connection);
-			muc = mutilUserRoomList.joinMultiUserChat(connection.getUser(), publicroom, "");
+		if (connection != null) {
+			final MutilUserChatUtil mutilUserRoomList = new MutilUserChatUtil(
+					connection);
+			muc = mutilUserRoomList.joinMultiUserChat(connection.getUser(),
+					publicroom, "");
 			if (muc == null) {
-				muc = mutilUserRoomList.createRoom(connection.getUser(), publicroom, "");
+				muc = mutilUserRoomList.createRoom(connection.getUser(),
+						publicroom, "");
 			}
-			userChat=connection.getUser();
-			if (muc!=null) {
+			userChat = connection.getUser();
+			if (muc != null) {
 				return true;
-			}else {
+			} else {
 				return false;
 			}
-		}else{
-			Toast.makeText(context, getString(R.string.not_Connect_to_Server), Toast.LENGTH_LONG).show();
+		} else {
+			Toast.makeText(context, getString(R.string.not_Connect_to_Server),
+					Toast.LENGTH_LONG).show();
 			return false;
-		}	
+		}
 	}
 
 	@Override
@@ -373,9 +377,9 @@ public class publicFragment extends Fragment {
 	 * 接收消息
 	 */
 	public void receivedMsg() {
-		boolean addListener=true;
+		boolean addListener = true;
 		if (muc == null) {
-			addListener=joinChatRoom();
+			addListener = joinChatRoom();
 		}
 		if (addListener) {
 			muc.addMessageListener(new PacketListener() {
@@ -384,14 +388,16 @@ public class publicFragment extends Fragment {
 					Message message = (Message) packet;
 					String from = Utils.getJidToUsername(message.getFrom());
 					String toUser = Utils.getJidToUsername(message.getTo());
-					String nowUser = Utils.getJidToUsername(connection.getUser());
+					String nowUser = Utils.getJidToUsername(connection
+							.getUser());
 
 					if (!from.equals(toUser) && !nowUser.equals(from)) {
 						// Msg.analyseMsgBody(message.getBody(),userChat);
 						// 获取用户、消息、时间、IN
 						// 在handler里取出来显示消息
 						android.os.Message msg = handler.obtainMessage();
-						System.out.println("服务器发来的消息是 chat：" + message.getBody());
+						System.out.println("服务器发来的消息是 chat："
+								+ message.getBody());
 						msg.what = 1;
 						msg.obj = message.getBody();
 						msg.sendToTarget();
@@ -404,8 +410,7 @@ public class publicFragment extends Fragment {
 	/**
 	 * 发送消息
 	 * 
-	 * @author anshe
-	 * modify 2015.7.6
+	 * @author anshe modify 2015.7.6
 	 */
 	public void sendMsg() {
 		boolean addListener = true;
@@ -424,33 +429,45 @@ public class publicFragment extends Fragment {
 					// 获取text文本
 					final String msg = msgText.getText().toString();
 					if (msg.length() > 0) {
-						// 发送对方
-						Msg sendChatMsg = new Msg(publicroom, msg, TimeRender
-								.getDate(), userChat, Msg.TYPE[2]);
-						// 刷新适配器
-						adapter.notifyDataSetChanged();
-						if (muc == null) {
-							joinChatRoom();
-						}
-						try {
-							// 发送消息
-							muc.sendMessage(Msg.toJson(sendChatMsg));
-
-						} catch (Exception e) {
-							e.printStackTrace();
+						if (connection == null
+								|| (connection != null && connection.getUser() == null)) {
 							Toast.makeText(context,
-									getString(R.string.failedconnection_info),
+									getString(R.string.not_Connect_to_Server),
 									Toast.LENGTH_SHORT).show();
+							return;
+						} else {
+							// 发送对方
+							Msg sendChatMsg = new Msg(publicroom, msg,
+									TimeRender.getDate(), userChat, Msg.TYPE[2]);
+							// 刷新适配器
+							adapter.notifyDataSetChanged();
+							if (muc == null) {
+								joinChatRoom();
+							}
+							try {
+								// 发送消息
+								muc.sendMessage(Msg.toJson(sendChatMsg));
+
+							} catch (Exception e) {
+								e.printStackTrace();
+								Toast.makeText(
+										context,
+										getString(R.string.failedconnection_info),
+										Toast.LENGTH_SHORT).show();
+							}
+
+							// 清空text modify by anshe 2015.5.26
+							if (resultsString != null
+									&& resultsString.length() > 1) {
+								resultsString.delete(0,
+										resultsString.length() - 1);
+							}
+							msgText.setText("");
 						}
-
-						// 清空text modify by anshe 2015.5.26
-						if (resultsString != null && resultsString.length() > 1)
-							resultsString.delete(0, resultsString.length() - 1);
-						msgText.setText("");
-
 					} else {
-						Toast.makeText(context, "发送信息不能为空", Toast.LENGTH_SHORT)
-								.show();
+						Toast.makeText(context,
+								getString(R.string.send_message_is_null),
+								Toast.LENGTH_SHORT).show();
 					}
 
 				}
@@ -479,8 +496,12 @@ public class publicFragment extends Fragment {
 		// 清空参数
 		mIat.setParameter(SpeechConstant.PARAMS, null);
 
+		// add by anshe 2015.7.8
+		String typeString = mSharedPreferences.getString("iat_type_preference",
+				SpeechConstant.TYPE_CLOUD);
+		typeString=typeString.equals(SpeechConstant.TYPE_AUTO)?SpeechConstant.TYPE_MIX:typeString;
 		// 设置听写引擎 云端
-		mIat.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
+		mIat.setParameter(SpeechConstant.ENGINE_TYPE, typeString);
 		// 设置返回结果格式
 		mIat.setParameter(SpeechConstant.RESULT_TYPE, "json");
 
@@ -519,15 +540,15 @@ public class publicFragment extends Fragment {
 	 * @author Administrator
 	 * 
 	 */
-	//start modify by anshe 2015.7.5
+	// start modify by anshe 2015.7.5
 	public void receivedFile() {
 		/**
 		 * 接收文件
 		 */
-		if (connection==null) {
-			connection=XmppConnection.getConnection(context);
+		if (connection == null) {
+			connection = XmppConnection.getConnection(context);
 		}
-		if (connection!=null) {
+		if (connection != null) {
 			// Create the file transfer manager
 			final FileTransferManager manager = new FileTransferManager(
 					connection);
@@ -565,8 +586,8 @@ public class publicFragment extends Fragment {
 						String[] args = new String[] { userChat,
 								request.getFileName(), TimeRender.getDate(),
 								publicroom, Msg.TYPE[0], Msg.STATUS[1] };
-						Msg msgInfo = new Msg(args[0], "redio", args[2], args[3],
-								Msg.TYPE[0], Msg.STATUS[1]);
+						Msg msgInfo = new Msg(args[0], "redio", args[2],
+								args[3], Msg.TYPE[0], Msg.STATUS[1]);
 						// 在handler里取出来显示消息
 						android.os.Message msg = handler.obtainMessage();
 						msg.what = 4;
@@ -576,9 +597,10 @@ public class publicFragment extends Fragment {
 				}
 			});
 		}
-		
+
 	}
-	//end modify by anshe 2015.7.5
+
+	// end modify by anshe 2015.7.5
 	/**
 	 * 发送文件
 	 * 
@@ -588,7 +610,7 @@ public class publicFragment extends Fragment {
 		/**
 		 * 发送文件
 		 */
-		if (connection==null) {
+		if (connection == null) {
 			connection = XmppConnection.getConnection(context);
 		}
 		if (connection != null) {
@@ -596,7 +618,7 @@ public class publicFragment extends Fragment {
 			FileTransferManager sendFilemanager = new FileTransferManager(
 					connection);
 			// Create the outgoing file transfer
-			if (muc == null) {//add by anshe 2015.7.6
+			if (muc == null) {// add by anshe 2015.7.6
 				joinChatRoom();
 			}
 			if (muc != null) {

@@ -5,7 +5,7 @@
     android:background="@color/white"
     android:layout_height="match_parent">
 	<ListView 
-	    android:id="@+id/lv_dialog"
+	    android:id="@+id/person_file_list"
 	    android:layout_width="match_parent"
 	    android:layout_height="0dp"
 	    android:layout_weight="1"
@@ -24,7 +24,7 @@
 	    android:layout_height="240dp"
 	    android:layout_weight="1"
 	    android:hint="语音识别结果"
-	    android:textColor="#FFFFFF" />
+	    android:textColor="@color/black" />
 
 	</LinearLayout>
 	<FrameLayout 

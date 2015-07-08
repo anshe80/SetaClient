@@ -13,7 +13,6 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechUtility;
-import com.seta.android.activity.ChatActivity;
 import com.seta.android.record.utils.IatSettings;
 import com.seta.android.record.utils.JsonParser;
 import com.sys.android.util.JNIMp3Encode;
@@ -38,22 +37,25 @@ import android.widget.Toast;
 public class privateFragment extends Fragment {
 
 	public static String RECORD_ROOT_PATH = Environment
-			.getExternalStorageDirectory().getPath() + "/seta/record";
+			.getExternalStorageDirectory().getPath() + "/seta/personrecord";
 	private SpeechRecognizer mIat;// 语音听写对象
 	private String caseAudio = RECORD_ROOT_PATH;
+	//start add by anshe 2015.7.8
 	private SharedPreferences mSharedPreferences;
 	private String audioPath;
 	private long startTime;
 	private long time;
-	private static String TAG = ChatActivity.class.getSimpleName();
+	private static String TAG = privateFragment.class.getSimpleName();
 	private Button mRecordButton;
 	private EditText msgText;
+	StringBuffer resultsString = new StringBuffer();
+	private boolean recording = false;
+	//end add by anshe 2015.7.8
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater
-				.inflate(R.layout.privatefragment, container, false);
+		View view = inflater.inflate(R.layout.privatefragment, container, false);
 
 		SpeechUtility.createUtility(this.getActivity(), SpeechConstant.APPID
 				+ "=" + getString(R.string.app_id));
@@ -70,28 +72,43 @@ public class privateFragment extends Fragment {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				if (!mIat.isListening()) {
+				//start modify by anshe 2015.7.8
+				if (!recording) {
+					recording = true;
 					startTime = System.currentTimeMillis();
+					mRecordButton.setText(getString(R.string.recording));
+					// 清空text modify by anshe 2015.5.26
+					if (resultsString != null && resultsString.length() > 1)
+						resultsString.delete(0, resultsString.length() - 1);
+					msgText.setText("");
 					caseAudio = RECORD_ROOT_PATH + "/"
 							+ System.currentTimeMillis() + ".pcm";
 					record();
 				} else {
-					if (mIat.isListening()) {
-						mIat.stopListening();
-					}
-					mRecordButton.setText(getString(R.string.start_record));
-					time = (System.currentTimeMillis() - startTime) / 1000;
-					audioPath = caseAudio.replace("pcm", "mp3");
-					Thread convert = new Thread(new convertToMp3());
-					convert.start();
-
+					completeRecord();
 				}
 			}
-
+			//end modify by anshe 2015.7.8
 		});
 
 		return view;
 	}
+
+	// start add by anshe 2015.7.8
+		public void completeRecord() {
+			recording = false;
+			mIat.stopListening();
+			mRecordButton.setText(getString(R.string.start_record));
+			time = (System.currentTimeMillis() - startTime) / 1000;
+			audioPath = caseAudio.replace("pcm", "mp3");
+			String fileName = audioPath.split("/")[audioPath.split("/").length - 1];
+			Log.e("缓存的音频路径：", "caseAudio=" + caseAudio);
+			Log.e("转码后的音频路径：", "audioPath=" + audioPath + " fileName=" + fileName);
+			Thread convert = new Thread(new convertToMp3());
+			convert.start();
+		}
+
+		// end add by anshe 2015.7.8
 
 	/**
 	 * 初始化监听器。
@@ -107,25 +124,34 @@ public class privateFragment extends Fragment {
 		}
 	};
 
-	// start add by anshe 2015.5.20
-	class convertToMp3 implements Runnable {
+	// start add by anshe 2015.7.8
+	class convertToMp3 extends Thread {
 
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			JNIMp3Encode convert = new JNIMp3Encode();
-			convert.convertmp3(caseAudio, audioPath, 8000);
-			File file = new File(audioPath);
-			if (file.exists()) {
-				file = new File(caseAudio);
-				file.delete();
-			} else {
-				Log.e("发送文件情况：", "发送失败");
+			Log.e("正在转码", "开始进行。。。。");
+			File file = new File(caseAudio);
+			while (!file.exists())
+				;// waiting for audio
+			try {
+				if (file.exists()) {
+					JNIMp3Encode.convertmp3(caseAudio, audioPath, 8000);
+					file = new File(caseAudio);
+					file.delete();
+					Log.e("转码完成", "文件生成成功");
+				} else {
+					Log.e("转码完成", "转码失败。。。。文件不存在");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				Log.e("转码完成", "转码失败。。。。");
+
 			}
 		}
 
 	}
-
+	// end add by anshe 2015.7.8
 	public void record() {
 		setParam();
 		int ret = 0; // 函数调用返回值
@@ -168,21 +194,21 @@ public class privateFragment extends Fragment {
 		@Override
 		public void onResult(RecognizerResult results, boolean isLast) {
 			Log.d(TAG, results.getResultString());
-			String resultsString = printResult(results);
+			resultsString.append(printResult(results));
 
 			msgText.setText(resultsString.toString());
 			Log.e("语音识别后的消息：", resultsString.toString());
 			msgText.setSelection(msgText.length());
 			if (isLast) {
 				// TODO 最后的结果
-				mRecordButton.setText(getString(R.string.start_record));
-				mIat.stopListening();
 			}
 		}
 
 		@Override
 		public void onVolumeChanged(int volume) {
-			showTip("当前正在说话，音量大小：" + volume);
+			if (recording) {
+				//showTip("当前正在说话，音量大小：" + volume);				
+			}
 		}
 
 		@Override
@@ -190,7 +216,7 @@ public class privateFragment extends Fragment {
 		}
 	};
 
-	private String printResult(RecognizerResult results) {
+	private StringBuffer printResult(RecognizerResult results) {
 		String text = JsonParser.parseIatResult(results.getResultString());
 		// 用HashMap存储听写结果
 		HashMap<String, String> mIatResults = new LinkedHashMap<String, String>();
@@ -198,17 +224,19 @@ public class privateFragment extends Fragment {
 		// 读取json结果中的sn字段
 		try {
 			JSONObject resultJson = new JSONObject(results.getResultString());
+			Log.e("语音识别结果：", "resultJson=" + resultJson.toString());
 			sn = resultJson.optString("sn");
+			Log.e("语音识别结果：", "sn=" + sn.toString());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		mIatResults.put(sn, text);
-
 		StringBuffer resultBuffer = new StringBuffer();
 		for (String key : mIatResults.keySet()) {
 			resultBuffer.append(mIatResults.get(key));
+			Log.e("语音识别结果：", "resultBuffer=" + resultBuffer);
 		}
-		return resultBuffer.toString();
+		return resultBuffer;
 
 	}
 
@@ -225,9 +253,11 @@ public class privateFragment extends Fragment {
 	public void setParam() {
 		// 清空参数
 		mIat.setParameter(SpeechConstant.PARAMS, null);
-
+		//add by anshe 2015.7.8
+		String typeString=mSharedPreferences.getString("iat_type_preference",SpeechConstant.TYPE_MIX);
+		typeString=typeString.equals(SpeechConstant.TYPE_AUTO)?SpeechConstant.TYPE_MIX:typeString;
 		// 设置听写引擎 云端
-		mIat.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
+		mIat.setParameter(SpeechConstant.ENGINE_TYPE, typeString);
 		// 设置返回结果格式
 		mIat.setParameter(SpeechConstant.RESULT_TYPE, "json");
 
@@ -244,10 +274,10 @@ public class privateFragment extends Fragment {
 		}
 		// 设置语音前端点
 		mIat.setParameter(SpeechConstant.VAD_BOS,
-				mSharedPreferences.getString("iat_vadbos_preference", "4000"));
+				mSharedPreferences.getString("iat_vadbos_preference", "1000"));
 		// 设置语音后端点
-		mIat.setParameter(SpeechConstant.VAD_EOS,
-				mSharedPreferences.getString("iat_vadeos_preference", "4000"));
+		mIat.setParameter(SpeechConstant.VAD_EOS, mSharedPreferences.getString(
+				"iat_vadeos_preference", getString(R.string.record_stop_time)));
 		// 设置标点符号
 		mIat.setParameter(SpeechConstant.ASR_PTT,
 				mSharedPreferences.getString("iat_punc_preference", "1"));
