@@ -43,6 +43,7 @@ import org.jivesoftware.smackx.provider.XHTMLExtensionProvider;
 import org.jivesoftware.smackx.search.UserSearch;
 
 import com.seta.android.fragment.privateFragment;
+import com.seta.android.record.utils.IatSettings;
 import com.seta.android.recordchat.R;
 import com.sys.android.util.MutilUserChatUtil;
 import com.sys.android.util.NetWorkConnection;
@@ -51,6 +52,7 @@ import com.sys.android.util.OpenfileFunction;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
@@ -66,27 +68,25 @@ public class XmppConnection {
 	// public static String SERVER_HOST = "104.236.149.81";//你openfire服务器所在的ip
 	// public static String SERVER_NAME = "aa";//设置openfire时的服务器名
 	public static int SERVER_PORT = 5222;// 服务端口 可以在openfire上设置
-	public static String SERVER_HOST = "172.18.19.34";// 你openfire服务器所在的ip
+	public static String SERVER_HOST = "172.18.19.17";// 你openfire服务器所在的ip
+	public static String NETSERVER_HOST = "172.18.19.17";
 	public static String SERVER_NAME = "seta";// 设置openfire时的服务器名
 	private static XMPPConnection connection = null;
 	// start add by anshe 2015.7.6
 	private static SharedPreferences rememberPassword;
-	private static Activity mActivity;
-	private static Timer tExit;
-	public static boolean reConnectSuccess = false;
+	public static Activity mActivity;
 	// end add by anshe 2015.7.6
 
 	public static XMPPConnection openConnection(Activity context) {
 		try {
-			if (context != null
-					&& (null == connection || !connection.isAuthenticated())) {
+			if (null == connection || !connection.isAuthenticated()) {
 				mActivity = context;
 				XMPPConnection.DEBUG_ENABLED = true;// 开启DEBUG模式
-				//InetAddress addr = InetAddress.getLocalHost();
+				// InetAddress addr = InetAddress.getLocalHost();
 				// SERVER_HOST=addr.getHostAddress().toString();//获得本机IP
 				// 配置连接
 				ConnectionConfiguration config = new ConnectionConfiguration(
-						SERVER_HOST, SERVER_PORT, SERVER_NAME);
+						getSERVER_HOST(), SERVER_PORT, SERVER_NAME);
 				config.setSendPresence(true);
 				config.setReconnectionAllowed(true);
 				config.setSecurityMode(ConnectionConfiguration.SecurityMode.enabled);
@@ -123,7 +123,7 @@ public class XmppConnection {
 		} catch (XMPPException xe) {
 			xe.printStackTrace();
 			return null;
-		} 
+		}
 		return connection;
 	}
 
@@ -134,32 +134,18 @@ public class XmppConnection {
 	 *            TODO
 	 */
 	public static XMPPConnection getConnection(Activity activity) {
-		if ((null == connection)&& activity != null) {
-			mActivity = activity;
-			connection = openConnection(activity);
-			rememberPassword = activity.getSharedPreferences("userInfo",
-					Context.MODE_WORLD_READABLE);
-			String accounts = rememberPassword.getString("USER_NAME", "admin");
-			String password = rememberPassword.getString("PASSWORD", "admin");
-			if (NetWorkConnection.isNetworkAvailable(activity)
-					&& accounts != null && password != null
-					&&!connection.isAuthenticated()) {
-				try {
-					connection.login(accounts, password);
-				} catch (XMPPException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return null;
-				}
-				// 连接服务器成功，更改在线状态
-				Presence presence = new Presence(Presence.Type.available);
-				connection.sendPacket(presence);
+		if (null == connection) {
+			if (activity != null) {
+				mActivity = activity;
 			}
+			reConnection();
 		} else {
-			if (connection == null) {
+			if (null == connection) {
 				Toast.makeText(activity,
 						activity.getString(R.string.reconnection_fail),
-						Toast.LENGTH_LONG).show();
+						Toast.LENGTH_SHORT).show();
+			}else {
+				//Log.e("重启连接服务器", "重启连接服务器失败！"+connection.isConnected()+connection.getUser());				
 			}
 		}
 		return connection;
@@ -376,44 +362,37 @@ public class XmppConnection {
 		@Override
 		public void reconnectionSuccessful() {
 			Log.i("connection", "来自连接监听,conn重连成功");
-			reConnectSuccess=true;
 		}
 
 		@Override
 		public void reconnectionFailed(Exception arg0) {
 			Log.i("connection", "来自连接监听,conn失败：" + arg0.getMessage());
-			reConnectSuccess=false;
 		}
 
 		@Override
 		public void reconnectingIn(int arg0) {
 			Log.i("connection", "来自连接监听,conn重连中..." + arg0);
-			reConnectSuccess=false;
-			if (mActivity!=null&&NetWorkConnection.isNetworkAvailable(mActivity)) {
-				rememberPassword = mActivity.getSharedPreferences("userInfo",
-						Context.MODE_WORLD_READABLE);
-				String accounts = rememberPassword.getString("USER_NAME", "admin");
-				String password = rememberPassword.getString("PASSWORD", "admin");
-				connection = openConnection(mActivity);
-				if (accounts != null && password != null
-						&&connection!=null&&!connection.isAuthenticated()) {					
-					try {
-						connection.login(accounts, password);
-						// 连接服务器成功，更改在线状态
-						Presence presence = new Presence(Presence.Type.available);
-						connection.sendPacket(presence);
-					} catch (XMPPException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}			
+			//reConnection();
+			/*
+			 * if
+			 * (mActivity!=null&&NetWorkConnection.isNetworkAvailable(mActivity
+			 * )) { rememberPassword =
+			 * mActivity.getSharedPreferences("userInfo",
+			 * Context.MODE_WORLD_READABLE); String accounts =
+			 * rememberPassword.getString("USER_NAME", "admin"); String password
+			 * = rememberPassword.getString("PASSWORD", "admin"); connection =
+			 * openConnection(mActivity); if (accounts != null && password !=
+			 * null &&connection!=null&&!connection.isAuthenticated()) { try {
+			 * connection.login(accounts, password); // 连接服务器成功，更改在线状态 Presence
+			 * presence = new Presence(Presence.Type.available);
+			 * connection.sendPacket(presence); } catch (XMPPException e) { //
+			 * TODO Auto-generated catch block e.printStackTrace(); } } }
+			 */
 		}
 
 		@Override
 		public void connectionClosedOnError(Exception arg0) {
 			// 这里就是网络不正常或者被挤掉断线激发的事件
-			reConnectSuccess=false;
 			Log.i("connection", "connectionClosedOnError");
 			if (arg0.getMessage().contains("conflict")) { // 被挤掉线
 				/*
@@ -424,25 +403,7 @@ public class XmppConnection {
 				// 关闭连接，由于是被人挤下线，可能是用户自己，所以关闭连接，让用户重新登录是一个比较好的选择
 				XmppConnection.closeConnection();
 				// 接下来你可以通过发送一个广播，提示用户被挤下线，重连很简单，就是重新登录
-				rememberPassword = mActivity.getSharedPreferences("userInfo",
-						Context.MODE_WORLD_READABLE);
-				String accounts = rememberPassword.getString("USER_NAME",
-						"admin");
-				String password = rememberPassword.getString("PASSWORD",
-						"admin");
-				if (NetWorkConnection.isNetworkAvailable(mActivity)
-						&& accounts != null && password != null) {
-					connection = openConnection(mActivity);
-					try {
-						connection.login(accounts, password);
-					} catch (XMPPException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					// 连接服务器成功，更改在线状态
-					Presence presence = new Presence(Presence.Type.available);
-					connection.sendPacket(presence);
-				}
+				reConnection();
 			} else if (arg0.getMessage().contains("Connection timed out")) {// 连接超时
 				// 不做任何操作，会实现自动重连
 			}
@@ -453,7 +414,6 @@ public class XmppConnection {
 		public void connectionClosed() {
 			// TODO Auto-generated method stub
 			Log.e("connection", "来自连接监听,conn正常关闭");
-			reConnectSuccess=false;
 		}
 	};
 
@@ -462,11 +422,11 @@ public class XmppConnection {
 		try {
 			if (null == connection || !connection.isAuthenticated()) {
 				XMPPConnection.DEBUG_ENABLED = true;// 开启DEBUG模式
-				InetAddress addr = InetAddress.getLocalHost();
+				// InetAddress addr = InetAddress.getLocalHost();
 				// SERVER_HOST=addr.getHostAddress().toString();//获得本机IP
 				// 配置连接
 				ConnectionConfiguration config = new ConnectionConfiguration(
-						SERVER_HOST, SERVER_PORT, SERVER_NAME);
+						getSERVER_HOST(), SERVER_PORT, SERVER_NAME);
 				config.setReconnectionAllowed(true);
 				config.setSendPresence(true);
 				config.setReconnectionAllowed(true);
@@ -482,9 +442,9 @@ public class XmppConnection {
 				config.setSASLAuthenticationEnabled(true);
 
 				connection = new XMPPConnection(config);
-				if (mActivity!=null) {
-					rememberPassword = mActivity.getSharedPreferences("userInfo",
-							Context.MODE_WORLD_READABLE);
+				if (mActivity != null) {
+					rememberPassword = mActivity.getSharedPreferences(
+							"userInfo", Context.MODE_WORLD_READABLE);
 					String accounts = rememberPassword.getString("USER_NAME",
 							"admin");
 					String password = rememberPassword.getString("PASSWORD",
@@ -496,22 +456,66 @@ public class XmppConnection {
 						configureConnection(ProviderManager.getInstance());
 						connection.login(accounts, password);
 						// 连接服务器成功，更改在线状态
-						Presence presence = new Presence(Presence.Type.available);
+						Presence presence = new Presence(
+								Presence.Type.available);
 						connection.sendPacket(presence);
-						XmppConnection.reConnectSuccess=false;
+						Log.e("重启连接服务器", "重启连接服务器:"+connection.isConnected());
 					}
-				}				
+				}
 			}
 		} catch (XMPPException xe) {
 			xe.printStackTrace();
 			return null;
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
 		}
 		return connection;
 	}
+
 	// end add by anshe 2015.7.6
+
+	// start add by anshe 2015.7.10
+	public static XMPPConnection Authenticated() {
+		rememberPassword = mActivity.getSharedPreferences("userInfo",
+				Context.MODE_WORLD_READABLE);
+		String accounts = rememberPassword.getString("USER_NAME", "");
+		String password = rememberPassword.getString("PASSWORD", "");
+		if (NetWorkConnection.isNetworkAvailable(mActivity) && accounts != null
+				&& password != null) {
+			try {
+				connection.connect();// 连接到服务器
+				// 配置各种Provider，如果不配置，则会无法解析数据
+				configureConnection(ProviderManager.getInstance());
+				connection.login(accounts, password);
+				// 连接服务器成功，更改在线状态
+				Presence presence = new Presence(Presence.Type.available);
+				connection.sendPacket(presence);
+			} catch (XMPPException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return connection;
+	}
+	// end add by anshe 2015.7.10
+
+	//start add by anshe 2015.7.20
+	public static String getSERVER_HOST() {
+		rememberPassword = mActivity.getSharedPreferences(
+				IatSettings.PREFER_NAME, Context.MODE_WORLD_READABLE);
+		SERVER_HOST=rememberPassword.getString("SERVER_HOST", "0.0.0.0");
+		if (SERVER_HOST.equals("0.0.0.0")) {
+			setSERVER_HOST(NETSERVER_HOST);
+		}
+		return SERVER_HOST;
+	}
+
+	public static void setSERVER_HOST(String sERVER_HOST) {
+		rememberPassword = mActivity.getSharedPreferences(
+				IatSettings.PREFER_NAME, Context.MODE_WORLD_READABLE);
+		Editor editor = rememberPassword.edit();					
+		editor.putString("SERVER_HOST", sERVER_HOST);
+		editor.apply();
+		SERVER_HOST = sERVER_HOST;
+	}
+	//end add by anshe 2015.7.20
 
 }

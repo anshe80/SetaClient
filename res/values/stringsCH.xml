@@ -80,7 +80,7 @@
     <!-- end add by anshe 2015.5.22 -->
     
     <!-- start add by anshe 2015.7.5 -->
-    <string name="not_Connect_to_Server">与服务器断开连接，请重新登录！</string>
+    <string name="not_Connect_to_Server">与服务器断开连接，请检查网络后重新登录！</string>
     <string name="room_is_exist">聊天室已经存在，可以加入或者创建其它名称的聊天室</string>
     <string name="reconnection_fail">重新连接失败！请重新登录！</string>
     <string name="send_message_is_null">发送信息不能为空</string>
@@ -88,5 +88,7 @@
     <string name="record_type_cloud">仅使用云端</string>
     <string name="record_type_mix">云端和本地混合</string>
     <string name="record_type_local">仅使用本地</string>
+    <string name="point">.</string>
+    <string name="server_status">服务器地址</string>
     <!-- end add by anshe 2015.7.5 -->
 </resources>

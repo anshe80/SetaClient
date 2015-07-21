@@ -3,6 +3,7 @@ import java.util.List;
 
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import com.seta.android.activity.ChatActivity;
 import com.seta.android.activity.ChatConvertActivity;
@@ -17,6 +18,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,16 +62,18 @@ public class groupFragment extends Fragment {
 			});
 			connection=XmppConnection.getConnection(activity);
 			if (connection!=null) {
+				//modify by anshe 2015.7.8
 				final MutilUserChatUtil mutilUserRoomList=new MutilUserChatUtil(connection);
 				try {
 					mRoomListData = mutilUserRoomList.getConferenceRoom();
 					mRoomListAdapter = new RoomListAdapter(this.getActivity(),
-					mRoomListData, R.layout.group_friend_list_item_layout);
+							mRoomListData, R.layout.group_friend_list_item_layout);
 					mRoomListView.setAdapter(mRoomListAdapter);
 				} catch (XMPPException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				//end modify by anshe 2015.7.8
 			}
 			
 			mRoomListView.setOnItemClickListener(new OnItemClickListener() {
@@ -79,20 +83,20 @@ public class groupFragment extends Fragment {
 						int position, long itemId) {
 					/*进入聊天室*/
 					ServerRooms room=mRoomListData.get(position);
-					if (connection==null&&XmppConnection.reConnectSuccess) {
-						connection=XmppConnection.reConnection();
-					}
-					if (connection!=null) {
+					if (connection==null) {
+						Toast.makeText(activity, getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();
+						return;
+					}else{
 						String LoginUser=connection.getUser();
 						if (LoginUser!=null) {
-							Toast.makeText(activity, "成功加入聊天室["+room.getName()+"]", Toast.LENGTH_LONG).show();
+							Toast.makeText(activity, "成功加入聊天室["+room.getName()+"]", Toast.LENGTH_SHORT).show();
 							Intent ChatListIntent = new Intent(activity, ChatActivity.class);
 							ChatListIntent.putExtra("FRIENDID", room.getName());
 							ChatListIntent.putExtra("user", LoginUser);
 							ChatListIntent.putExtra("USERID",LoginUser);
 							startActivity(ChatListIntent);
 						}else{
-							Toast.makeText(activity, getString(R.string.not_Connect_to_Server), Toast.LENGTH_LONG).show();
+							Toast.makeText(activity, getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();
 						}
 					}
 				}
@@ -108,6 +112,39 @@ public class groupFragment extends Fragment {
 		// TODO Auto-generated method stub
 		return new groupFragment();
 	}
+	
+	// start add by anshe 2015.7.8
+	@Override  
+	   public void setUserVisibleHint(boolean isVisibleToUser) {  
+	       super.setUserVisibleHint(isVisibleToUser);  
+	       if (isVisibleToUser) {  
+	           //相当于Fragment的onResume  
+	           //加载你的数据
+	    	   connection=XmppConnection.getConnection(activity);
+				if (connection!=null&&connection.getUser()!=null) {
+					//modify by anshe 2015.7.8
+					final MutilUserChatUtil mutilUserRoomList=new MutilUserChatUtil(connection);
+					try {
+						//Toast.makeText(activity, "正在拉取服务器聊天室"+mRoomListData.size(), Toast.LENGTH_SHORT).show();
+						mRoomListData = mutilUserRoomList.getConferenceRoom();
+						mRoomListAdapter.setmServerRoomsList(mRoomListData);
+						mRoomListView.setAdapter(mRoomListAdapter);
+					} catch (XMPPException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}else {
+					mRoomListData.clear();
+					mRoomListAdapter.setmServerRoomsList(mRoomListData);
+					mRoomListAdapter.notifyDataSetChanged();
+					Toast.makeText(activity, getString(R.string.not_Connect_to_Server),
+							Toast.LENGTH_SHORT).show();
+				}
+	       } else {  
+	           //相当于Fragment的onPause  
+	       }  
+	   }  
+		// end add by anshe 2015.7.8
 	
 	@Override
 	public void onDestroy() {

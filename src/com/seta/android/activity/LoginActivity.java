@@ -14,6 +14,8 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -108,6 +110,36 @@ public class LoginActivity extends Activity implements OnClickListener {
 			break;
 		}
 	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.id.action_settings);
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu_main, menu);
+		return true;
+	}
+	 
+    @Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+    	
+		int id = item.getItemId();
+		switch (id) {
+		case R.id.action_settings:
+			Intent intent = new Intent();
+			intent.setClass(LoginActivity.this, SettingActivity.class);
+			startActivity(intent);
+			break;
+		default:
+			break;
+		}
+		return true;
+	}
+    
 	/*
 	 * add by ling 2015.4.28(。。。。。。。未完待续)
 	 * 找回密码：邮箱激活并重新设置密码*/

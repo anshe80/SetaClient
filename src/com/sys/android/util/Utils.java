@@ -24,6 +24,13 @@ public class Utils {
 			return null;
 	}
 	
+	public static String getServerNameToUsername(String jid){
+		if(jid!=null)
+			return jid.substring(jid.indexOf("/") + 1);
+		else
+			return null;
+	}
+	
 	public static String getUserNameToJid(String username){
 		return username + "@" + XmppConnection.SERVER_NAME;
 	}

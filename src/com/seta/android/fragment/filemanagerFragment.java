@@ -38,19 +38,28 @@ public class filemanagerFragment extends Fragment {
 	private List<List<File>> list = new ArrayList<List<File>>();
 	private Map<String, String> fileMap = new HashMap<String, String>();
 	private Map<String, String> recordMap = new HashMap<String, String>();
+	private Map<String, String> personalMap = new HashMap<String, String>();
 	private Button btnDelFile = null;
 	private Button btnDelRecord = null;
+	private Button btnDelPersonal = null;
 
 	public static String FILE_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
 			+ "/seta/file";
 	public static String RECORD_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
 			+ "/seta/record";
+	// added by wyg
+	public static String PERSONAL_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
+				+ "/seta/personal";
+		//end wyg
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.filemanagerfragment, container, false);
 		listView = (ExpandableListView) view.findViewById(R.id.filelist);
-
+		
+		//added by wyg 
+		loadData();
+		/*
 		FileUtil fileUtil = new FileUtil();
 		List<File> temp = fileUtil.queryFile(FILE_ROOT_PATH);
 		if (temp != null) {
@@ -62,7 +71,12 @@ public class filemanagerFragment extends Fragment {
 			this.list.add(temp);
 			this.recordMap = fileUtil.getFileNameSizeMap(RECORD_ROOT_PATH);
 		}
-
+		temp = fileUtil.queryFile(PERSONAL_ROOT_PATH);
+		if (temp != null) {
+			this.list.add(temp);
+			this.personalMap = fileUtil.getFileNameSizeMap(PERSONAL_ROOT_PATH);
+		}
+*/
 		adapter = new FileListAdapter(this.getActivity(), list);
 		listView.setAdapter(adapter);
 
@@ -70,6 +84,8 @@ public class filemanagerFragment extends Fragment {
 		btnDelRecord = (Button) view.findViewById(R.id.btnDelRecord);
 		btnDelFile.setOnClickListener(new DelFileListener());
 		btnDelRecord.setOnClickListener(new DelRecordListener());
+		btnDelPersonal = (Button) view.findViewById(R.id.btnDelPersonal);
+		btnDelPersonal.setOnClickListener(new DelPersonalListener());
 
 		listView.setOnGroupExpandListener(new OnGroupExpandListener() {
 
@@ -113,7 +129,29 @@ public class filemanagerFragment extends Fragment {
 
 		return view;
 	}
-
+	//added by wyg
+	//从文件夹中读取数据
+	public void loadData(){
+		FileUtil fileUtil = new FileUtil();
+		List<File> temp = fileUtil.queryFile(FILE_ROOT_PATH);
+		this.list.clear();
+		
+		if (temp != null) {
+			this.list.add(temp);
+			this.fileMap = fileUtil.getFileNameSizeMap(FILE_ROOT_PATH);
+		}
+		temp = fileUtil.queryFile(RECORD_ROOT_PATH);
+		if (temp != null) {
+			this.list.add(temp);
+			this.recordMap = fileUtil.getFileNameSizeMap(RECORD_ROOT_PATH);
+		}
+		temp = fileUtil.queryFile(PERSONAL_ROOT_PATH);
+		if (temp != null) {
+			this.list.add(temp);
+			this.personalMap = fileUtil.getFileNameSizeMap(PERSONAL_ROOT_PATH);
+		}
+	}
+	
 	class DelFileListener implements OnClickListener {
 
 		@Override
@@ -123,6 +161,9 @@ public class filemanagerFragment extends Fragment {
 			fileUtil.delFile(FILE_ROOT_PATH);
 			try {
 				Thread.sleep(2000);
+				//added by wyg
+				loadData();
+				
 				Toast.makeText(getActivity(), getString(R.string.file_delete_success), Toast.LENGTH_SHORT).show();
 				adapter.notifyDataSetChanged();
 			} catch (InterruptedException e) {
@@ -141,6 +182,10 @@ public class filemanagerFragment extends Fragment {
 			fileUtil.delFile(RECORD_ROOT_PATH);
 			try {
 				Thread.sleep(2000);
+				
+				//added by wyg
+				loadData();
+				
 				Toast.makeText(getActivity(), getString(R.string.record_delete_success), Toast.LENGTH_SHORT).show();
 				adapter.notifyDataSetChanged();
 			} catch (InterruptedException e) {
@@ -149,7 +194,28 @@ public class filemanagerFragment extends Fragment {
 		}
 
 	}
+	
+	//added by wyg
+	class DelPersonalListener implements OnClickListener {
 
+		@Override
+		public void onClick(View arg0) {
+			// TODO Auto-generated method stub
+			FileUtil fileUtil = new FileUtil();
+			fileUtil.delFile(PERSONAL_ROOT_PATH);
+			try {
+				Thread.sleep(2000);
+				//added by wyg
+				loadData();
+				
+				Toast.makeText(getActivity(), getString(R.string.personal_delete_success), Toast.LENGTH_SHORT).show();
+				adapter.notifyDataSetChanged();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub

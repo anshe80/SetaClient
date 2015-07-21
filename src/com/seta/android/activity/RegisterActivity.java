@@ -212,7 +212,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 			editor.putString("USER_NAME", accounts);
 			editor.putString("PASSWORD", password);
 			editor.apply();
-			Toast.makeText(this, getString(R.string.email_register_body)+getString(R.string.email_subject), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.email_register_body)+getString(R.string.email_subject), Toast.LENGTH_SHORT).show();
 			//end modify by anshe 2015.5.24
 			DialogFactory.ToastDialog(this, getString(R.string.registerID), getString(R.string.register_success));
 			Intent intent = new Intent();

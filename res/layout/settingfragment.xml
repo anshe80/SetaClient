@@ -6,6 +6,91 @@
     android:orientation="vertical" >
 
     <LinearLayout
+        android:id="@+id/server"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/server_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="服务器设置"
+            android:textColor="#000000" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.1dip"
+        android:layout_margin="5dp"
+        android:background="@color/Grey" />
+
+    <LinearLayout
+        android:id="@+id/server_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:gravity="right"
+        android:orientation="horizontal"
+        android:padding="5dip" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:text="自定义 :"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <com.seta.android.selfview.IPEditText
+            android:id="@+id/ip_custom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/server_ip_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:gravity="left"
+        android:orientation="horizontal"
+        android:padding="5dip" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="1dp"
+            android:text="当前IP地址 :"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/ip_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@android:color/black"
+            android:text="" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/ip_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/server_ip_layout"
+        android:text="更新" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.1dip"
+        android:layout_margin="5dp"
+        android:background="@color/Grey" />
+
+    <LinearLayout
         android:id="@+id/user_icon"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,8 +144,8 @@
         android:layout_height="wrap_content"
         android:background="#ffffff"
         android:gravity="right"
-        android:padding="5dip"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:padding="5dip" >
 
         <TextView
             android:layout_width="wrap_content"
@@ -98,15 +183,15 @@
         android:layout_width="fill_parent"
         android:layout_height="0.1dip"
         android:layout_margin="5dp"
-        android:background="@color/Grey" /> 
+        android:background="@color/Grey" />
 
     <LinearLayout
         android:id="@+id/language_spinner_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#ffffff"
-        android:padding="5dip"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:padding="5dip" >
 
         <TextView
             android:layout_width="wrap_content"
@@ -125,6 +210,7 @@
             android:background="@drawable/bg_spinner"
             android:textColor="@android:color/black" />
     </LinearLayout>
+
     <View
         android:layout_width="fill_parent"
         android:layout_height="0.1dip"

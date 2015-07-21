@@ -1,10 +1,10 @@
 /**
-*Filename: settingFragment.java
-*Copyright: Copyright (c)2015
-*@Author:anshe
-*@Creat at:2015-7-7 下午9:22:46
-*@version 1.0
-*/
+ *Filename: settingFragment.java
+ *Copyright: Copyright (c)2015
+ *@Author:anshe
+ *@Creat at:2015-7-7 下午9:22:46
+ *@version 1.0
+ */
 package com.seta.android.fragment;
 
 import java.util.ArrayList;
@@ -21,16 +21,22 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.iflytek.cloud.SpeechConstant;
+import com.seta.android.activity.FindkeyActivity;
+import com.seta.android.activity.MainActivity;
+import com.seta.android.activity.SettingActivity;
 import com.seta.android.record.utils.IatSettings;
 import com.seta.android.recordchat.R;
 import com.seta.android.selfview.CustomerSpinner;
+import com.seta.android.selfview.IPEditText;
 import com.seta.android.selfview.SlipButton;
 import com.seta.android.selfview.SlipButton.OnChangedListener;
+import com.seta.android.xmppmanager.XmppConnection;
 
 /**
  *Filename: settingFragment.java
@@ -41,31 +47,49 @@ import com.seta.android.selfview.SlipButton.OnChangedListener;
  */
 /**
  * @author anshe
- *
+ * 
  */
-public class settingFragment extends Fragment{
+public class settingFragment extends Fragment {
 	private SlipButton chooseRecordButton = null;
-	private Button chooseRecordText = null;
+	private Button chooseRecordText = null, ipButton;
 	public static ArrayList<String> chooseRecordList = null;
 	public static ArrayList<String> languageList = null;
 	private ArrayAdapter<String> adapter;
-	private CustomerSpinner chooseRecordSpinner,languageSpinner;
+	private CustomerSpinner chooseRecordSpinner, languageSpinner;
 	private View spinner_layout;
 	private SharedPreferences rememberSettingPreferences;
-    
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.settingfragment, container, false);
-        chooseRecordButton = (SlipButton) view.findViewById(R.id.chooseRecordButton);
+	private View mEditText;
+	private TextView ipTextView,server_status;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View view = inflater
+				.inflate(R.layout.settingfragment, container, false);
+		chooseRecordButton = (SlipButton) view
+				.findViewById(R.id.chooseRecordButton);
 		chooseRecordText = (Button) view.findViewById(R.id.chooseRecordText);
-		spinner_layout=(View) view.findViewById(R.id.spinner_layout);
-        chooseRecordSpinner = (CustomerSpinner) view.findViewById(R.id.spinner);
-        languageSpinner = (CustomerSpinner) view.findViewById(R.id.language_spinner);
-        initData();
-        return view;
-    }
+		spinner_layout = (View) view.findViewById(R.id.spinner_layout);
+		chooseRecordSpinner = (CustomerSpinner) view.findViewById(R.id.spinner);
+		languageSpinner = (CustomerSpinner) view
+				.findViewById(R.id.language_spinner);
+		mEditText=(View) view.findViewById(R.id.server_layout);
+		ipTextView = (TextView) view.findViewById(R.id.ip_textview);
+		server_status=(TextView) view.findViewById(R.id.server_status);
+		ipButton = (Button) view.findViewById(R.id.ip_button);
+		initData();
+		return view;
+	}
 
 	public void initData() {
+		// start add by anshe 2015.7.21
+		String ipString = rememberSettingPreferences.getString("SERVER_HOST",
+				XmppConnection.SERVER_HOST);
+		server_status.setText(getString(R.string.server_status));
+		ipTextView.setText(ipString);
+		mEditText.setVisibility(View.GONE);
+		ipButton.setVisibility(View.GONE);
+		// end add by anshe 2015.7.21
 		chooseRecordText.setText(getString(R.string.record_auto_choose));
 		String typeString = rememberSettingPreferences.getString(
 				"iat_type_preference", SpeechConstant.TYPE_CLOUD);
@@ -95,14 +119,14 @@ public class settingFragment extends Fragment{
 		chooseRecordList.add(getString(R.string.record_type_cloud));
 		chooseRecordList.add(getString(R.string.record_type_mix));
 		chooseRecordList.add(getString(R.string.record_type_local));
-		chooseRecordSpinner.setList(chooseRecordList,this.getActivity());
-		adapter = new ArrayAdapter<String>(this.getActivity(),R.layout.simple_spinner_item, chooseRecordList);
+		chooseRecordSpinner.setList(chooseRecordList, this.getActivity());
+		adapter = new ArrayAdapter<String>(this.getActivity(),
+				R.layout.simple_spinner_item, chooseRecordList);
 		chooseRecordSpinner.setAdapter(adapter);
 		if (typeString.equals(SpeechConstant.TYPE_AUTO)) {
 			chooseRecordButton.setCheck(true);
 			chooseRecordSpinner.setClickable(false);
-			spinner_layout.setBackgroundColor(Color
-					.parseColor("#50323232"));
+			spinner_layout.setBackgroundColor(Color.parseColor("#50323232"));
 		} else {
 			chooseRecordButton.setCheck(false);
 		}
@@ -125,8 +149,9 @@ public class settingFragment extends Fragment{
 			languageList.add(languageStrings[i]);
 		}
 		System.out.println("默认语言为：" + language);
-		languageSpinner.setList(languageList,this.getActivity());
-		adapter = new ArrayAdapter<String>(this.getActivity(),R.layout.simple_spinner_item, languageList);
+		languageSpinner.setList(languageList, this.getActivity());
+		adapter = new ArrayAdapter<String>(this.getActivity(),
+				R.layout.simple_spinner_item, languageList);
 		languageSpinner.setAdapter(adapter);
 		languageStrings = this.getResources().getStringArray(
 				R.array.language_values);
@@ -137,14 +162,12 @@ public class settingFragment extends Fragment{
 			}
 		}
 	}
-    
-    /*@Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-    	if(keyCode == KeyEvent.KEYCODE_BACK){
-    		list.clear();
-    	}
-    	return super.onKeyDown(keyCode, event);
-    }*/
+
+	/*
+	 * @Override public boolean onKeyDown(int keyCode, KeyEvent event) {
+	 * if(keyCode == KeyEvent.KEYCODE_BACK){ list.clear(); } return
+	 * super.onKeyDown(keyCode, event); }
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -153,17 +176,18 @@ public class settingFragment extends Fragment{
 				IatSettings.PREFER_NAME, Activity.MODE_PRIVATE);
 		this.setHasOptionsMenu(true);
 	}
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		// TODO Auto-generated method stub
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.fragment_menu, menu);
 	}
+
 	@Override
 	public void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
 	}
-    
-    
+
 }

@@ -62,8 +62,6 @@ public class mainFragment extends Fragment {
 			switch (position) {
 			case 0:
 				return publicFragment.newInstance();
-				
-				
 
 			case 1:
 				return groupFragment.newInstance();
@@ -74,6 +72,10 @@ public class mainFragment extends Fragment {
 		public int getCount() {
 			// TODO Auto-generated method stub
 			return TITLES.length;
+		}		
+		@Override
+		public void destroyItem(ViewGroup container, int position, Object object) {   
+			//super.destroyItem(container, position, object);       
 		}
     	
     }

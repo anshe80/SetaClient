@@ -91,7 +91,7 @@ public class SendEmailActivity extends Activity {
         						.getStringExtra("filePath").split(",");
         				if (fileName.length > 0 && (new File(fileName[0])).exists()) {
 		            		if(NetWorkConnection.isNetworkAvailable(activity)){
-	        					Toast.makeText(activity, activity.getString(R.string.sending_email), Toast.LENGTH_LONG).show();
+	        					Toast.makeText(activity, activity.getString(R.string.sending_email), Toast.LENGTH_SHORT).show();
 			            		Thread send=new sendEmail(fileName);
 			            		send.run();
 		            		}else{

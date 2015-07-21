@@ -23,12 +23,14 @@ import android.widget.Toast;
 
 import com.seta.android.email.SendEmailActivity;
 import com.seta.android.entity.Msg;
+import com.seta.android.fragment.privateFragment;
 import com.seta.android.xmppmanager.XmppConnection;
 import com.sys.android.util.OpenfileFunction;
 import com.sys.android.util.Utils;
 import com.seta.android.recordchat.R;
 
 public class ChatListAdapter extends BaseAdapter {
+
 	private Activity context;
 	private LayoutInflater inflater;
 	private List<Msg> listMsg;
@@ -37,7 +39,7 @@ public class ChatListAdapter extends BaseAdapter {
 			.getExternalStorageDirectory().getPath() + "/seta/file/";
 	public static String RECORD_ROOT_PATH = Environment
 			.getExternalStorageDirectory().getPath() + "/seta/record/";
-	String filePath = null;
+	private String filePath = null,nowUserCache=null;
 
 	public ChatListAdapter(Activity formClient, List<Msg> list) {
 		this.context = formClient;
@@ -67,8 +69,8 @@ public class ChatListAdapter extends BaseAdapter {
 				.getFrom());
 		final String toUser = Utils.getJidToUsername(listMsg.get(position)
 				.getToUser());
-		final String nowUser = Utils.getJidToUsername(XmppConnection
-				.getConnection(this.context).getUser());
+		final String nowUser = Utils.getJidToUsername(XmppConnection.getConnection(this.context).getUser())==null
+				?nowUserCache:Utils.getJidToUsername(XmppConnection.getConnection(this.context).getUser());
 
 		if (fromUser!=null&&toUser!=null&&nowUser!=null&&!fromUser.equals(toUser) && !nowUser.equals(fromUser)) {
 			convertView = this.inflater.inflate(R.layout.formclient_chat_in,
@@ -112,7 +114,7 @@ public class ChatListAdapter extends BaseAdapter {
 									+ msg.getFilePath());
 						} else {
 
-							if (!fromUser.equals(toUser)
+							if (toUser!=null&&fromUser!=null&&!fromUser.equals(toUser)
 									&& !nowUser.equals(fromUser)
 									&& msg.getMsg()
 											.contains(
@@ -253,5 +255,14 @@ public class ChatListAdapter extends BaseAdapter {
 			}
 		}
 	}
+	//add by anshe 2015.7.9
+	public List<Msg> getListMsg() {
+		return listMsg;
+	}
+
+	public void setListMsg(List<Msg> listMsg) {
+		this.listMsg = listMsg;
+	}
+	//end add by anshe 2015.7.9 
 
 }

@@ -82,9 +82,11 @@
     <string name="pwd">密码</string>
     <string name="voice_file">语音文件</string>
     <string name="text_file">文本文件</string>
+    <string name="text_personal">私人记录文件</string>
     <string name="cache">缓存</string>
     <string name="del_file">清除文件</string>
     <string name="del_record">清除录音</string>
+    <string name="del_personal">清除私人记录</string>
     <string name="account_tips">这个帐号已经存在</string>
     <string name="register_error">注册失败</string>
     <string name="link_error">远程连接失败</string>
@@ -98,4 +100,5 @@
     <string name="create_group">创建聊天室</string>
     <string name="info_null">聊天室名不能为空</string>
     <string name="create">创建</string>
+    <string name="personal_delete_success">个人记录删除成功</string>
 </resources>

@@ -89,7 +89,10 @@ public class publicFragment extends Fragment {
 			.getExternalStorageDirectory().getPath() + "/seta/file";
 	public static String RECORD_ROOT_PATH = Environment
 			.getExternalStorageDirectory().getPath() + "/seta/record";
-
+	// added by wyg
+	public static String PERSONAL_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
+				+ "/seta/personal";
+		//end wyg
 	/**
 	 * init file
 	 */
@@ -97,6 +100,8 @@ public class publicFragment extends Fragment {
 		File root = new File(FILE_ROOT_PATH);
 		root.mkdirs();// 没有根目录创建根目录
 		root = new File(RECORD_ROOT_PATH);
+		root.mkdirs();
+		root = new File(PERSONAL_ROOT_PATH);
 		root.mkdirs();
 	}
 
@@ -117,12 +122,13 @@ public class publicFragment extends Fragment {
 		mNotificationManager = (NotificationManager) context
 				.getSystemService(Service.NOTIFICATION_SERVICE);
 		connection = XmppConnection.getConnection(context);
-		if (connection != null) {
+		if (connection != null&&connection.getUser()!=null) {
 			this.userChat = connection.getUser();
+			System.out.println("通过网络获取到的userchat="+userChat);
 		} else {
 			userChat = this.getActivity().getIntent().getStringExtra("pUSERID");
+			System.out.println("通过跳转获取到的userchat="+userChat);
 		}
-		joinChatRoom();
 		userChatSendFile = publicroom + "@" + XmppConnection.SERVER_NAME
 				+ "/Smack";
 		mRecordButton = (Button) view.findViewById(R.id.record_button);
@@ -153,39 +159,42 @@ public class publicFragment extends Fragment {
 		ListView listview = (ListView) view
 				.findViewById(R.id.formclient_listview);
 		listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-		this.adapter = new ChatListAdapter(context, listMsg);
-		listview.setAdapter(adapter);
 		// 获取文本信息
 		this.msgText = (EditText) view.findViewById(R.id.formclient_text);
+		joinChatRoom();
+		this.adapter = new ChatListAdapter(context, listMsg);
+		listview.setAdapter(adapter);
 		// 消息监听
-		if (muc != null) {
-			receivedMsg();// 接收消息
-			sendMsg();// 发送消息
-			receivedFile();// 接收文件
+		if (muc!=null) {		
+			sendMsg();// 发送消息		
 		}
 
 	}
 
 	public boolean joinChatRoom() {
 		connection = XmppConnection.getConnection(context);
-		if (connection != null) {
+		if (connection != null&&connection.getUser()!=null) {
 			final MutilUserChatUtil mutilUserRoomList = new MutilUserChatUtil(
 					connection);
+			if (muc!=null) {
+				muc.leave();
+			}
 			muc = mutilUserRoomList.joinMultiUserChat(connection.getUser(),
 					publicroom, "");
 			if (muc == null) {
 				muc = mutilUserRoomList.createRoom(connection.getUser(),
 						publicroom, "");
 			}
-			userChat = connection.getUser();
 			if (muc != null) {
+				receivedMsg(true);// 接收消息		
+				receivedFile();// 接收文件
 				return true;
 			} else {
 				return false;
 			}
 		} else {
 			Toast.makeText(context, getString(R.string.not_Connect_to_Server),
-					Toast.LENGTH_LONG).show();
+					Toast.LENGTH_SHORT).show();
 			return false;
 		}
 	}
@@ -228,6 +237,7 @@ public class publicFragment extends Fragment {
 					userChat, Msg.TYPE[0], Msg.STATUS[3], time + "",
 					audioPath.split("/")[audioPath.split("/").length - 1]);
 			// 刷新适配器
+			adapter.setListMsg(listMsg);
 			adapter.notifyDataSetChanged();
 			// 发送消息
 			muc.sendMessage(Msg.toJson(sendChatMsg));
@@ -376,28 +386,25 @@ public class publicFragment extends Fragment {
 	/**
 	 * 接收消息
 	 */
-	public void receivedMsg() {
-		boolean addListener = true;
-		if (muc == null) {
-			addListener = joinChatRoom();
-		}
+	public void receivedMsg(boolean addListener) {
 		if (addListener) {
+			Log.e("开始监听消息", muc.getRoom());
 			muc.addMessageListener(new PacketListener() {
 				@Override
 				public void processPacket(Packet packet) {
 					Message message = (Message) packet;
 					String from = Utils.getJidToUsername(message.getFrom());
 					String toUser = Utils.getJidToUsername(message.getTo());
-					String nowUser = Utils.getJidToUsername(connection
-							.getUser());
-
+					String nowUser = Utils.getJidToUsername(connection.getUser());
+					Log.e("接收消息的用户：", "from=" + from + " toUser="
+							+ toUser + " nowUser="
+							+ nowUser);
 					if (!from.equals(toUser) && !nowUser.equals(from)) {
 						// Msg.analyseMsgBody(message.getBody(),userChat);
 						// 获取用户、消息、时间、IN
 						// 在handler里取出来显示消息
 						android.os.Message msg = handler.obtainMessage();
-						System.out.println("服务器发来的消息是 chat："
-								+ message.getBody());
+						//System.out.println("服务器发来的消息体是 ：" + message.getBody());
 						msg.what = 1;
 						msg.obj = message.getBody();
 						msg.sendToTarget();
@@ -413,41 +420,37 @@ public class publicFragment extends Fragment {
 	 * @author anshe modify 2015.7.6
 	 */
 	public void sendMsg() {
-		boolean addListener = true;
-		if (muc == null) {
-			addListener = joinChatRoom();
-		}
-		if (addListener) {
-			// 发送消息
-			btsend.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					Log.e("获取到的用户：", "userChat=" + userChat + " pFRIENDID="
-							+ publicroom + " userChatSendFile="
-							+ userChatSendFile);
+		// 发送消息
+		btsend.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
 
-					// 获取text文本
-					final String msg = msgText.getText().toString();
-					if (msg.length() > 0) {
-						if (connection == null
-								|| (connection != null && connection.getUser() == null)) {
-							Toast.makeText(context,
-									getString(R.string.not_Connect_to_Server),
-									Toast.LENGTH_SHORT).show();
-							return;
-						} else {
+				// 获取text文本
+				final String msg = msgText.getText().toString();
+				if (msg.length() > 0) {
+					if (connection == null
+							|| (connection != null && connection.getUser() == null)) {
+						Toast.makeText(context,
+								getString(R.string.not_Connect_to_Server),
+								Toast.LENGTH_SHORT).show();
+						return;
+					} else {
+						boolean addListener = true;
+						if (muc == null) {
+							Log.e("MUC为空", "重新加入广场！");
+							addListener = joinChatRoom();
+						}
+						if (addListener) {
 							// 发送对方
+							Log.e("MUC不为空", "成功加入广场！"+muc.isJoined()+muc.getRoom());
 							Msg sendChatMsg = new Msg(publicroom, msg,
 									TimeRender.getDate(), userChat, Msg.TYPE[2]);
 							// 刷新适配器
-							adapter.notifyDataSetChanged();
-							if (muc == null) {
-								joinChatRoom();
-							}
+							/*listMsg.add(sendChatMsg);// 添加到聊天消息
+							adapter.notifyDataSetChanged();*/
 							try {
 								// 发送消息
 								muc.sendMessage(Msg.toJson(sendChatMsg));
-
 							} catch (Exception e) {
 								e.printStackTrace();
 								Toast.makeText(
@@ -463,16 +466,21 @@ public class publicFragment extends Fragment {
 										resultsString.length() - 1);
 							}
 							msgText.setText("");
+						}else {
+							Toast.makeText(context,
+									getString(R.string.not_Connect_to_Server),
+									Toast.LENGTH_SHORT).show();
 						}
-					} else {
-						Toast.makeText(context,
-								getString(R.string.send_message_is_null),
-								Toast.LENGTH_SHORT).show();
 					}
-
+				} else {
+					Toast.makeText(context,
+							getString(R.string.send_message_is_null),
+							Toast.LENGTH_SHORT).show();
 				}
-			});
-		}
+			}
+
+		});
+
 	}
 
 	public void record() {
@@ -693,7 +701,7 @@ public class publicFragment extends Fragment {
 			switch (msg.what) {
 			case 1:
 				Msg chatMsg = Msg.analyseMsgBody(msg.obj.toString());
-				if (chatMsg != null) {
+				if (chatMsg != null) {					
 					listMsg.add(chatMsg);// 添加到聊天消息
 					adapter.notifyDataSetChanged();
 				}
@@ -703,6 +711,7 @@ public class publicFragment extends Fragment {
 				// 2015.5.11
 				break;
 			case 3: // 更新文件发送状态
+				adapter.setListMsg(listMsg);
 				adapter.notifyDataSetChanged();
 				break;
 			case 4: // 接收文件
@@ -719,6 +728,23 @@ public class publicFragment extends Fragment {
 		};
 	};
 
+	// start add by anshe 2015.7.9
+		@Override  
+	public void setUserVisibleHint(boolean isVisibleToUser) {
+		super.setUserVisibleHint(isVisibleToUser);
+		if (isVisibleToUser) {
+			// 相当于Fragment的onResume
+			// 加载你的数据
+				boolean isjoin=joinChatRoom();
+				//receivedMsg(isjoin);
+				//Toast.makeText(context, "是否重新连接："+isjoin, Toast.LENGTH_SHORT).show();
+		} else {
+			// 相当于Fragment的onPause
+		}
+	}  
+			// end add by anshe 2015.7.9
+		
+		
 	protected void setNotiType(int iconId, String s) {
 		Intent intent = new Intent();
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -765,6 +791,10 @@ public class publicFragment extends Fragment {
 
 	public void onDestroy() {
 		super.onDestroy();
+		if (connection!=null&&connection.isConnected()&&muc!=null) {
+			muc.leave();
+		}
+		
 	}
 }
 // end modify by anshe 2015.5.25

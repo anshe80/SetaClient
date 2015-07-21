@@ -14,10 +14,10 @@ import android.widget.TextView;
 
 public class RoomListAdapter extends BaseAdapter{
 
-	Context mContext;
-	List<ServerRooms> mServerRoomsList;
-	int mListItemResId;
-	LayoutInflater mLayoutInflater;
+	private Context mContext;
+	private List<ServerRooms> mServerRoomsList;
+	private int mListItemResId;
+	private LayoutInflater mLayoutInflater;
 
 	public RoomListAdapter(Context context,List<ServerRooms> serverRoomsList, int listItemResId) {
 
@@ -67,5 +67,14 @@ public class RoomListAdapter extends BaseAdapter{
 		
 		return convertView;
 	}
+
+	public List<ServerRooms> getmServerRoomsList() {
+		return mServerRoomsList;
+	}
+
+	public void setmServerRoomsList(List<ServerRooms> mServerRoomsList) {
+		this.mServerRoomsList = mServerRoomsList;
+	}
+	
 
 }

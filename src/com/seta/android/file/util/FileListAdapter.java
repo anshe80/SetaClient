@@ -33,15 +33,22 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 			+ "/seta/file";
 	public static String RECORD_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
 			+ "/seta/record";
-
-	private String[] fileTypes = new String[] {  "传输文件列表","录音文件列表" };
-	private List<List<File>> list = new ArrayList<List<File>>();
+	// added by wyg
+	public static String PERSONAL_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
+			+ "/seta/personal";
+	//end wyg
+	
+	private String[] fileTypes = new String[] {  "传输文件列表","录音文件列表","私人记录列表" };
+	private List<List<File>> list = null;
 	private Map<String,String> fileMap = new HashMap<String,String>();
 	private Map<String,String> recordMap = new HashMap<String,String>();
+	//added wyg
+	private Map<String,String> personalMap = new HashMap<String,String>();
 	private FileUtil fileUtil = new FileUtil();
 	private Context context;
 	private LayoutInflater inflater = null;
 	private String filePath;
+
 	public FileListAdapter() {
 	}
 
@@ -51,6 +58,7 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 		this.inflater = LayoutInflater.from(context);
 		this.fileMap = fileUtil.getFileNameSizeMap(FILE_ROOT_PATH);
 		this.recordMap = fileUtil.getFileNameSizeMap(RECORD_ROOT_PATH);
+		this.personalMap = fileUtil.getFileNameSizeMap(PERSONAL_ROOT_PATH);
 	}
 
 	@Override
@@ -76,12 +84,17 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 		TextView fileSize = (TextView) convertView.findViewById(R.id.file_size);
 		View imageView=(View) convertView.findViewById(R.id.file_button);
 		String strName = this.list.get(groupPosition).get(childPosition).getName();
+		filePath=this.list.get(groupPosition).get(childPosition).getPath();
 		fileName.setText(strName);
 		if(this.fileMap.containsKey(strName)){
 			fileSize.setText(this.fileMap.get(strName));
 		} else if(this.recordMap.containsKey(strName)){
 			fileSize.setText(this.recordMap.get(strName));
+		}//added by wyg
+		else if(this.personalMap.containsKey(strName)){
+			fileSize.setText(this.personalMap.get(strName));
 		}
+		//end wyg
 		imageView.setOnClickListener(new OnClickListener() {			
 
 			@Override

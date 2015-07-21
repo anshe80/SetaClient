@@ -36,10 +36,14 @@ import android.widget.Toast;
  */
 public class privateFragment extends Fragment {
 
-	public static String RECORD_ROOT_PATH = Environment
-			.getExternalStorageDirectory().getPath() + "/seta/personrecord";
+//	public static String RECORD_ROOT_PATH = Environment
+//			.getExternalStorageDirectory().getPath() + "/seta/record";
+	// added by wyg
+	public static String PERSONAL_ROOT_PATH = Environment.getExternalStorageDirectory().getPath()
+					+ "/seta/personal";
+	//end wyg
 	private SpeechRecognizer mIat;// 语音听写对象
-	private String caseAudio = RECORD_ROOT_PATH;
+	private String caseAudio = PERSONAL_ROOT_PATH;
 	//start add by anshe 2015.7.8
 	private SharedPreferences mSharedPreferences;
 	private String audioPath;
@@ -81,7 +85,7 @@ public class privateFragment extends Fragment {
 					if (resultsString != null && resultsString.length() > 1)
 						resultsString.delete(0, resultsString.length() - 1);
 					msgText.setText("");
-					caseAudio = RECORD_ROOT_PATH + "/"
+					caseAudio = PERSONAL_ROOT_PATH + "/"
 							+ System.currentTimeMillis() + ".pcm";
 					record();
 				} else {

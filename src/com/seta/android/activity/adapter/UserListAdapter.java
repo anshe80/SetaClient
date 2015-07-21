@@ -67,22 +67,15 @@ public class UserListAdapter extends BaseAdapter {
 		convertView = this.inflater.inflate(R.layout.user_list, null);
 		// ImageView userIcon = (ImageView)
 		// convertView.findViewById(R.id.user_icon);
-		final TextView tvUuserName = (TextView) convertView.findViewById(R.id.user_name);
+		final TextView tvUserName = (TextView) convertView.findViewById(R.id.user_name);
 		final String userName = this.list.get(position);
-		if (conn!=null&&conn.getUser()==null) {
-			if (XmppConnection.reConnectSuccess) {
-				conn=XmppConnection.reConnection();
-			}else {
-				conn=XmppConnection.getConnection(context);
-			}
-		}
-		if (conn!=null&&conn.getUser()!=null&&conn.getUser().split("@")[0].equalsIgnoreCase(userName)) {
-			tvUuserName.setText(userName.split("@")[0] + " [本人]");
+		if (conn!=null&&conn.getUser()!=null&&conn.getUser().split("@")[0].contains(userName)) {
+			tvUserName.setText(userName.split("@")[0] + " [在线]");
 		} else {
-			tvUuserName.setText(userName.split("@")[0]);
+			tvUserName.setText(userName.split("@")[0]);
 		}
 
-		tvUuserName.setOnClickListener(new OnClickListener() {
+		tvUserName.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View arg0) {
@@ -91,19 +84,12 @@ public class UserListAdapter extends BaseAdapter {
 				System.out.println("连接用户名：" + conn.getUser());
 				System.out.println("聊天名字：" + userName);
 				if (conn!=null&&conn.getUser()==null) {
-					if (XmppConnection.reConnectSuccess) {
-						conn=XmppConnection.reConnection();
-					}else {
-						conn=XmppConnection.getConnection(context);
-					}
-				}
-				if (conn.getUser()==null) {
-					Toast.makeText(context, context.getString(R.string.not_Connect_to_Server), Toast.LENGTH_LONG).show();
+					Toast.makeText(context, context.getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();
 					return;
 				}
 				if (conn!=null&&conn.getUser()!=null&&conn.getUser().split("@")[0].equalsIgnoreCase(userName)) {
 					Toast.makeText(context, "不能和自己聊天", Toast.LENGTH_SHORT).show();
-					tvUuserName.setText(userName.split("@")[0] + " [本人]");
+					tvUserName.setText(userName.split("@")[0] + " [在线]");
 					return;
 				}
 				AlertDialog.Builder dialog = new AlertDialog.Builder(context);
@@ -137,6 +123,14 @@ public class UserListAdapter extends BaseAdapter {
 			}
 		});
 		return convertView;
+	}
+
+	public List<String> getList() {
+		return list;
+	}
+
+	public void setList(List<String> list) {
+		this.list = list;
 	}
 
 }

@@ -2,13 +2,13 @@ package com.sys.android.util;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.FormField;
@@ -25,24 +25,23 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Toast;
 
 public class MutilUserChatUtil extends BaseAdapter{
 	
 	private static XMPPConnection mConnection = null;
-	private final String publicroom="publicroom";
+	private final String PUBLICROPM="publicroom";
 	
 	public MutilUserChatUtil(XMPPConnection connection) {
 		// TODO Auto-generated constructor stub
-		this.mConnection=connection;
+		MutilUserChatUtil.mConnection=connection;
 	}
 	
 	public XMPPConnection getMConnection(){
-		return this.mConnection;
+		return MutilUserChatUtil.mConnection;
 	}
 	
 	public  void setMConnection(XMPPConnection mConnection){
-		this.mConnection=mConnection;
+		MutilUserChatUtil.mConnection=mConnection;
 	}
 
 	/**
@@ -51,10 +50,7 @@ public class MutilUserChatUtil extends BaseAdapter{
 	   * @throws XMPPException
 	   */
 	  public  List<ServerRooms> getConferenceRoom() throws XMPPException {
-	    List<ServerRooms> list = new ArrayList<ServerRooms>();
-	    if (mConnection!=null&&!mConnection.isAuthenticated()&&XmppConnection.reConnectSuccess) {
-			mConnection=XmppConnection.reConnection();
-		}
+	    List<ServerRooms> list = new ArrayList<ServerRooms>();	    
 	    if(mConnection!=null&&mConnection.isAuthenticated()){
 			new ServiceDiscoveryManager(mConnection);
 			if (!MultiUserChat.getHostedRooms(mConnection,
@@ -62,12 +58,12 @@ public class MutilUserChatUtil extends BaseAdapter{
 
 				for (HostedRoom k : MultiUserChat.getHostedRooms(mConnection,
 						mConnection.getServiceName())) {
-
+					
 					for (HostedRoom j : MultiUserChat.getHostedRooms(
 							mConnection, k.getJid())) {
 						RoomInfo info2 = MultiUserChat.getRoomInfo(mConnection,
 								j.getJid());
-						if (j.getJid().indexOf("@") > 0&&!j.getName().equalsIgnoreCase(publicroom)) {
+						if (j.getJid().indexOf("@") > 0&&!j.getName().equalsIgnoreCase(PUBLICROPM)) {
 							ServerRooms friendrooms = new ServerRooms();
 							friendrooms.setName(j.getName());// 聊天室的名称
 							friendrooms.setJid(j.getJid());// 聊天室JID
@@ -87,10 +83,7 @@ public class MutilUserChatUtil extends BaseAdapter{
 	 * 
 	 * @param roomName  聊天室名称
 	 */
-	public MultiUserChat createRoom(String user, String roomName,String password) {
-		if (mConnection!=null&&!mConnection.isAuthenticated()&&XmppConnection.reConnectSuccess) {
-			mConnection=XmppConnection.reConnection();
-		}
+	public MultiUserChat createRoom(String user, String roomName,String password) {		
 		if (getMConnection() == null||(mConnection!=null&&!mConnection.isAuthenticated()))
 			return null;
 		MultiUserChat muc = null;
@@ -114,12 +107,13 @@ public class MutilUserChatUtil extends BaseAdapter{
 					submitForm.setDefaultAnswer(field.getVariable());
 				}
 			}
-			// 设置聊天室的新拥有者
-			List<String> owners = new ArrayList<String>();
-			owners.add(getMConnection().getUser());// 用户JID
-			submitForm.setAnswer("muc#roomconfig_roomowners", owners);
+
 			// 设置聊天室是持久聊天室，即将要被保存下来
 			submitForm.setAnswer("muc#roomconfig_persistentroom", true);
+			// 设置聊天室的新拥有者
+			List<String> owners = new ArrayList<String>();
+			owners.add(getMConnection().getUser());// 用户JID			
+			submitForm.setAnswer("muc#roomconfig_roomowners", owners);
 			// 聊天室仅对成员开放
 			submitForm.setAnswer("muc#roomconfig_membersonly", false);
 			// 允许占有者邀请其他人
@@ -145,6 +139,7 @@ public class MutilUserChatUtil extends BaseAdapter{
 			muc.sendConfigurationForm(submitForm);
 		} catch (XMPPException e) {
 			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return null;
 		}
 		return muc;
@@ -162,9 +157,6 @@ public class MutilUserChatUtil extends BaseAdapter{
 	 */
 	public MultiUserChat joinMultiUserChat(String user, String roomsName,
 			String password) {
-		if (mConnection!=null&&!mConnection.isAuthenticated()&&XmppConnection.reConnectSuccess) {
-			mConnection=XmppConnection.reConnection();
-		}
 		if (getMConnection() == null||user==null||roomsName==null
 				||(mConnection!=null&&!mConnection.isAuthenticated()) )
 			return null;
@@ -175,6 +167,7 @@ public class MutilUserChatUtil extends BaseAdapter{
 			// 聊天室服务将会决定要接受的历史记录数量
 			DiscussionHistory history = new DiscussionHistory();
 			history.setMaxChars(1000);
+			history.setMaxStanzas(1000);
 			Calendar calendar = Calendar.getInstance();
 		    /* HOUR_OF_DAY 指示一天中的小时 */
 			calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 30);
@@ -185,7 +178,7 @@ public class MutilUserChatUtil extends BaseAdapter{
 			}
 			muc.join(user, password, history,
 					SmackConfiguration.getPacketReplyTimeout());			
-			Log.e("MultiUserChat", "用户："+user+"成功加入会议室【"+roomsName+"】........");
+			Log.e("MultiUserChat", "用户："+user+"成功加入会议室【"+roomsName+"】........"+calendar.getTime().toLocaleString());
 			return muc;
 		} catch (XMPPException e) {
 			e.printStackTrace();
@@ -204,7 +197,7 @@ public class MutilUserChatUtil extends BaseAdapter{
 	    	 Iterator<String> it = muc.getOccupants();
 	 	    //遍历出聊天室人员名称
 	 	    while (it.hasNext()) {
-	 	      // 聊天室成员名字
+	 	      // 聊天室成员名字		 	  
 	 	      String name = StringUtils.parseResource(it.next());
 	 	      listUser.add(name);
 	 	    }

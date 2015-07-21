@@ -47,6 +47,7 @@
     <activity android:name="com.seta.android.activity.LogoActivity"></activity>
     <activity android:name="com.seta.android.activity.ChatConvertActivity"></activity>
     <activity android:name="com.seta.android.email.SendEmailActivity"></activity>
+    <activity android:name="com.seta.android.activity.SettingActivity"></activity>
     <meta-data
             android:name="IFLYTEK_APPKEY"
             android:value="'55378391'" />    

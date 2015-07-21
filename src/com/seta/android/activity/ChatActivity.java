@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -18,8 +19,10 @@ import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.ParticipantStatusListener;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -48,6 +51,7 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechUtility;
+import com.seta.android.activity.MainActivity.ParticipantStatus;
 import com.seta.android.activity.adapter.ChatListAdapter;
 import com.seta.android.entity.Msg;
 import com.seta.android.record.utils.IatSettings;
@@ -84,7 +88,7 @@ public class ChatActivity extends Activity {
 	private long startTime;
 	private long time;
 	StringBuffer resultsString = new StringBuffer();
-
+	private ParticipantStatus participantStatusListener=null;
 	// 发送文件
 	private OutgoingFileTransfer sendTransfer;
 	public static String FILE_ROOT_PATH = Environment
@@ -338,7 +342,8 @@ public class ChatActivity extends Activity {
 				//start modify by anshe 2015.7.6
 				if (connection!=null&&connection.isAuthenticated()
 						&&NetWorkConnection.isNetworkAvailable(context)
-						&&muc != null) {   
+						&&muc != null) { 
+					muc.removeParticipantStatusListener(participantStatusListener);
 					muc.leave();
 				}
 				finish();
@@ -358,14 +363,19 @@ public class ChatActivity extends Activity {
 		if (connection!=null) {
 			final MutilUserChatUtil mutilUserRoomList = new MutilUserChatUtil(connection);
 			userChat=connection.getUser();
-			muc = mutilUserRoomList.joinMultiUserChat(userChat, pFRIENDID, "");
+			participantStatusListener=new ParticipantStatus();
 			if (muc!=null) {
+				muc.leave();
+			}
+			muc = mutilUserRoomList.joinMultiUserChat(userChat, pFRIENDID, "");
+			if (muc!=null) { 
+				muc.addParticipantStatusListener(participantStatusListener);
 				return true;
 			}else {
 				return false;
 			}
 		}else{
-			Toast.makeText(context, getString(R.string.not_Connect_to_Server), Toast.LENGTH_LONG).show();
+			Toast.makeText(context, getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();
 			return false;
 		}	
 	}
@@ -568,7 +578,7 @@ public class ChatActivity extends Activity {
 				});
 			}			
 		}else{
-			Toast.makeText(context, getString(R.string.not_Connect_to_Server), Toast.LENGTH_LONG).show();
+			Toast.makeText(context, getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();
 		}		
 	}
 	//end modify by anshe 2015.7.5
@@ -612,7 +622,7 @@ public class ChatActivity extends Activity {
 				}
 			}			
 		}else{
-			Toast.makeText(context, getString(R.string.not_Connect_to_Server), Toast.LENGTH_LONG).show();
+			Toast.makeText(context, getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();
 		}	
 	}
 
@@ -692,6 +702,7 @@ public class ChatActivity extends Activity {
 		if (connection!=null&&connection.isAuthenticated()
 				&&NetWorkConnection.isNetworkAvailable(context)
 				&&muc!=null) {
+			muc.removeParticipantStatusListener(participantStatusListener);
 			muc.leave(); // 退出聊天聊天室
 		}
 		//end modify by anshe 2015.7.6
@@ -753,6 +764,96 @@ public class ChatActivity extends Activity {
 		return msg;
 	}
 
+	class ParticipantStatus implements ParticipantStatusListener {  
+        
+		 @Override  
+	        public void adminGranted(String arg0) {  
+	            Log.e(TAG, "授予管理员权限" + arg0);  
+	        }  
+	  
+	        @Override  
+	        public void adminRevoked(String arg0) {  
+	            Log.e(TAG, "移除管理员权限" + arg0);  
+	        }  
+	  
+	        @Override  
+	        public void banned(String arg0, String arg1, String arg2) {  
+	            Log.e(TAG, "禁止加入房间（拉黑，不知道怎么理解，呵呵）" + arg0);  
+	        }  
+	  
+	        @Override  
+	        public void joined(String arg0) {  
+	            Log.e(TAG, "执行了joined方法:" + arg0 + "加入了房间");  
+	            /*// 更新成员  
+	            getAllMember();  
+	            android.os.Message msg = new android.os.Message();  
+	            msg.what = MEMBER;  
+	            handler.sendMessage(msg); */ 
+	        }  
+	  
+	        @Override  
+	        public void kicked(String arg0, String arg1, String arg2) {  
+	            Log.e(TAG, "踢人" + arg0 + "被踢出房间");  
+	        }  
+	  
+	        @Override  
+	        public void left(String arg0) {  
+	            String lefter = arg0.substring(arg0.indexOf("/") + 1);  
+	            Log.e(TAG, "执行了left方法:" + lefter + "离开的房间");  
+	            // 更新成员  
+	            /*getAllMember();  
+	            android.os.Message msg = new android.os.Message();  
+	            msg.what = MEMBER;  
+	            handler.sendMessage(msg); */ 
+	        }  
+	  
+	        @Override  
+	        public void membershipGranted(String arg0) {  
+	            Log.e(TAG, "授予成员权限" + arg0);  
+	        }  
+	  
+	        @Override  
+	        public void membershipRevoked(String arg0) {  
+	            Log.e(TAG, "成员权限被移除" + arg0);  
+	        }  
+	  
+	        @Override  
+	        public void moderatorGranted(String arg0) {  
+	            Log.e(TAG, "授予主持人权限" + arg0);  
+	        }  
+	  
+	        @Override  
+	        public void moderatorRevoked(String arg0) {  
+	            Log.e(TAG, "移除主持人权限" + arg0);  
+	        }  
+	  
+	        @Override  
+	        public void nicknameChanged(String arg0, String arg1) {  
+	            Log.e(TAG, "昵称改变了" + arg0);  
+	        }  
+	  
+	        @Override  
+	        public void ownershipGranted(String arg0) {  
+	            Log.e(TAG, "授予所有者权限" + arg0);  
+	        }  
+	  
+	        @Override  
+	        public void ownershipRevoked(String arg0) {  
+	            Log.e(TAG, "移除所有者权限" + arg0);  
+	        }  
+	  
+	        @Override  
+	        public void voiceGranted(String arg0) {  
+	            Log.e(TAG, "给" + arg0+"授权发言");  
+	        }  
+	  
+	        @Override  
+	        public void voiceRevoked(String arg0) {  
+	            Log.e(TAG, "禁止" + arg0+"发言");  
+	        }  
+
+	}
+	
 	public void onDestroy() {
 		super.onDestroy();
 	}

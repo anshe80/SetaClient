@@ -140,7 +140,7 @@ public class CreatRoomActivity extends ActionBarActivity{
 			Toast.makeText(CreatRoomActivity.this, getString(R.string.info_null), Toast.LENGTH_SHORT).show();
 		} else {
 						
-			if (connection==null&&XmppConnection.reConnectSuccess) {
+			if (connection==null) {
 				connection=XmppConnection.getConnection(this);
 				if (connection!=null) {
 					this.pUSERID=connection.getUser();

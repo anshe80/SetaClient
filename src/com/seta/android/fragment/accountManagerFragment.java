@@ -1,7 +1,8 @@
 package com.seta.android.fragment;
 
+import org.jivesoftware.smackx.packet.VCard;
 import com.seta.android.recordchat.R;
-
+import com.seta.android.xmppmanager.XmppConnection;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -25,6 +26,13 @@ public class accountManagerFragment extends Fragment{
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		//add by anshe 2015.7.8
+		/*VCard vCard = new VCard();
+		vCard.load(XmppConnection.reConnection());
+		if("".equals(vCard.getNickName()) || null == vCard.getNickName()){
+			System.out.println("昵称是空的");
+			vCard.setNickName("快乐的汤姆猫");
+		}*/
 		this.setHasOptionsMenu(true);
 	}
 	@Override
