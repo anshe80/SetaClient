@@ -24,7 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.seta.android.file.util.FileListAdapter;
-import com.seta.android.file.util.FileUtil;
+import com.seta.android.file.util.FileManageUtil;
 import com.seta.android.recordchat.R;
 import com.sys.android.util.OpenfileFunction;
 
@@ -132,7 +132,7 @@ public class filemanagerFragment extends Fragment {
 	//added by wyg
 	//从文件夹中读取数据
 	public void loadData(){
-		FileUtil fileUtil = new FileUtil();
+		FileManageUtil fileUtil = new FileManageUtil();
 		List<File> temp = fileUtil.queryFile(FILE_ROOT_PATH);
 		this.list.clear();
 		
@@ -157,7 +157,7 @@ public class filemanagerFragment extends Fragment {
 		@Override
 		public void onClick(View arg0) {
 			// TODO Auto-generated method stub
-			FileUtil fileUtil = new FileUtil();
+			FileManageUtil fileUtil = new FileManageUtil();
 			fileUtil.delFile(FILE_ROOT_PATH);
 			try {
 				Thread.sleep(2000);
@@ -178,7 +178,7 @@ public class filemanagerFragment extends Fragment {
 		@Override
 		public void onClick(View arg0) {
 			// TODO Auto-generated method stub
-			FileUtil fileUtil = new FileUtil();
+			FileManageUtil fileUtil = new FileManageUtil();
 			fileUtil.delFile(RECORD_ROOT_PATH);
 			try {
 				Thread.sleep(2000);
@@ -201,7 +201,7 @@ public class filemanagerFragment extends Fragment {
 		@Override
 		public void onClick(View arg0) {
 			// TODO Auto-generated method stub
-			FileUtil fileUtil = new FileUtil();
+			FileManageUtil fileUtil = new FileManageUtil();
 			fileUtil.delFile(PERSONAL_ROOT_PATH);
 			try {
 				Thread.sleep(2000);

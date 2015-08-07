@@ -15,25 +15,18 @@ import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
-
 import com.iflytek.cloud.SpeechConstant;
-import com.seta.android.activity.FindkeyActivity;
-import com.seta.android.activity.MainActivity;
-import com.seta.android.activity.SettingActivity;
 import com.seta.android.record.utils.IatSettings;
 import com.seta.android.recordchat.R;
 import com.seta.android.selfview.CustomerSpinner;
-import com.seta.android.selfview.IPEditText;
 import com.seta.android.selfview.SlipButton;
 import com.seta.android.selfview.SlipButton.OnChangedListener;
 import com.seta.android.xmppmanager.XmppConnection;
@@ -59,7 +52,7 @@ public class settingFragment extends Fragment {
 	private View spinner_layout;
 	private SharedPreferences rememberSettingPreferences;
 	private View mEditText;
-	private TextView ipTextView,server_status;
+	private TextView ipTextView,server_status,before_spinner_text;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,8 +62,9 @@ public class settingFragment extends Fragment {
 		chooseRecordButton = (SlipButton) view
 				.findViewById(R.id.chooseRecordButton);
 		chooseRecordText = (Button) view.findViewById(R.id.chooseRecordText);
-		spinner_layout = (View) view.findViewById(R.id.spinner_layout);
+		//spinner_layout = (View) view.findViewById(R.id.spinner_layout);
 		chooseRecordSpinner = (CustomerSpinner) view.findViewById(R.id.spinner);
+		before_spinner_text = (TextView) view.findViewById(R.id.before_spinner_text);
 		languageSpinner = (CustomerSpinner) view
 				.findViewById(R.id.language_spinner);
 		mEditText=(View) view.findViewById(R.id.server_layout);
@@ -102,16 +96,20 @@ public class settingFragment extends Fragment {
 							SpeechConstant.TYPE_AUTO);
 					editor.apply();
 					chooseRecordSpinner.setClickable(false);
-					spinner_layout.setBackgroundColor(Color
-							.parseColor("#50323232"));
+					/*spinner_layout.setBackgroundColor(Color
+							.parseColor("#50323232"));*/
+					before_spinner_text.setTextColor(getResources().getColor(R.color.textgray));
+					chooseRecordText.setTextColor(getResources().getColor(R.color.black));
 				} else {
 					Editor editor = rememberSettingPreferences.edit();
 					editor.putString("iat_type_preference",
 							SpeechConstant.TYPE_CLOUD);
 					editor.apply();
 					chooseRecordSpinner.setClickable(true);
-					spinner_layout.setBackgroundColor(Color
-							.parseColor("#ffffffff"));
+					/*spinner_layout.setBackgroundColor(Color
+							.parseColor("#ffffffff"));*/
+					before_spinner_text.setTextColor(getResources().getColor(R.color.black));
+					chooseRecordText.setTextColor(getResources().getColor(R.color.textgray));
 				}
 			}
 		});
@@ -126,8 +124,10 @@ public class settingFragment extends Fragment {
 		if (typeString.equals(SpeechConstant.TYPE_AUTO)) {
 			chooseRecordButton.setCheck(true);
 			chooseRecordSpinner.setClickable(false);
-			spinner_layout.setBackgroundColor(Color.parseColor("#50323232"));
+			//spinner_layout.setBackgroundColor(Color.parseColor("#50323232"));
+			before_spinner_text.setTextColor(getResources().getColor(R.color.textgray));
 		} else {
+			chooseRecordText.setTextColor(getResources().getColor(R.color.textgray));
 			chooseRecordButton.setCheck(false);
 		}
 		System.out.println("默认语音识别引擎为：" + typeString);

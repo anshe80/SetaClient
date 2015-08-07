@@ -44,7 +44,7 @@ public class FileListAdapter extends BaseExpandableListAdapter {
 	private Map<String,String> recordMap = new HashMap<String,String>();
 	//added wyg
 	private Map<String,String> personalMap = new HashMap<String,String>();
-	private FileUtil fileUtil = new FileUtil();
+	private FileManageUtil fileUtil = new FileManageUtil();
 	private Context context;
 	private LayoutInflater inflater = null;
 	private String filePath;

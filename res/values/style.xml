@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="AppTheme" parent="android:Theme.Light" />
 
@@ -42,8 +42,7 @@
     <style name="animationmsg">
         <item name="android:windowEnterAnimation">@anim/msg_enter</item>
         <item name="android:windowExitAnimation">@anim/msg_exit</item>
-    </style>
-    
+    </style>    
     
     <style name="like_toast_dialog_style">
         <item name="android:windowFrame">@null</item>
@@ -54,4 +53,8 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@drawable/round_background</item>
     </style>
+    
+    <style name="text_black">
+        <item name="android:textColor">@drawable/default_text_color</item>
+     </style>
 </resources>

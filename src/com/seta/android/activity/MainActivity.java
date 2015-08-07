@@ -75,6 +75,7 @@ public class MainActivity extends ActionBarActivity implements
 	String userName = null;
 	List<String> userNameList = new ArrayList<String>();
 	boolean startListener=false;
+	private long exitTime = 0;
 	// end add by anshe 2015.7.8
 
 	@Override
@@ -102,7 +103,7 @@ public class MainActivity extends ActionBarActivity implements
 		 */
 		// System.out.println("当前用户："+userName);
 		// 创建公共聊天室，并把所有登录用户加入其中
-		if (conn != null && this.publicRoomMuc == null) {
+		if (conn != null && userName!=null&&this.publicRoomMuc == null) {
 			(new joinRoom(conn, PUBLICROOM, userName)).start();
 		} else {
 			if (conn == null) {
@@ -111,7 +112,7 @@ public class MainActivity extends ActionBarActivity implements
 						Toast.LENGTH_SHORT).show();
 			}
 		}
-		if (!userNameList.contains(userName)) {
+		if (userName!=null&&!userNameList.contains(userName)) {
 			userNameList.add(userName);
 		}
 		mTitle = (String) getTitle();
@@ -193,7 +194,7 @@ public class MainActivity extends ActionBarActivity implements
 			}
 		};
 
-		if (conn != null) {
+		if (conn != null&&conn.getUser()!=null) {
 			conn.addConnectionListener(XmppConnection.connectionListener);
 		}
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
@@ -295,23 +296,7 @@ public class MainActivity extends ActionBarActivity implements
 		//getMenuInflater().inflate(R.menu.menu_main, menu);
 		return true;
 	}
-	
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_MENU) {
-			// do something
-			System.out.println("单击菜单键："+event.isCanceled());
-			if (!mDrawerLayout.isDrawerOpen(leftDrawerList)) {
-				mDrawerLayout.openDrawer(leftDrawerList);
-				mDrawerLayout.closeDrawer(rightDrawerList);		
-			}else if (mDrawerLayout.isDrawerOpen(leftDrawerList)) {
-				mDrawerLayout.closeDrawer(rightDrawerList);
-				mDrawerLayout.closeDrawer(leftDrawerList);	
-			}	
-			
-		}
-		return super.onKeyDown(keyCode, event);
-	}
+
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -438,17 +423,11 @@ public class MainActivity extends ActionBarActivity implements
 		}
 	}
 
-	// delete by anshe 2015.5.17
-	/*
-	 * public boolean onKeyDown(int keyCode, KeyEvent event) {
-	 * 
-	 * if (keyCode== KeyEvent.KEYCODE_BACK) { XmppConnection.closeConnection();
-	 * finish(); return true; } return super.onKeyDown(keyCode, event); }
-	 */
-	// end delete by anshe 2015.5.17
-
-	// start add by anshe 2015.5.17
+	
+	// start modify by anshe 2015.8.6
 	public void onBackPressed() {
+		exit();
+		/*
 		new AlertDialog.Builder(this)
 				.setTitle("确认退出吗？")
 				.setIcon(android.R.drawable.ic_dialog_info)
@@ -473,9 +452,9 @@ public class MainActivity extends ActionBarActivity implements
 						// 点击“返回”后的操作,这里不设置没有任何操作
 					}
 				}).show();
+	*/
 	}
-
-	// end add by anshe 2015.5.17
+	// end add by anshe 2015.8.6
 
 	// start add by anshe 2015.5.23
 	/*
@@ -525,9 +504,9 @@ public class MainActivity extends ActionBarActivity implements
 	public void right_drawer(MultiUserChat muc) {
 		// 获取服务器连接
 		if (conn == null || null == muc) {
-			Toast.makeText(MainActivity.this,
+			Toast.makeText(getApplicationContext(),
 					getString(R.string.not_Connect_to_Server),
-					Toast.LENGTH_SHORT).show();
+					Toast.LENGTH_SHORT).show();	
 			return;
 		}
 		List<String> userNameCahceList = MutilUserChatUtil.findMulitUser(muc);
@@ -761,5 +740,39 @@ public class MainActivity extends ActionBarActivity implements
 			}
 		}
 	};
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		switch (keyCode) {
+		case KeyEvent.KEYCODE_BACK:
+			exit();
+			return false;
+		case KeyEvent.KEYCODE_MENU:
+			if (!mDrawerLayout.isDrawerOpen(leftDrawerList)) {
+				mDrawerLayout.openDrawer(leftDrawerList);
+				mDrawerLayout.closeDrawer(rightDrawerList);		
+			}else if (mDrawerLayout.isDrawerOpen(leftDrawerList)) {
+				mDrawerLayout.closeDrawer(rightDrawerList);
+				mDrawerLayout.closeDrawer(leftDrawerList);	
+			}	
+			break;
+		default:
+			break;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	public void exit() {
+		if ((System.currentTimeMillis() - exitTime) > 2000) {
+			Toast.makeText(getApplicationContext(), "再按一次退出程序",
+					Toast.LENGTH_SHORT).show();
+			exitTime = System.currentTimeMillis();
+		} else {
+			XmppConnection.closeConnection();
+			finish();
+			System.exit(0);
+		}
+
+	}
 
 }

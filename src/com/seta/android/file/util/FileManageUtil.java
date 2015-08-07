@@ -15,11 +15,11 @@ import java.util.Map;
  * @author WYG
  * 
  */
-public class FileUtil {
+public class FileManageUtil {
 	private String filePath = null;
 	private int fileNum = 0;
 
-	public FileUtil() {
+	public FileManageUtil() {
 
 	}
 

@@ -1,6 +1,7 @@
 ﻿package com.seta.android.activity;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -37,8 +38,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,8 +52,8 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechUtility;
-import com.seta.android.activity.MainActivity.ParticipantStatus;
 import com.seta.android.activity.adapter.ChatListAdapter;
+import com.seta.android.activity.adapter.TextCheckAdapter;
 import com.seta.android.entity.Msg;
 import com.seta.android.record.utils.IatSettings;
 import com.seta.android.record.utils.JsonParser;
@@ -72,7 +73,7 @@ public class ChatActivity extends Activity {
 	private List<Msg> listMsg = new LinkedList<Msg>();
 	private String pUSERID;// 自己的user
 	private String pFRIENDID;// 窗口的 名称
-	private EditText msgText;
+	private AutoCompleteTextView msgText;
 	private TextView chat_name;
 	private NotificationManager mNotificationManager;
 	private MultiUserChat muc;
@@ -88,7 +89,7 @@ public class ChatActivity extends Activity {
 	private long startTime;
 	private long time;
 	StringBuffer resultsString = new StringBuffer();
-	private ParticipantStatus participantStatusListener=null;
+	private ParticipantStatus participantStatusListener = null;
 	// 发送文件
 	private OutgoingFileTransfer sendTransfer;
 	public static String FILE_ROOT_PATH = Environment
@@ -160,9 +161,12 @@ public class ChatActivity extends Activity {
 					pUSERID, Msg.TYPE[0], Msg.STATUS[3], time + "",
 					audioPath.split("/")[audioPath.split("/").length - 1]);
 			// 刷新适配器
+			listMsg.add(sendChatMsg);// 添加到聊天消息
 			adapter.notifyDataSetChanged();
 			// 发送消息
-			muc.sendMessage(Msg.toJson(sendChatMsg));
+			if (connection!=null&&connection.getUser()!=null&&muc!=null) {
+				muc.sendMessage(Msg.toJson(sendChatMsg));
+			}	
 		} catch (Exception e) {
 			e.printStackTrace();
 			Toast.makeText(ChatActivity.this, "发送异常", Toast.LENGTH_SHORT)
@@ -330,24 +334,30 @@ public class ChatActivity extends Activity {
 		listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		this.adapter = new ChatListAdapter(this, listMsg);
 		listview.setAdapter(adapter);
-		// 获取文本信息
-		this.msgText = (EditText) findViewById(R.id.formclient_text);
+		// 获取文本信息 start modify by anshe 2015.8.4
+		this.msgText = (AutoCompleteTextView) findViewById(R.id.formclient_text);
+		buildAppData();
+		textAdapter = new TextCheckAdapter(autoString, this);
+		msgText.setAdapter(textAdapter);
+		msgText.setDropDownHeight(700);
+		msgText.setMaxHeight(500);
+		//end modify by anshe 2015.8.4
 		// 消息监听
-		
+
 		// 返回按钮
 		Button mBtnBack = (Button) findViewById(R.id.chat_back);
 		mBtnBack.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				//start modify by anshe 2015.7.6
-				if (connection!=null&&connection.isAuthenticated()
-						&&NetWorkConnection.isNetworkAvailable(context)
-						&&muc != null) { 
+				// start modify by anshe 2015.7.6
+				if (connection != null && connection.isAuthenticated()
+						&& NetWorkConnection.isNetworkAvailable(context)
+						&& muc != null) {
 					muc.removeParticipantStatusListener(participantStatusListener);
 					muc.leave();
 				}
 				finish();
-				//end modify by anshe 2015.7.6
+				// end modify by anshe 2015.7.6
 			}
 		});
 		if (muc != null) {
@@ -357,27 +367,45 @@ public class ChatActivity extends Activity {
 		}
 
 	}
+	
+	//start add by anshe 2015.8.4
+		private  List<String> autoString;
+		TextCheckAdapter textAdapter;
+		 private void buildAppData() {  
+			         String[] names = { "欢迎使用Seta语音记录器！"};  
+			           
+			         autoString = new ArrayList<String>();  
+			           
+			         for (int i = 0; i < names.length; i++) {   
+			        	 autoString.add(names[i]);  
+			         }  
+			   
+			     }
 
-	public boolean joinChatRoom() {//modify by anshe 2015.7.6
+		//end add by anshe 2015.8.4
+
+	public boolean joinChatRoom() {// modify by anshe 2015.7.6
 		connection = XmppConnection.getConnection(this);
-		if (connection!=null) {
-			final MutilUserChatUtil mutilUserRoomList = new MutilUserChatUtil(connection);
-			userChat=connection.getUser();
-			participantStatusListener=new ParticipantStatus();
-			if (muc!=null) {
+		if (connection != null) {
+			final MutilUserChatUtil mutilUserRoomList = new MutilUserChatUtil(
+					connection);
+			userChat = connection.getUser();
+			participantStatusListener = new ParticipantStatus();
+			if (muc != null) {
 				muc.leave();
 			}
 			muc = mutilUserRoomList.joinMultiUserChat(userChat, pFRIENDID, "");
-			if (muc!=null) { 
+			if (muc != null) {
 				muc.addParticipantStatusListener(participantStatusListener);
 				return true;
-			}else {
+			} else {
 				return false;
 			}
-		}else{
-			Toast.makeText(context, getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(context, getString(R.string.not_Connect_to_Server),
+					Toast.LENGTH_SHORT).show();
 			return false;
-		}	
+		}
 	}
 
 	// end modify by anshe 2015.5.25
@@ -385,16 +413,19 @@ public class ChatActivity extends Activity {
 	 * 接收消息
 	 */
 	public void receivedMsg() {
-		boolean addListener=true;
+		boolean addListener = true;
 		if (muc == null) {
-			addListener=joinChatRoom();
+			addListener = joinChatRoom();
 		}
 		if (addListener) {
 			muc.addMessageListener(new PacketListener() {
 				@Override
 				public void processPacket(Packet packet) {
 					Message message = (Message) packet;
-					String from = Utils.getJidToUsername(message.getFrom());
+					// String from = Utils.getJidToUsername(message.getFrom());
+					Msg chatMsg = Msg.analyseMsgBody(message.getBody()
+							.toString());
+					String from = Utils.getJidToUsername(chatMsg.getFrom());
 					String toUser = Utils.getJidToUsername(message.getTo());
 					String nowUser = Utils.getJidToUsername(XmppConnection
 							.getConnection(context).getUser());
@@ -403,7 +434,8 @@ public class ChatActivity extends Activity {
 						// 获取用户、消息、时间、IN
 						// 在handler里取出来显示消息
 						android.os.Message msg = handler.obtainMessage();
-						System.out.println("服务器发来的消息是 chat：" + message.getBody());
+						System.out.println("服务器发来的消息是 chat："
+								+ message.getBody());
 						msg.what = 1;
 						msg.obj = message.getBody();
 						msg.sendToTarget();
@@ -434,6 +466,7 @@ public class ChatActivity extends Activity {
 					Msg sendChatMsg = new Msg(pFRIENDID, msg, TimeRender
 							.getDate(), pUSERID, Msg.TYPE[2]);
 					// 刷新适配器
+					listMsg.add(sendChatMsg);// 添加到聊天消息
 					adapter.notifyDataSetChanged();
 					try {
 						// 发送消息
@@ -451,7 +484,8 @@ public class ChatActivity extends Activity {
 					msgText.setText("");
 
 				} else {
-					Toast.makeText(ChatActivity.this, getString(R.string.send_message_is_null),
+					Toast.makeText(ChatActivity.this,
+							getString(R.string.send_message_is_null),
 							Toast.LENGTH_SHORT).show();
 				}
 
@@ -479,9 +513,11 @@ public class ChatActivity extends Activity {
 	public void setParam() {
 		// 清空参数
 		mIat.setParameter(SpeechConstant.PARAMS, null);
-		//add by anshe 2015.7.8
-		String typeString=mSharedPreferences.getString("iat_type_preference",SpeechConstant.TYPE_CLOUD);
-		typeString=typeString.equals(SpeechConstant.TYPE_AUTO)?SpeechConstant.TYPE_MIX:typeString;
+		// add by anshe 2015.7.8
+		String typeString = mSharedPreferences.getString("iat_type_preference",
+				SpeechConstant.TYPE_CLOUD);
+		typeString = typeString.equals(SpeechConstant.TYPE_AUTO) ? SpeechConstant.TYPE_MIX
+				: typeString;
 		// 设置听写引擎 云端
 		mIat.setParameter(SpeechConstant.ENGINE_TYPE, typeString);
 		// 设置返回结果格式
@@ -522,20 +558,21 @@ public class ChatActivity extends Activity {
 	 * @author anshe
 	 * 
 	 */
-	//start modify by anshe 2015.7.5
+	// start modify by anshe 2015.7.5
 	public void receivedFile() {
 		/**
 		 * 接收文件
 		 */
-		if (connection==null) {
+		if (connection == null) {
 			connection = XmppConnection.getConnection(this);
 		}
-		if (connection!=null) {
+		if (connection != null) {
 			// Create the file transfer manager
-			final FileTransferManager manager = new FileTransferManager(connection);
+			final FileTransferManager manager = new FileTransferManager(
+					connection);
 			// Create the listener
 			Log.e("receivedFile ", " receive file=" + userChat);
-			if (manager!=null) {
+			if (manager != null) {
 				manager.addFileTransferListener(new FileTransferListener() {
 
 					public void fileTransferRequest(FileTransferRequest request) {
@@ -547,12 +584,14 @@ public class ChatActivity extends Activity {
 								// start modify by anshe 2015.5.25
 								File file = new File(RECORD_ROOT_PATH + "/"
 										+ request.getFileName());
-								android.os.Message msg = handler.obtainMessage();
+								android.os.Message msg = handler
+										.obtainMessage();
 								transfer.recieveFile(file);
 								Msg msgInfo = queryMsgForListMsg(file.getName());
 								msgInfo.setFilePath(request.getFileName());// 更新
 																			// filepath
-								new MyFileStatusThread(transfer, msgInfo).start();
+								new MyFileStatusThread(transfer, msgInfo)
+										.start();
 								Log.e("receivedFile", "userChat=" + userChat
 										+ "接收到的文件名：" + request.getFileName()
 										+ " 接收的路径：" + file.getPath());
@@ -564,10 +603,11 @@ public class ChatActivity extends Activity {
 							// Reject it
 							request.reject();
 							String[] args = new String[] { userChat,
-									request.getFileName(), TimeRender.getDate(),
-									pFRIENDID, Msg.TYPE[0], Msg.STATUS[1] };
-							Msg msgInfo = new Msg(args[0], "redio", args[2], args[3],
-									Msg.TYPE[0], Msg.STATUS[1]);
+									request.getFileName(),
+									TimeRender.getDate(), pFRIENDID,
+									Msg.TYPE[0], Msg.STATUS[1] };
+							Msg msgInfo = new Msg(args[0], "redio", args[2],
+									args[3], Msg.TYPE[0], Msg.STATUS[1]);
 							// 在handler里取出来显示消息
 							android.os.Message msg = handler.obtainMessage();
 							msg.what = 4;
@@ -576,12 +616,14 @@ public class ChatActivity extends Activity {
 						}
 					}
 				});
-			}			
-		}else{
-			Toast.makeText(context, getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();
-		}		
+			}
+		} else {
+			Toast.makeText(context, getString(R.string.not_Connect_to_Server),
+					Toast.LENGTH_SHORT).show();
+		}
 	}
-	//end modify by anshe 2015.7.5
+
+	// end modify by anshe 2015.7.5
 	/**
 	 * 发送文件
 	 * 
@@ -592,13 +634,14 @@ public class ChatActivity extends Activity {
 		 * 发送文件
 		 */
 
-		if (connection==null) {
+		if (connection == null) {
 			connection = XmppConnection.getConnection(this);
 		}
-		if (connection!=null) {
+		if (connection != null) {
 			// Create the file transfer manager
-			FileTransferManager sendFilemanager = new FileTransferManager(connection);
-			if (sendFilemanager!=null&&muc!=null) {
+			FileTransferManager sendFilemanager = new FileTransferManager(
+					connection);
+			if (sendFilemanager != null && muc != null) {
 				// Create the outgoing file transfer
 				List<String> user = MutilUserChatUtil.findMulitUser(muc);
 				for (int i = 0; i < user.size(); i++) {
@@ -606,11 +649,14 @@ public class ChatActivity extends Activity {
 						userChatSendFile = user.get(i) + "@"
 								+ XmppConnection.SERVER_NAME + "/Smack";
 						Log.e("发送给哪些用户：", user.get(i) + "文件路径：" + path);
-						sendTransfer = sendFilemanager.createOutgoingFileTransfer(userChatSendFile);// 账号@域名/资源名
+						sendTransfer = sendFilemanager
+								.createOutgoingFileTransfer(userChatSendFile);// 账号@域名/资源名
 						// Send the file
 						try {
-							sendTransfer.sendFile(new java.io.File(path), "send file");
-							while (!sendTransfer.isDone());
+							sendTransfer.sendFile(new java.io.File(path),
+									"send file");
+							while (!sendTransfer.isDone())
+								;
 							new MyFileStatusThread(sendTransfer, msg).start();
 							/**
 							 * 监听
@@ -620,10 +666,11 @@ public class ChatActivity extends Activity {
 						}
 					}
 				}
-			}			
-		}else{
-			Toast.makeText(context, getString(R.string.not_Connect_to_Server), Toast.LENGTH_SHORT).show();
-		}	
+			}
+		} else {
+			Toast.makeText(context, getString(R.string.not_Connect_to_Server),
+					Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	class MyFileStatusThread extends Thread {
@@ -698,14 +745,13 @@ public class ChatActivity extends Activity {
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
-		//start modify by anshe 2015.7.6
-		if (connection!=null&&connection.isAuthenticated()
-				&&NetWorkConnection.isNetworkAvailable(context)
-				&&muc!=null) {
+		// start modify by anshe 2015.7.6
+		if (connection != null && connection.isAuthenticated()
+				&& NetWorkConnection.isNetworkAvailable(context) && muc != null) {
 			muc.removeParticipantStatusListener(participantStatusListener);
 			muc.leave(); // 退出聊天聊天室
 		}
-		//end modify by anshe 2015.7.6
+		// end modify by anshe 2015.7.6
 		ChatActivity.this.finish();
 	}
 
@@ -764,96 +810,97 @@ public class ChatActivity extends Activity {
 		return msg;
 	}
 
-	class ParticipantStatus implements ParticipantStatusListener {  
-        
-		 @Override  
-	        public void adminGranted(String arg0) {  
-	            Log.e(TAG, "授予管理员权限" + arg0);  
-	        }  
-	  
-	        @Override  
-	        public void adminRevoked(String arg0) {  
-	            Log.e(TAG, "移除管理员权限" + arg0);  
-	        }  
-	  
-	        @Override  
-	        public void banned(String arg0, String arg1, String arg2) {  
-	            Log.e(TAG, "禁止加入房间（拉黑，不知道怎么理解，呵呵）" + arg0);  
-	        }  
-	  
-	        @Override  
-	        public void joined(String arg0) {  
-	            Log.e(TAG, "执行了joined方法:" + arg0 + "加入了房间");  
-	            /*// 更新成员  
-	            getAllMember();  
-	            android.os.Message msg = new android.os.Message();  
-	            msg.what = MEMBER;  
-	            handler.sendMessage(msg); */ 
-	        }  
-	  
-	        @Override  
-	        public void kicked(String arg0, String arg1, String arg2) {  
-	            Log.e(TAG, "踢人" + arg0 + "被踢出房间");  
-	        }  
-	  
-	        @Override  
-	        public void left(String arg0) {  
-	            String lefter = arg0.substring(arg0.indexOf("/") + 1);  
-	            Log.e(TAG, "执行了left方法:" + lefter + "离开的房间");  
-	            // 更新成员  
-	            /*getAllMember();  
-	            android.os.Message msg = new android.os.Message();  
-	            msg.what = MEMBER;  
-	            handler.sendMessage(msg); */ 
-	        }  
-	  
-	        @Override  
-	        public void membershipGranted(String arg0) {  
-	            Log.e(TAG, "授予成员权限" + arg0);  
-	        }  
-	  
-	        @Override  
-	        public void membershipRevoked(String arg0) {  
-	            Log.e(TAG, "成员权限被移除" + arg0);  
-	        }  
-	  
-	        @Override  
-	        public void moderatorGranted(String arg0) {  
-	            Log.e(TAG, "授予主持人权限" + arg0);  
-	        }  
-	  
-	        @Override  
-	        public void moderatorRevoked(String arg0) {  
-	            Log.e(TAG, "移除主持人权限" + arg0);  
-	        }  
-	  
-	        @Override  
-	        public void nicknameChanged(String arg0, String arg1) {  
-	            Log.e(TAG, "昵称改变了" + arg0);  
-	        }  
-	  
-	        @Override  
-	        public void ownershipGranted(String arg0) {  
-	            Log.e(TAG, "授予所有者权限" + arg0);  
-	        }  
-	  
-	        @Override  
-	        public void ownershipRevoked(String arg0) {  
-	            Log.e(TAG, "移除所有者权限" + arg0);  
-	        }  
-	  
-	        @Override  
-	        public void voiceGranted(String arg0) {  
-	            Log.e(TAG, "给" + arg0+"授权发言");  
-	        }  
-	  
-	        @Override  
-	        public void voiceRevoked(String arg0) {  
-	            Log.e(TAG, "禁止" + arg0+"发言");  
-	        }  
+	class ParticipantStatus implements ParticipantStatusListener {
+
+		@Override
+		public void adminGranted(String arg0) {
+			Log.e(TAG, "授予管理员权限" + arg0);
+		}
+
+		@Override
+		public void adminRevoked(String arg0) {
+			Log.e(TAG, "移除管理员权限" + arg0);
+		}
+
+		@Override
+		public void banned(String arg0, String arg1, String arg2) {
+			Log.e(TAG, "禁止加入房间（拉黑，不知道怎么理解，呵呵）" + arg0);
+		}
+
+		@Override
+		public void joined(String arg0) {
+			Log.e(TAG, "执行了joined方法:" + arg0 + "加入了房间");
+			/*
+			 * // 更新成员 getAllMember(); android.os.Message msg = new
+			 * android.os.Message(); msg.what = MEMBER;
+			 * handler.sendMessage(msg);
+			 */
+		}
+
+		@Override
+		public void kicked(String arg0, String arg1, String arg2) {
+			Log.e(TAG, "踢人" + arg0 + "被踢出房间");
+		}
+
+		@Override
+		public void left(String arg0) {
+			String lefter = arg0.substring(arg0.indexOf("/") + 1);
+			Log.e(TAG, "执行了left方法:" + lefter + "离开的房间");
+			// 更新成员
+			/*
+			 * getAllMember(); android.os.Message msg = new
+			 * android.os.Message(); msg.what = MEMBER;
+			 * handler.sendMessage(msg);
+			 */
+		}
+
+		@Override
+		public void membershipGranted(String arg0) {
+			Log.e(TAG, "授予成员权限" + arg0);
+		}
+
+		@Override
+		public void membershipRevoked(String arg0) {
+			Log.e(TAG, "成员权限被移除" + arg0);
+		}
+
+		@Override
+		public void moderatorGranted(String arg0) {
+			Log.e(TAG, "授予主持人权限" + arg0);
+		}
+
+		@Override
+		public void moderatorRevoked(String arg0) {
+			Log.e(TAG, "移除主持人权限" + arg0);
+		}
+
+		@Override
+		public void nicknameChanged(String arg0, String arg1) {
+			Log.e(TAG, "昵称改变了" + arg0);
+		}
+
+		@Override
+		public void ownershipGranted(String arg0) {
+			Log.e(TAG, "授予所有者权限" + arg0);
+		}
+
+		@Override
+		public void ownershipRevoked(String arg0) {
+			Log.e(TAG, "移除所有者权限" + arg0);
+		}
+
+		@Override
+		public void voiceGranted(String arg0) {
+			Log.e(TAG, "给" + arg0 + "授权发言");
+		}
+
+		@Override
+		public void voiceRevoked(String arg0) {
+			Log.e(TAG, "禁止" + arg0 + "发言");
+		}
 
 	}
-	
+
 	public void onDestroy() {
 		super.onDestroy();
 	}

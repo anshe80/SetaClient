@@ -1,10 +1,12 @@
 ﻿package com.seta.android.fragment;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -20,6 +22,7 @@ import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -30,16 +33,19 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.InitListener;
 import com.iflytek.cloud.RecognizerListener;
@@ -49,6 +55,7 @@ import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechUtility;
 import com.seta.android.activity.adapter.ChatListAdapter;
+import com.seta.android.activity.adapter.TextCheckAdapter;
 import com.seta.android.entity.Msg;
 import com.seta.android.record.utils.IatSettings;
 import com.seta.android.record.utils.JsonParser;
@@ -67,7 +74,7 @@ public class publicFragment extends Fragment {
 	private ChatListAdapter adapter;
 	private List<Msg> listMsg = new LinkedList<Msg>();
 	private final String publicroom = "publicroom";// 广场名字
-	private EditText msgText;
+	private AutoCompleteTextView msgText;
 	private NotificationManager mNotificationManager;
 	private MultiUserChat muc;
 	private Button mRecordButton, btsend;
@@ -131,6 +138,16 @@ public class publicFragment extends Fragment {
 		}
 		userChatSendFile = publicroom + "@" + XmppConnection.SERVER_NAME
 				+ "/Smack";
+
+		// 获取文本信息//start modify by anshe 2015.8.4
+		this.msgText = (AutoCompleteTextView) view.findViewById(R.id.formclient_text);
+		buildAppData();
+		textAdapter = new TextCheckAdapter(autoString,this.getActivity());  
+		msgText.setAdapter(textAdapter);
+		msgText.setDropDownHeight(700);
+		msgText.setMaxHeight(500);
+		//msgText.setCompletionHint("欢迎使用Seta自动纠错！");
+		//end modify by anshe 2015.8.4
 		mRecordButton = (Button) view.findViewById(R.id.record_button);
 		mRecordButton.setOnClickListener(new OnClickListener() {
 
@@ -159,8 +176,6 @@ public class publicFragment extends Fragment {
 		ListView listview = (ListView) view
 				.findViewById(R.id.formclient_listview);
 		listview.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-		// 获取文本信息
-		this.msgText = (EditText) view.findViewById(R.id.formclient_text);
 		joinChatRoom();
 		this.adapter = new ChatListAdapter(context, listMsg);
 		listview.setAdapter(adapter);
@@ -170,6 +185,21 @@ public class publicFragment extends Fragment {
 		}
 
 	}
+	//start add by anshe 2015.8.4
+	private  List<String> autoString;
+	TextCheckAdapter textAdapter;
+	 private void buildAppData() {  
+		         String[] names = { "欢迎使用Seta语音记录器！"};  
+		           
+		         autoString = new ArrayList<String>();  
+		           
+		         for (int i = 0; i < names.length; i++) {   
+		        	 autoString.add(names[i]);  
+		         }  
+		   
+		     }
+
+	//end add by anshe 2015.8.4
 
 	public boolean joinChatRoom() {
 		connection = XmppConnection.getConnection(context);
@@ -237,10 +267,12 @@ public class publicFragment extends Fragment {
 					userChat, Msg.TYPE[0], Msg.STATUS[3], time + "",
 					audioPath.split("/")[audioPath.split("/").length - 1]);
 			// 刷新适配器
-			adapter.setListMsg(listMsg);
+			listMsg.add(sendChatMsg);// 添加到聊天消息
 			adapter.notifyDataSetChanged();
 			// 发送消息
-			muc.sendMessage(Msg.toJson(sendChatMsg));
+			if (connection!=null&&connection.getUser()!=null&&muc!=null) {
+				muc.sendMessage(Msg.toJson(sendChatMsg));
+			}			
 		} catch (Exception e) {
 			e.printStackTrace();
 			Toast.makeText(context, "发送异常", Toast.LENGTH_SHORT).show();
@@ -342,6 +374,8 @@ public class publicFragment extends Fragment {
 			msgText.setSelection(msgText.length());
 			if (isLast) {
 				// TODO 最后的结果
+				String text = JsonParser.parseIatResult(results.getResultString());
+				System.out.println("最后的语音识别内容："+text);
 			}
 		}
 
@@ -393,7 +427,9 @@ public class publicFragment extends Fragment {
 				@Override
 				public void processPacket(Packet packet) {
 					Message message = (Message) packet;
-					String from = Utils.getJidToUsername(message.getFrom());
+					//String from = Utils.getJidToUsername(message.getFrom());
+					Msg chatMsg = Msg.analyseMsgBody(message.getBody().toString());
+					String from = Utils.getJidToUsername(chatMsg.getFrom());
 					String toUser = Utils.getJidToUsername(message.getTo());
 					String nowUser = Utils.getJidToUsername(connection.getUser());
 					Log.e("接收消息的用户：", "from=" + from + " toUser="
@@ -446,8 +482,8 @@ public class publicFragment extends Fragment {
 							Msg sendChatMsg = new Msg(publicroom, msg,
 									TimeRender.getDate(), userChat, Msg.TYPE[2]);
 							// 刷新适配器
-							/*listMsg.add(sendChatMsg);// 添加到聊天消息
-							adapter.notifyDataSetChanged();*/
+							listMsg.add(sendChatMsg);// 添加到聊天消息
+							adapter.notifyDataSetChanged();
 							try {
 								// 发送消息
 								muc.sendMessage(Msg.toJson(sendChatMsg));
@@ -629,6 +665,7 @@ public class publicFragment extends Fragment {
 			if (muc == null) {// add by anshe 2015.7.6
 				joinChatRoom();
 			}
+			
 			if (muc != null) {
 				List<String> user = MutilUserChatUtil.findMulitUser(muc);
 				for (int i = 0; i < user.size(); i++) {
@@ -642,9 +679,9 @@ public class publicFragment extends Fragment {
 						try {
 							sendTransfer.sendFile(new java.io.File(path),
 									"send file");
-							while (!sendTransfer.isDone())
-								;
-							new MyFileStatusThread(sendTransfer, msg).start();
+							while (!sendTransfer.isDone());
+							System.out.println("开始监听音频文件发送情况！");
+							new MyFileStatusThread(sendTransfer, msg).start();//modify by anshe 2015.7.21
 							/**
 							 * 监听
 							 */
@@ -652,7 +689,7 @@ public class publicFragment extends Fragment {
 							e.printStackTrace();
 						}
 					}
-				}
+				}				
 			}
 		}
 	}
@@ -670,7 +707,6 @@ public class publicFragment extends Fragment {
 			android.os.Message message = new android.os.Message();// handle
 			message.what = 3;
 			while (!transfer.isDone()) {
-
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -679,20 +715,20 @@ public class publicFragment extends Fragment {
 				}
 
 			}
-
+			System.out.println("成功发送文件！刷新文件状态。。。。");
+			int index=listMsg.indexOf(msg);
 			if (transfer.getStatus().equals(Status.error)) {
 				msg.setReceive(Msg.STATUS[2]);
 			} else if (transfer.getStatus().equals(Status.refused)) {
 				msg.setReceive(Msg.STATUS[1]);
 			} else {
 				msg.setReceive(Msg.STATUS[0]);// 成功
-
 			}
+			/*if (index>=0) {
+				listMsg.get(index).setReceive(msg.getReceive());		
+			}*/
 			handler.sendMessage(message);
-			/*
-			 * System.out.println(transfer.getStatus());
-			 * System.out.println(transfer.getProgress());
-			 */
+			System.out.println("文件发送的状态："+msg.getReceive()+index);		
 		}
 	}
 
@@ -701,7 +737,7 @@ public class publicFragment extends Fragment {
 			switch (msg.what) {
 			case 1:
 				Msg chatMsg = Msg.analyseMsgBody(msg.obj.toString());
-				if (chatMsg != null) {					
+				if (chatMsg != null&&!listMsg.contains(chatMsg)) {					
 					listMsg.add(chatMsg);// 添加到聊天消息
 					adapter.notifyDataSetChanged();
 				}
@@ -711,7 +747,6 @@ public class publicFragment extends Fragment {
 				// 2015.5.11
 				break;
 			case 3: // 更新文件发送状态
-				adapter.setListMsg(listMsg);
 				adapter.notifyDataSetChanged();
 				break;
 			case 4: // 接收文件
@@ -734,8 +769,10 @@ public class publicFragment extends Fragment {
 		super.setUserVisibleHint(isVisibleToUser);
 		if (isVisibleToUser) {
 			// 相当于Fragment的onResume
-			// 加载你的数据
+			// 加载你的数据 
+			if (connection==null||connection.getUser()==null) {
 				boolean isjoin=joinChatRoom();
+			}
 				//receivedMsg(isjoin);
 				//Toast.makeText(context, "是否重新连接："+isjoin, Toast.LENGTH_SHORT).show();
 		} else {

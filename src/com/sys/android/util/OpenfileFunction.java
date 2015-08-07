@@ -189,7 +189,11 @@ public class OpenfileFunction {
 		intent.setDataAndType(uri, "application/pdf");
 		return intent;
 	}
-	
+	/*
+	 * @param strcontent 文本内容
+	 * @param filePath  文本路劲
+	 * @param fileName  文本名字
+	 * */
 	// 将字符串写入到文本文件中
 	public static void writeTxtToFile(String strcontent, String filePath, String fileName) {
 	    //生成文件夹之后，再生成文件，不然会出错

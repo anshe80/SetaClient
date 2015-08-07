@@ -38,10 +38,10 @@ public class SettingActivity extends ActionBarActivity {
 	public static ArrayList<String> languageList = null;
 	private ArrayAdapter<String> adapter;
 	private CustomerSpinner chooseRecordSpinner, languageSpinner;
-	private View spinner_layout;
 	private SharedPreferences rememberSettingPreferences;
 	private IPEditText mEditText;
-	private TextView ipTextView;
+	private TextView ipTextView,before_spinner_text;
+	private View spinner;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -51,7 +51,7 @@ public class SettingActivity extends ActionBarActivity {
 				IatSettings.PREFER_NAME, Activity.MODE_PRIVATE);
 		chooseRecordButton = (SlipButton) findViewById(R.id.chooseRecordButton);
 		chooseRecordText = (Button) findViewById(R.id.chooseRecordText);
-		spinner_layout = (View) findViewById(R.id.spinner_layout);
+		before_spinner_text = (TextView) findViewById(R.id.before_spinner_text);
 		chooseRecordSpinner = (CustomerSpinner) findViewById(R.id.spinner);
 		languageSpinner = (CustomerSpinner) findViewById(R.id.language_spinner);
 		mEditText = (IPEditText) findViewById(R.id.ip_custom);
@@ -91,14 +91,17 @@ public class SettingActivity extends ActionBarActivity {
 					editor.putString("iat_type_preference",
 							SpeechConstant.TYPE_AUTO);
 					chooseRecordSpinner.setClickable(false);
-					spinner_layout.setBackgroundColor(Color
-							.parseColor("#50323232"));
+					//spinner_text.setTextColor(Color.parseColor("#A39898"));
+					before_spinner_text.setTextColor(getResources().getColor(R.color.textgray));
+					chooseRecordText.setTextColor(getResources().getColor(R.color.black));
 				} else {
 					editor.putString("iat_type_preference",
 							SpeechConstant.TYPE_CLOUD);
 					chooseRecordSpinner.setClickable(true);
-					spinner_layout.setBackgroundColor(Color
-							.parseColor("#ffffffff"));
+					/*spinner_text.setTextColor(Color
+							.parseColor("#000000"));*/
+					before_spinner_text.setTextColor(getResources().getColor(R.color.black));
+					chooseRecordText.setTextColor(getResources().getColor(R.color.textgray));
 				}
 				editor.apply();
 			}
@@ -114,8 +117,11 @@ public class SettingActivity extends ActionBarActivity {
 		if (typeString.equals(SpeechConstant.TYPE_AUTO)) {
 			chooseRecordButton.setCheck(true);
 			chooseRecordSpinner.setClickable(false);
-			spinner_layout.setBackgroundColor(Color.parseColor("#50323232"));
+			//chooseRecordSpinner.setTextAlignment(Color.parseColor("#A39898"));
+			//spinner_text.setTextColor(Color.parseColor("#A39898"));
+			before_spinner_text.setTextColor(getResources().getColor(R.color.textgray));
 		} else {
+			chooseRecordText.setTextColor(getResources().getColor(R.color.textgray));
 			chooseRecordButton.setCheck(false);
 		}
 		System.out.println("默认语音识别引擎为：" + typeString);

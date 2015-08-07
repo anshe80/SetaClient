@@ -29,21 +29,7 @@ public class Msg {
 	public static final String FIL_PAHT="filePath";
 	
 	
-	public String getTime() {
-		return time;
-	}
 
-	public void setTime(String time) {
-		this.time = time;
-	}
-
-	public String getFilePath() {
-		return filePath;
-	}
-
-	public void setFilePath(String filePath) {
-		this.filePath = filePath;
-	}
 
 
 	public static final String[] STATUS={"success","refused","fail","wait"};
@@ -60,10 +46,18 @@ public class Msg {
 		this.from = from;
 		this.type=type;
 	}
-	
-	 
-	 
 
+	public Msg(String userid, String msg, String date, String from,
+			String type, String receive) {
+		super();
+		this.toUser = userid;
+		this.msg = msg;
+		this.date = date;
+		this.from = from;
+		this.type = type;
+		this.receive = receive;
+	} 
+	
 	public Msg(String userid, String msg, String date, String from,
 			String type, String receive, String time, String filePath) {
 		super();
@@ -76,7 +70,22 @@ public class Msg {
 		this.time = time;
 		this.filePath = filePath;
 	}
+	
+	public String getTime() {
+		return time;
+	}
 
+	public void setTime(String time) {
+		this.time = time;
+	}
+
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
 	public String getType() {
 		return type;
 	}
@@ -84,7 +93,7 @@ public class Msg {
 	@Override
 	public String toString() {
 		return "Msg [userid=" + toUser + ", msg=" + msg + ", date=" + date
-				+ ", from=" + from + ", type=" + type + ", receive=" + receive
+				+ ", from=" + from  + ", type=" + type + ", receive=" + receive
 				+ ", time=" + time + ", filePath=" + filePath + "]";
 	}
 
@@ -104,16 +113,6 @@ public class Msg {
 		return STATUS;
 	}
 
-	public Msg(String userid, String msg, String date, String from,
-			String type, String receive) {
-		super();
-		this.toUser = userid;
-		this.msg = msg;
-		this.date = date;
-		this.from = from;
-		this.type = type;
-		this.receive = receive;
-	}
 
 	public String getToUser() {
 		return toUser;
@@ -171,15 +170,8 @@ public class Msg {
 			e1.printStackTrace();
 		}finally{
 			return msg;
-		}
-		
-		
-		 
-		
-		 
-		 
-	}
-	
+		}		 
+	}	
 	
 	/**
 	 * 传json 

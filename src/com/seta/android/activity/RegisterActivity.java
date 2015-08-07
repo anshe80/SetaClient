@@ -216,7 +216,7 @@ public class RegisterActivity extends Activity implements OnClickListener {
 			//end modify by anshe 2015.5.24
 			DialogFactory.ToastDialog(this, getString(R.string.registerID), getString(R.string.register_success));
 			Intent intent = new Intent();
-			intent.putExtra("pUSERID", name);
+			intent.putExtra("pUSERID", accounts);
 			intent.setClass(RegisterActivity.this, MainActivity.class);
 			startActivity(intent);
 			finish();

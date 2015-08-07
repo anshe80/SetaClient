@@ -105,13 +105,17 @@ public class ChatListAdapter extends BaseAdapter {
 					@Override
 					public void onClick(View v) {
 						mSoundPlayer = new SoundPlayer();
-						File file = new File(RECORD_ROOT_PATH
-								+ msg.getFilePath());
-						Log.e("打开的音频路径：", RECORD_ROOT_PATH + msg.getFilePath());
+						String filePathString="";
+						if ( msg.getFilePath().contains("/")) {
+							filePathString=msg.getFilePath();
+						}else {
+							filePathString=RECORD_ROOT_PATH + msg.getFilePath();
+						}
+						File file = new File(filePathString);
+						Log.e("打开的音频路径：", filePathString);
 						if (file.exists()) {
 							mSoundPlayer.stopPlaying();
-							mSoundPlayer.startPlaying(RECORD_ROOT_PATH
-									+ msg.getFilePath());
+							mSoundPlayer.startPlaying(filePathString);
 						} else {
 
 							if (toUser!=null&&fromUser!=null&&!fromUser.equals(toUser)
@@ -175,12 +179,12 @@ public class ChatListAdapter extends BaseAdapter {
 										}
 									}).create().show();
 				} else {
-					if (msg.getMsg() != null) {
+					if (msg.getMsg() != null&&!msg.getMsg().contains("语音消息")) {
 						AlertDialog.Builder dialog = new AlertDialog.Builder(
 								context);
 						dialog.setTitle("发送邮件")
 								.setIcon(R.drawable.icon)
-								.setMessage("确定将此内容以文本的形式发送给好友吗？")
+								.setMessage("确定将此内容以文本附件的形式发送给好友吗？")
 								.setPositiveButton("确定",
 										new DialogInterface.OnClickListener() {
 											@Override

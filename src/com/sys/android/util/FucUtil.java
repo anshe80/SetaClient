@@ -1,5 +1,12 @@
 package com.sys.android.util;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import jeasy.analysis.MMAnalyzer;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,6 +41,48 @@ public class FucUtil {
 			e.printStackTrace();
 		}
 		return result;
+	}
+	public static MMAnalyzer readFile(Context mContext,String filePath)
+	{
+		MMAnalyzer analyzer = new MMAnalyzer();
+		try {
+			InputStream in = mContext.getAssets().open(filePath);
+			Reader reader = new InputStreamReader(in);
+			//analyzer.addDictionary(reader);		
+			//analyzer.addWord("出类拔粹");
+			Scanner file = new Scanner(in,"utf-8");
+			while (file.hasNextLine()) {
+				String line = file.nextLine();
+				System.out.println(line);
+				MMAnalyzer.addWord(line);
+			}
+			System.out.println("成功读取错别字词库到MMAnalyzer！");
+			in.close();
+			reader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return analyzer;
+	}
+	public static List<String> readWordsList(Context mContext,String filePath)
+	{
+		List<String> errorWoList=new ArrayList<String>();
+		try {
+			InputStream in = mContext.getAssets().open(filePath);
+			Reader reader = new InputStreamReader(in);
+			Scanner file = new Scanner(in,"utf-8");
+			while (file.hasNextLine()) {
+				String line = file.nextLine();
+				System.out.println(line);
+				errorWoList.add(line);
+			}
+			System.out.println("成功读取错别字词库到List<String>！");
+			in.close();
+			reader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return errorWoList;
 	}
 	
 	/**

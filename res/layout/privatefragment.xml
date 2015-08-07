@@ -18,13 +18,15 @@
         android:layout_height="wrap_content"
         android:background="#FFEEEEEE" >
 
-	<EditText
+	<AutoCompleteTextView
 	    android:id="@+id/formclient_text"
 	    android:layout_width="wrap_content"
-	    android:layout_height="240dp"
+	    android:layout_height="wrap_content"
 	    android:layout_weight="1"
 	    android:hint="语音识别结果"
-	    android:textColor="@color/black" />
+	    android:textColor="@color/black" 
+	    android:completionHintView="@layout/area_completionview"
+        android:completionHint="欢迎使用Seta自动纠错！"/>
 
 	</LinearLayout>
 	<FrameLayout 

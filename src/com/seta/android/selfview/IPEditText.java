@@ -57,15 +57,19 @@ public class IPEditText extends LinearLayout {
 				".");
 		if (ips.length > 0) {
 			mFirstIP.setText(ips[0]);
+			mFirstIP.setSelection(ips[0].length());
 		}
 		if (ips.length > 1) {
-			mThirdIP.setText(ips[1]);
+			mSecondIP.setText(ips[1]);
+			mSecondIP.setSelection(ips[1].length());
 		}
 		if (ips.length > 2) {
 			mThirdIP.setText(ips[2]);
+			mThirdIP.setSelection(ips[2].length());
 		}
 		if (ips.length > 3) {
 			mFourthIP.setText(ips[3]);
+			mFourthIP.setSelection(ips[3].length());
 		}
 		OperatingEditText(context);
 	}
@@ -84,38 +88,42 @@ public class IPEditText extends LinearLayout {
 				 * 获得EditTe输入内容,做判断,如果大于255,提示不合法,当数字为合法的三位数下一个EditText获得焦点,
 				 * 用户点击啊.时,下一个EditText获得焦点
 				 */
-				if (s != null && s.length() > 0&&!s.toString().startsWith(".")) {
+				if (s != null && s.length() > 0
+						&& !s.toString().startsWith(".")) {
 					if (s.length() > 2 || s.toString().trim().contains(".")) {
 						if (s.toString().trim().contains(".")) {
 							mText1 = s.toString().substring(0, s.length() - 1);
-							mFirstIP.setText(mText1);
-							mFirstIP.setSelection(mText1.length());
 						} else {
 							mText1 = s.toString().trim();
 						}
-
+						if (s.length() > 3 && !s.toString().endsWith(".")) {
+							mText1 = s.subSequence(0, 3).toString();
+							if (mText2 == null) {
+								mText2 = s.subSequence(3, s.length())
+										.toString();
+							}
+						}
 						if (Integer.parseInt(mText1) > 255) {
 							Toast.makeText(context, "请输入合法的ip地址",
 									Toast.LENGTH_LONG).show();
-							mText1=mText1.substring(0, mText1.length()-1);
+							mText1 = mText1.substring(0, mText1.length() - 1);
 							mFirstIP.setText(mText1);
 							mFirstIP.setSelection(mText1.length());
 							return;
-						}
-						mSecondIP.setFocusable(true);
-						mSecondIP.requestFocus();
-						if (s.length()>3&&!s.toString().endsWith(".")) {
-							if (mText2==null) {
-								mText2=s.subSequence(3, s.length()).toString();
-								mSecondIP.setText(mText2);
+						}else {
+							if (s.length() > 3||s.toString().endsWith(".")) {
+								mFirstIP.setText(mText1);
+								mFirstIP.setSelection(mText1.length());
+								mSecondIP.setFocusable(true);
+								mSecondIP.requestFocus();
+								if (mText2 != null && mText2.length() > 0) {
+									mSecondIP.setText(mText2);
+									mSecondIP.setSelection(mText2.length());
+								}
 							}
 						}
-						if (mText2!=null&&mText2.length()>0) {
-							mSecondIP.setSelection(mText2.length());							
-						}
 					}
-				}
-				if (s.toString().startsWith(".")) {
+				} else if (s != null && s.toString().startsWith(".")) {
 					mFirstIP.setText("");
 				}
 
@@ -142,46 +150,52 @@ public class IPEditText extends LinearLayout {
 				 * 获得EditTe输入内容,做判断,如果大于255,提示不合法,当数字为合法的三位数下一个EditText获得焦点,
 				 * 用户点击啊.时,下一个EditText获得焦点
 				 */
-				if (s != null && s.length() > 0&&!s.toString().startsWith(".")) {
-					if (s.toString().trim().contains(".")) {
-						mText2 = s.toString().substring(0, s.length() - 1);
-						mSecondIP.setText(mText2);
-						mSecondIP.setSelection(mText2.length());
-					} else {
-						mText2 = s.toString().trim();
-					}
-
-					if (Integer.parseInt(mText2) > 255) {
-						Toast.makeText(context, "请输入合法的ip地址", Toast.LENGTH_LONG)
-								.show();
-						mText2=mText2.substring(0, mText2.length()-1);
-						mSecondIP.setText(mText2);
-						mSecondIP.setSelection(mText2.length());
-						return;
-					}
-
+				if (s != null && s.length() > 0
+						&& !s.toString().startsWith(".")) {
 					if (s.length() > 2 || s.toString().trim().contains(".")) {
-						mThirdIP.setFocusable(true);
-						mThirdIP.requestFocus();
-						if (s.length()>3&&!s.toString().endsWith(".")) {
-							if (mText3==null) {
-								mText3=s.subSequence(3, s.length()).toString();
-								mThirdIP.setText(mText3);
+						if (s.toString().trim().contains(".")) {
+							mText2 = s.toString().substring(0, s.length() - 1);
+						} else {
+							mText2 = s.toString().trim();
+						}
+						if (s.length() > 3 && !s.toString().endsWith(".")) {
+							mText2 = s.subSequence(0, 3).toString();
+							if (mText3 == null) {
+								mText3 = s.subSequence(3, s.length())
+										.toString();
 							}
 						}
-						if (mText3!=null&&mText3.length()>0) {
-							mThirdIP.setSelection(mText3.length());
-						}						
+						if (Integer.parseInt(mText2) > 255) {
+							Toast.makeText(context, "请输入合法的ip地址",
+									Toast.LENGTH_LONG).show();
+							mText2 = mText2.substring(0, mText2.length() - 1);
+							mSecondIP.setText(mText2);
+							mSecondIP.setSelection(mText2.length());
+							return;
+						}else {
+							if (s.length() > 3||s.toString().endsWith(".")) {
+								mSecondIP.setText(mText2);
+								mSecondIP.setSelection(mText2.length());
+								mThirdIP.setFocusable(true);
+								mThirdIP.requestFocus();
+								if (mText3 != null && mText3.length() > 0) {
+									mThirdIP.setText(mText3);
+									mThirdIP.setSelection(mText3.length());
+								}
+							}
+						}
 					}
-				}
-				if (s.toString().startsWith(".")) {
+				} else if (s != null && s.toString().startsWith(".")) {
 					mSecondIP.setText("");
 				}
+
+			
 
 				/**
 				 * 当用户需要删除时,此时的EditText为空时,上一个EditText获得焦点
 				 */
 				if (start == 0 && s.length() == 0 && mFirstIP.length() < 4) {
+					mText2=null;
 					mFirstIP.setFocusable(true);
 					mFirstIP.requestFocus();
 					mFirstIP.setSelection(mFirstIP.length());
@@ -210,39 +224,42 @@ public class IPEditText extends LinearLayout {
 				 * 获得EditTe输入内容,做判断,如果大于255,提示不合法,当数字为合法的三位数下一个EditText获得焦点,
 				 * 用户点击啊.时,下一个EditText获得焦点
 				 */
-				if (s != null && s.length() > 0&&!s.toString().startsWith(".")) {
-
-					if (s.toString().trim().contains(".")) {
-						mText3 = s.toString().substring(0, s.length() - 1);
-						mThirdIP.setText(mText3);
-						mThirdIP.setSelection(mText3.length());
-					} else {
-						mText3 = s.toString().trim();
-					}
-
-					if (Integer.parseInt(mText3) > 255) {
-						Toast.makeText(context, "请输入合法的ip地址", Toast.LENGTH_LONG)
-								.show();
-						mText3=mText3.substring(0, mText3.length()-1);
-						mThirdIP.setText(mText3);
-						mThirdIP.setSelection(mText3.length());
-						return;
-					}
+				if (s != null && s.length() > 0
+						&& !s.toString().startsWith(".")) {
 					if (s.length() > 2 || s.toString().trim().contains(".")) {
-						mFourthIP.setFocusable(true);
-						mFourthIP.requestFocus();
-						if (s.length()>3&&!s.toString().endsWith(".")) {
-							if (mText4==null) {
-								mText4=s.subSequence(3, s.length()).toString();
-								mFourthIP.setText(mText4);
+						if (s.toString().trim().contains(".")) {
+							mText3 = s.toString().substring(0, s.length() - 1);
+						} else {
+							mText3 = s.toString().trim();
+						}
+						if (s.length() > 3 && !s.toString().endsWith(".")) {
+							mText3 = s.subSequence(0, 3).toString();
+							if (mText4 == null) {
+								mText4 = s.subSequence(3, s.length())
+										.toString();
 							}
 						}
-						if (mText4!=null&&mText4.length()>0) {
-							mFourthIP.setSelection(mText4.length());
-						}						
+						if (Integer.parseInt(mText3) > 255) {
+							Toast.makeText(context, "请输入合法的ip地址",
+									Toast.LENGTH_LONG).show();
+							mText3 = mText3.substring(0, mText3.length() - 1);
+							mThirdIP.setText(mText3);
+							mThirdIP.setSelection(mText3.length());
+							return;
+						}else {
+							if (s.length() > 3||s.toString().endsWith(".")) {
+								mThirdIP.setText(mText3);
+								mThirdIP.setSelection(mText3.length());
+								mFourthIP.setFocusable(true);
+								mFourthIP.requestFocus();
+								if (mText4 != null && mText4.length() > 0) {
+									mFourthIP.setText(mText4);
+									mFourthIP.setSelection(mText4.length());
+								}
+							}
+						}
 					}
-				}
-				if (s.toString().startsWith(".")) {
+				} else if (s != null && s.toString().startsWith(".")) {
 					mThirdIP.setText("");
 				}
 
@@ -250,6 +267,7 @@ public class IPEditText extends LinearLayout {
 				 * 当用户需要删除时,此时的EditText为空时,上一个EditText获得焦点
 				 */
 				if (start == 0 && s.length() == 0 && mSecondIP.length() < 3) {
+					mText3=null;
 					mSecondIP.setFocusable(true);
 					mSecondIP.requestFocus();
 					mSecondIP.setSelection(mSecondIP.length());
@@ -277,7 +295,8 @@ public class IPEditText extends LinearLayout {
 				 * 获得EditTe输入内容,做判断,如果大于255,提示不合法,当数字为合法的三位数下一个EditText获得焦点,
 				 * 用户点击啊.时,下一个EditText获得焦点
 				 */
-				if (s != null && s.length() > 0&&!s.toString().startsWith(".")) {
+				if (s != null && s.length() > 0
+						&& !s.toString().startsWith(".")) {
 					if (s.toString().trim().contains(".")) {
 						mText4 = s.toString().substring(0, s.length() - 1);
 						mFourthIP.setText(mText4);
@@ -288,7 +307,7 @@ public class IPEditText extends LinearLayout {
 					if (Integer.parseInt(mText4) > 255) {
 						Toast.makeText(context, "请输入合法的ip地址", Toast.LENGTH_LONG)
 								.show();
-						mText4=mText4.substring(0, mText4.length()-1);
+						mText4 = mText4.substring(0, mText4.length() - 1);
 						mFourthIP.setText(mText4);
 						mFourthIP.setSelection(mText4.length());
 						return;
@@ -297,19 +316,21 @@ public class IPEditText extends LinearLayout {
 					Editor editor = mPreferences.edit();
 					editor.putInt("IP_FOURTH", mText4.length());
 					editor.commit();
+				}else {
+					if (s != null &&s.toString().startsWith(".")) {
+						mFourthIP.setText("");
+					}
 				}
 				/**
 				 * 当用户需要删除时,此时的EditText为空时,上一个EditText获得焦点
 				 */
 				if (start == 0 && s.length() == 0 && mThirdIP.length() < 3) {
+					mText4=null;
 					mThirdIP.setFocusable(true);
 					mThirdIP.requestFocus();
 					mThirdIP.setSelection(mThirdIP.length());
 				}
 
-				if (s.toString().startsWith(".")) {
-					mFourthIP.setText("");
-				}
 			}
 
 			@Override
@@ -329,8 +350,9 @@ public class IPEditText extends LinearLayout {
 		String ipString = mText1 + "." + mText2 + "." + mText3 + "." + mText4;
 		if (TextUtils.isEmpty(mText1) || TextUtils.isEmpty(mText2)
 				|| TextUtils.isEmpty(mText3) || TextUtils.isEmpty(mText4)) {
-			Toast.makeText(context, "请输入合法的ip地址" + ipString, Toast.LENGTH_SHORT)
+			Toast.makeText(context, "请输入合法的ip地址", Toast.LENGTH_SHORT)
 					.show();
+			ipString=mPreferences.getString("SERVER_HOST", "0.0.0.0");
 		} else {
 			Editor editor = mPreferences.edit();
 			editor.putString("SERVER_HOST", ipString);

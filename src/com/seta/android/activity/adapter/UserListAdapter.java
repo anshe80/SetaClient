@@ -2,7 +2,6 @@ package com.seta.android.activity.adapter;
 
 import java.util.List;
 
-import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Presence;
 
@@ -18,13 +17,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.seta.android.activity.ChatActivity;
-import com.seta.android.activity.MainActivity;
-import com.seta.android.fragment.privateFragment;
 import com.seta.android.recordchat.R;
 import com.seta.android.xmppmanager.XmppConnection;
-import com.seta.android.xmppmanager.XmppService;
 
 public class UserListAdapter extends BaseAdapter {
 	private Activity context = null;

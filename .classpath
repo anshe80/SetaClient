@@ -2,17 +2,20 @@
 <classpath>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/activation.jar"/>
-	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/additionnal.jar"/>
-	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/android-support-v4.jar"/>
-	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/android-support-v7-appcompat.jar"/>
-	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/log4j-1.2.17.jar"/>
-	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/mail.jar"/>
-	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/Msc.jar"/>
-	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/Sunflower.jar"/>
-	<classpathentry kind="lib" path="I:/anshe/workspace/SetaClient/libs/asmack-android-17-0.8.3.jar"/>
-	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry kind="lib" path="D:/Android/SetaClient/libs/activation.jar"/>
+	<classpathentry kind="lib" path="D:/Android/SetaClient/libs/additionnal.jar"/>
+	<classpathentry kind="lib" path="D:/Android/SetaClient/libs/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="D:/Android/SetaClient/libs/android-support-v7-appcompat.jar"/>
+	<classpathentry kind="lib" path="D:/Android/SetaClient/libs/asmack-android-17-0.8.3.jar"/>
+	<classpathentry kind="lib" path="D:/Android/SetaClient/libs/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="D:/Android/SetaClient/libs/mail.jar"/>
+	<classpathentry kind="lib" path="D:/Android/SetaClient/libs/Msc.jar"/>
+	<classpathentry kind="lib" path="D:/Android/SetaClient/libs/Sunflower.jar"/>
+	<classpathentry kind="lib" path="D:/Android/testHLSeg/depends/je-analysis-1.5.3.jar"/>
+	<classpathentry kind="lib" path="D:/Android/testHLSeg/depends/lucene-core-2.4.1.jar"/>
+	<classpathentry kind="lib" path="D:/Android/testHLSeg/depends/pinyin4j-2.5.0.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

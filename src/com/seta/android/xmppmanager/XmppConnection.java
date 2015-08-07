@@ -140,7 +140,7 @@ public class XmppConnection {
 			}
 			reConnection();
 		} else {
-			if (null == connection) {
+			if (null == connection&&activity!=null) {
 				Toast.makeText(activity,
 						activity.getString(R.string.reconnection_fail),
 						Toast.LENGTH_SHORT).show();

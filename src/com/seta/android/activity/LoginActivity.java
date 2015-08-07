@@ -24,8 +24,10 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+
 import com.seta.android.xmppmanager.XmppConnection;
 import com.sys.android.util.DialogFactory;
+import com.sys.android.util.NetWorkConnection;
 import com.seta.android.recordchat.R;
 
 @SuppressWarnings("all")
@@ -59,7 +61,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 		mPassword = (EditText) findViewById(R.id.login_password);
         auto_save_password = (CheckBox) findViewById(R.id.auto_save_password);
         auto_save_password.setChecked(true);        
-		//rememberPassword.edit().putBoolean("ISCHECK", true).commit();delete by anshe 2015.7.5
+		rememberPassword.edit().putBoolean("ISCHECK", true).commit();//modify by anshe 2015.8.4
 		//监听记住密码多选框按钮事件
 	  	auto_save_password.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 	  		public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
@@ -167,52 +169,67 @@ public class LoginActivity extends Activity implements OnClickListener {
 		if (accounts.length() == 0 || password.length() == 0) {
 			DialogFactory.ToastDialog(this, getString(R.string.login_Tips), getString(R.string.empty_or_error));
 		} else {
-			try {
-				SmackAndroid.init(LoginActivity.this);
-				// 连接服务器
-				XMPPConnection connection=XmppConnection.openConnection(this);
-				if(connection!=null){
-					connection.login(accounts, password);
-					// 连接服务器成功，更改在线状态
-					Presence presence = new Presence(Presence.Type.available);
-					XmppConnection.getConnection(this).sendPacket(presence);
-					
-					//start modify by anshe 2015.7.5
-					// 登录成功和记住密码框为选中状态才保存用户信息
-					if (auto_save_password.isChecked()) {
-						// 记住用户名、密码、
-						Editor editor = rememberPassword.edit();
-						editor.putString("USER_NAME", accounts);
-						editor.putString("PASSWORD", password);
-						editor.apply();
+			if (NetWorkConnection.isNetworkAvailable(this)) {
+				try {
+					SmackAndroid.init(LoginActivity.this);
+					// 连接服务器
+					XMPPConnection connection=XmppConnection.openConnection(this);
+					if(connection!=null){
+						connection.login(accounts, password);
+						// 连接服务器成功，更改在线状态
+						Presence presence = new Presence(Presence.Type.available);
+						XmppConnection.getConnection(this).sendPacket(presence);
+						
+						//start modify by anshe 2015.7.5
+						// 登录成功和记住密码框为选中状态才保存用户信息
+						if (auto_save_password.isChecked()) {
+							// 记住用户名、密码、
+							Editor editor = rememberPassword.edit();
+							editor.putString("USER_NAME", accounts);
+							editor.putString("PASSWORD", password);
+							editor.apply();
+						}else{
+							// 为保证用户离线后自动重连，默认记住用户名、密码.
+							Editor editor = rememberPassword.edit();
+							editor.putString("USER_NAME", accounts);
+							editor.putString("PASSWORD", password);
+							editor.apply();
+						}
+						//end modify by anshe 2015.7.5
+						// 跳转到好友列表
+						Intent intent = new Intent();
+						// delete by ling 2015.4.29
+						// intent.putExtra("USERID", accounts);
+						// intent.setClass(LoginActivity.this,
+						// FriendListActivity.class);
+						// add by ling 2015.4.29
+						intent.putExtra("pUSERID", accounts);
+						intent.setClass(LoginActivity.this, MainActivity.class);
+						startActivity(intent);
+						finish();
 					}else{
-						// 为保证用户离线后自动重连，默认记住用户名、密码.
-						Editor editor = rememberPassword.edit();
-						editor.putString("USER_NAME", accounts);
-						editor.putString("PASSWORD", password);
-						editor.apply();
-					}
-					//end modify by anshe 2015.7.5
-					// 跳转到好友列表
+						DialogFactory.ToastDialog(LoginActivity.this, getString(R.string.login_Tips),
+								getString(R.string.service_not_open));						
+					}					
+				} catch (XMPPException e) {
+					XmppConnection.closeConnection();
+					handler.sendEmptyMessage(2);
+					e.printStackTrace();
+				}
+			}else{
+				//test no server add by anshe 2015.8.5
+				if(accounts.equals("admin") && password.equals("admin")){
 					Intent intent = new Intent();
-					// delete by ling 2015.4.29
-					// intent.putExtra("USERID", accounts);
-					// intent.setClass(LoginActivity.this,
-					// FriendListActivity.class);
-					// add by ling 2015.4.29
 					intent.putExtra("pUSERID", accounts);
 					intent.setClass(LoginActivity.this, MainActivity.class);
 					startActivity(intent);
 					finish();
-				}else{
-					DialogFactory.ToastDialog(LoginActivity.this, getString(R.string.login_Tips),
-							getString(R.string.service_not_open));
 				}
-			} catch (XMPPException e) {
-				XmppConnection.closeConnection();
-				handler.sendEmptyMessage(2);
-				e.printStackTrace();
+				//test no server add by anshe 2015.8.5
+				/*DialogFactory.ToastDialog(LoginActivity.this, getString(R.string.login_Tips),
+						getString(R.string.failedconnection_info));		*/		
 			}
+			
 		}
 	}
 

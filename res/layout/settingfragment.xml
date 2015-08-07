@@ -82,7 +82,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/server_ip_layout"
-        android:text="更新" />
+        android:text="更新" 
+        android:textColor="@android:color/black"
+        android:background="@drawable/bg_spinner"/>
 
     <View
         android:layout_width="fill_parent"
@@ -148,13 +150,14 @@
         android:padding="5dip" >
 
         <TextView
+            android:id="@+id/before_spinner_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="45dp"
             android:layout_marginTop="1dp"
             android:text="自定义 :"
-            android:textColor="@android:color/black"
-            android:textSize="18sp" />
+            android:textSize="18sp" 
+            android:textColor="@android:color/black"/>
 
         <com.seta.android.selfview.CustomerSpinner
             android:id="@+id/spinner"
@@ -162,7 +165,7 @@
             android:layout_height="50dp"
             android:layout_marginTop="1dp"
             android:background="@drawable/bg_spinner"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"/>
     </LinearLayout>
 
     <LinearLayout

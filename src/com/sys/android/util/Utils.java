@@ -89,5 +89,13 @@ public class Utils {
 		}
 		return true;
 	}
+	
+	/**
+	 * 正则表达式-判断第一个字符是否为标点或者空格
+	 */
+	public static boolean isStartWithPunctuation(String str){ 
+	    Pattern pattern = Pattern.compile("[\\s\\p{P}]"); 
+	    return pattern.matcher(str.substring(0, 1)).matches();    
+	 } 
 
 }
