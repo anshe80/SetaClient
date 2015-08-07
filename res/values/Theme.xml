@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style
-        name="mActionBarTheme"
+    <style name="mActionBarTheme"
         parent="@style/Theme.AppCompat">
         <item name="android:actionBarStyle">@style/mbackground</item>   
     </style>
-    <style 
-        name="mbackground"
+    <style name="mbackground"
         parent="@style/Widget.AppCompat.ActionBar.Solid">
         <item name="android:background">@drawable/title_bar</item>
     </style>

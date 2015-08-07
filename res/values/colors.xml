@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <color name="white">#ffffff</color>
+    
+	<color name="white">#ffffffff</color>
     <color name="gold">#b89766</color>
     <color name="window_bg">#ffeef1f3</color>
     <color name="title_bg">#ff54acea</color>
@@ -59,7 +59,6 @@
     <color name="system_item_bg_unread">#fff0f4f6</color>
     <color name="system_item_name_read">#ff798089</color>
     <color name="system_item_name_unread">#ff000000</color>
-    <color name="qq_normal">#ff000000</color>
     <color name="black">#ff000000</color>
     <color name="video_bg_color">#ffecf3f9</color>
     <color name="video_edge_color">#ffd0deee</color>
@@ -76,7 +75,6 @@
     <color name="color_divider_lbs_filter">#ffc2c8cd</color>
     <color name="extrainfo">#ff333333</color>
     <color name="info_panel_bg">#ffeeeeee</color>
-    <color name="sqqname">#ffee860a</color>
     <color name="list_item_bg">#fff0f4f6</color>
     <color name="list_item_bg_focus">#ffe2e7eb</color>
     <color name="list_item_bg_for_friendlist">#ffeef1f3</color>
@@ -139,6 +137,24 @@
     <color name="setting_text2">#ff798089</color>
     <color name="setting_bg">#ffe3e6e8</color>
     <color name="Grey">#BEBEBE</color>
+    <color name="textgray">#A39898</color>
     <color name="LightGray">#D3D3D3</color>
     <color name="dominant_hue">#00afc4</color>
+    
+    <!--start add by anshe 2015.5.11  -->
+        <!-- 画面背景色 -->
+    <drawable name="layout_backgroud">#000000</drawable>
+    
+    <!-- 分割线背景色 -->
+    <drawable name="line_background">#161823</drawable>
+
+    <color name="white">#FFFFFF</color>
+    <color name="background_tab_pressed">#6633B5E5</color>
+    <!-- 控件按下时显示的颜色 -->
+    <color name="list_backgroud_color">#2fb3cb</color>
+    <color name="title_color">#0f8ec5</color>
+    <color name="content_color">#737373</color>
+    <color name="red">#FF0000</color>
+    <!--end add by anshe 2015.5.11  -->
+    
 </resources>

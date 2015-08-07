@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" 
+    android:background="@color/white">
+     
+    <RelativeLayout
+        android:id="@+id/RelativeLayout02"
+        android:layout_marginLeft="5dip"
+        android:layout_marginRight="5dip"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="3dip"
+        android:gravity="center_horizontal" 
+        android:layout_below="@+id/RelativeLayout01">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="35dp"
+            android:gravity="top"
+            android:orientation="horizontal" >
+            <EditText
+                android:id="@+id/search_text"
+                android:layout_width="fill_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="15dp"
+                android:layout_weight="1.0"
+				android:background="@color/LightGray"
+                android:hint="@string/group_name"
+                android:singleLine="true"
+                android:textStyle="bold" >
+            </EditText>
+            <Button
+                android:id="@+id/create_button"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_alignParentRight="true"
+                android:text="@string/create" >
+            </Button>
+        </LinearLayout>
+    </RelativeLayout>
+     <RelativeLayout
+            android:id="@+id/RelativeLayout03"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@+id/RelativeLayout02"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:layout_marginTop="5dip" >
+            <LinearLayout
+                android:id="@+id/LinearLayout02"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginTop="5dip" >
+                <ListView
+                    android:id="@+id/testlistshow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:divider="@null" />
+            </LinearLayout>
+        </RelativeLayout>
+</LinearLayout>

@@ -1,24 +1,42 @@
 ﻿package com.seta.android.xmppmanager;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smackx.OfflineMessageManager;
+import org.jivesoftware.smackx.packet.VCard;
+
+import android.app.Service;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.IBinder;
+
 /**
  * xmpp方法
- * @author yuanqihesheng
- * @date 2013-04-27
+ * @author anshe
+ * @date 2015-04-27
  */
-public class XmppService{
+public class XmppService  extends Service{
 
-	
+	    private OfflineMessageManager offlineManager;
+	    public static XMPPConnection con = null;
+
+	    static{   
+	        try{  
+	           Class.forName("org.jivesoftware.smack.ReconnectionManager");  
+	        }catch(Exception e){  
+	            e.printStackTrace();  
+	        }  
+	    } 
 	/** 
      * 删除当前用户 
      * @param connection 
@@ -202,4 +220,42 @@ public class XmppService{
         presence.setStatus(status);  
         connection.sendPacket(presence);      
     }  
+    
+    /** 
+     * 获取用户头像信息 
+     *  
+     * @param connection 
+     * @param user 
+     * @return 
+     */  
+    public Drawable getUserImage(final XMPPConnection connection,String user) {  
+        
+        ByteArrayInputStream bais = null;  
+        try {  
+            VCard vcard = new VCard();  
+            // 加入这句代码，解决No VCard for  
+            ProviderManager.getInstance().addIQProvider("vCard", "vcard-temp",  
+                    new org.jivesoftware.smackx.provider.VCardProvider());  
+            if (user == "" || user == null || user.trim().length() <= 0) {  
+                return null;  
+            }  
+            vcard.load(connection, user + "@"  
+                    + connection.getServiceName());  
+  
+            if (vcard == null || vcard.getAvatar() == null)  
+                return null;  
+            bais = new ByteArrayInputStream(vcard.getAvatar());  
+        } catch (Exception e) {  
+            e.printStackTrace();  
+            return null;  
+        }  
+        return null;//FormatTools.getInstance().InputStream2Drawable(bais);  
+    }
+	@Override
+	public IBinder onBind(Intent arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}    
+	
+    
 }

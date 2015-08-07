@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#ededed" >
+
+    <RelativeLayout
+        android:id="@+id/group_friend_top_bar_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bar_bg" >
+
+        <Button
+            android:id="@+id/group_friend_top_bar_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:background="@drawable/left_button_bg"
+            android:text="刷新"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/group_friend_top_bar_do_commit_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:background="@drawable/commit_button_bg"
+            android:text="创建聊天室"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/group_friend_top_bar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/group_friend_top_bar_do_commit_button"
+            android:layout_toRightOf="@id/group_friend_top_bar_back"
+            android:gravity="center"
+            android:text="广场"
+            android:textColor="#000"
+            android:textSize="18sp" />
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/group_friend_listview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/group_friend_top_bar_layout" >
+    </ListView>    
+
+</RelativeLayout>

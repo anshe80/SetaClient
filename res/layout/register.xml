@@ -233,6 +233,50 @@
                 android:textSize="16.0sp" />
 
         </LinearLayout>
+        
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1.0px"
+            android:background="@drawable/shape_line" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="50.0dip"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="80px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:paddingLeft="15.0dip"
+                android:text="@string/qr_verify_code"
+                android:textColor="@android:color/black"
+                android:textSize="18.0sp" />
+
+
+            <EditText
+                android:id="@+id/verifycode_input_prompt"
+                android:layout_width="1px"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10.0dip"
+                android:layout_marginRight="15.0dip"
+                android:layout_weight="3"
+                android:background="@android:color/white"
+                android:hint="@string/verifycode_input_prompt"
+                android:maxLength="20"
+                android:paddingLeft="0.0dip"
+                android:textColor="#ff545454"
+                android:textSize="16.0sp" />
+            <Button
+		        android:id="@+id/get_verifycode"
+		        android:layout_width="180px"
+		        android:layout_height="wrap_content"
+		        android:text="@string/get_code"
+		        android:textColor="#ff000000"
+		        android:textSize="18.0sp" />
+
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

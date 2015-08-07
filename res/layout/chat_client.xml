@@ -47,24 +47,28 @@
         android:layout_height="wrap_content"
         android:background="#FFEEEEEE" >
 
-        <com.seta.android.selfview.RecordButton
+        <Button
             android:id="@+id/record_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1.0"
-            android:text="按住录音" />
+            android:layout_height="wrap_content"   
+            android:background="@drawable/chat_send_button_bg"       
+            android:text="点击录音" />
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/formclient_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
-            android:hint="请输入发送内容"/>
+            android:textColor="#000000"
+            android:hint="请输入发送内容"
+            android:completionHintView="@layout/area_completionview"
+            android:completionHint="欢迎使用Seta自动纠错！"/>
 <!--             android:inputType="textWebEditText" -->
         <Button
             android:id="@+id/formclient_btsend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/chat_send_button_bg" 
             android:text="发送" />
     </LinearLayout>
 </LinearLayout>

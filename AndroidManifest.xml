@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sys.android.xmpp"
+    package="com.seta.android.recordchat"
     android:versionCode="1"
     android:versionName="1.0" >
     <uses-sdk android:minSdkVersion="7"/>
@@ -11,15 +11,22 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>    
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+	<!-- start add by anshe 2015.5.12 -->
+	<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+	<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/> 
+	<permission android:name="android.permission.WRITE_MEDIA_STORAGE" />
+   <!-- end add by anshe 2015.5.12  -->
    <!-- modify by ling: modify logo -->
     <application
          android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:theme="@style/mActionBarTheme" >
+        android:theme="@style/mActionBarTheme" 
+        android:debuggable="true">
         <activity
             android:name="com.seta.android.activity.WelcomeActivity"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
             <intent-filter> 
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -27,12 +34,33 @@
         </activity>
     <activity android:name="com.seta.android.activity.LoginActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
     <activity android:name="com.seta.android.activity.FriendListActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
-    <activity android:name="com.seta.android.activity.FriendAddActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
+    <activity android:name="com.seta.android.activity.CreatRoomActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
     <activity android:name="com.seta.android.activity.ChatActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
     <activity android:name="com.seta.android.activity.FormFiles" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
     <activity android:name="com.seta.android.activity.RegisterActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
     <!-- add by ling 2015.4.28 -->
+    <!-- start add by anshe 2015.5.12 -->
     <activity android:name="com.seta.android.activity.MainActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
     <activity android:name="com.seta.android.activity.FindkeyActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" />
+    <activity android:name="com.seta.android.record.utils.IatSettings" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" ></activity>
+    <activity android:name="com.seta.android.activity.GroupSquareListActivity" android:screenOrientation="portrait" android:windowSoftInputMode="adjustUnspecified|stateHidden" ></activity>
+    <activity android:name="com.seta.android.activity.LogoActivity"></activity>
+    <activity android:name="com.seta.android.activity.ChatConvertActivity"></activity>
+    <activity android:name="com.seta.android.email.SendEmailActivity"></activity>
+    <activity android:name="com.seta.android.activity.SettingActivity"></activity>
+    <meta-data
+            android:name="IFLYTEK_APPKEY"
+            android:value="'55378391'" />    
+                
+    <!-- end add by anshe 2015.5.12 -->
+    
+    
+    <!-- start add by anshe 2015.5.21 -->
+    <service android:enabled="true"
+        	 android:name="com.seta.android.service.ConvertService"
+        	 android:permission="com.seta.android.service.ConvertService">
+        
+    </service>
+    <!-- end add by anshe 2015.5.21 -->
     </application>
 </manifest>

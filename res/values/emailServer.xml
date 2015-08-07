@@ -1,9 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
-    <string name="email_account"></string>
-    <string name="email_password"></string>
-    <string name="email_subject">欢迎使用setaAPP</string>
+    <!-- add by anshe 2015.5.22  -->
+    <string name="email_account">seta_email@163.com</string>
+    <string name="email_password">htzmcumamnslfbgu</string>
+    <string name="email_subject">欢迎使用SeTaAPP</string>
     <string name="email_register_body">注册账号成功！</string>
+    <string name="email_verycode">用于找回密码的验证码：</string>
+    <string name="email_register_info">用于注册的验证码：</string>
+    <string name="email_warning">为了账号安全，请不要泄露给他人。如果不是您的操作，请忽略此信息！</string>
+    <string name="email_format_error">邮箱格式错误！</string>
+    <string name="email_send_success">验证码已发到邮箱，请注意查收！</string>
+    <string name="email_sendfile_success">邮件发送成功！</string>
+    <string name="email_null">邮箱不能为空！</string>
+    <string name="email_to_user">接收邮箱</string>
+    <string name="email_input_to_user">请输入接收邮箱</string>
+    <string name="find_key_Tips">您将收到包含验证码的邮件，请输入邮件中的验证码找回密码。</string>
+    <string name="send_email_warning">请使用QQ、163邮箱登陆发送附件，多个接收者请用逗号隔开。</string>
+    <string name="send_email">发送邮件</string>
+    <string name="sending_email">正在发送邮件...</string>
+    <string name="send_email_error">附件发送异常，请重试！</string>
+    <string name="send_email_tip">主题</string>
+    <string name="send_email_tips">请输入邮件主题</string>
+    <string name="send_email_content">正文</string>
+    <string name="send_email_context">请输入邮件正文</string>
+    <string name="email_account_null">邮箱账号为空，请重新输入！</string>
     
 </resources>

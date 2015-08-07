@@ -1,4 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="email_format_error">邮箱格式错误！</string>
+    <!-- 请替换成在语音云官网申请的appid -->
+    <string name="app_id">55378391</string>
+    <!--start add by anshe 2015.5.11  -->
+    <!-- 提示安装语音+对话框 -->
+    <string name="superman_ok">确 定</string>
+    <string name="superman_cancel">取 消</string>
+    <string name="superman_title">提 示 !</string>
+    <string name="superman_content">需要下载离线服务APK</string>
+    <!-- 语言 -->
+    <string-array name="language_entries">
+        <item>普通话</item>
+        <item>粤语</item>
+        <item>河南话</item>
+        <item>英语</item>
+    </string-array>
+    <string-array name="language_values">
+        <item>mandarin</item>
+        <item>cantonese</item>
+        <item>henanese</item>
+        <item>en_us</item>
+    </string-array>
+    <string-array name="type_values">
+        <item>cloud</item>
+        <item>mix</item>
+        <item>local</item>
+    </string-array>
+    <!-- 标点符号 -->
+    <string-array name="punc_entries">
+        <item>有标点</item>
+        <item>无标点</item>
+    </string-array>
+    <string-array name="punc_values">
+        <item>1</item>
+        <item>0</item>
+    </string-array>
+    <string-array name="dwa_entries">
+        <item>开启</item>
+        <item>关闭</item>
+    </string-array>
+    
+    <string name="pref_key_iat_show">iat_show</string>
+    <string name="pref_title_iat_show">显示听写界面</string>
+    <string name="pref_title_iat_dwa">结果动态修正</string>
+    <!-- 听写 -->
+    <string name="text_begin">请开始说话…</string>
+    <string name="text_upload_contacts">上传联系人</string>
+    <string name="text_upload_userwords">上传用户词表</string>
+    <string name="text_upload_success">上传成功</string>
+    <string name="text_userword_empty">词表下载失败或内容为空</string>
+    <string name="text_download_success">下载成功</string>
+    <string name="pref_key_iat_show">iat_show</string>
+    <string name="pref_title_iat_show">显示听写界面</string>
+    <string name="pref_title_iat_dwa">结果动态修正</string>
+    
+    <!--end add by anshe 2015.5.11 -->
+    
+    <!-- start add by anshe 2015.5.18  -->
+    <string name="get_code">获取验证码</string>
+    <string name="password_unlike">两次输入的密码不一样，请重新输入！</string>
+    <string name="info_null">输入信息不能为空！</string>
+    <string name="start_record">开始录音</string>
+    <string name="stop_record">停止录音</string>
+    <string name="recording">录音中</string>
+    <string name="seta_info">Seta消息</string>
+    <string name="record_sending">音频正在处理，请稍后重试！</string>
+    <string name="record_receiving_lose">音频文件丢失！</string>
+    <string name="record_send_success">音频发送成功！</string>
+    <string name="record_receive_success">音频接收成功！</string>
+    <string name="record_info">”语音消息</string>
+    <!-- end add by anshe 2015.5.18 -->
+    
+    <!-- start add by anshe 2015.5.22 -->
+    <string name="file_delete_success">文件清除成功</string>
+    <string name="record_delete_success">录音文件清除成功</string>
+    <string name="file_not_exits">文件不存在</string>
+    <string name="file_create_error">服务异常，无法以文件的形式发送邮件！</string>
+    <string name="service_not_open">服务器异常，请稍后重试！</string>
+    <!-- end add by anshe 2015.5.22 -->
+    
+    <!-- start add by anshe 2015.7.5 -->
+    <string name="not_Connect_to_Server">与服务器断开连接，请检查网络后重新登录！</string>
+    <string name="room_is_exist">聊天室已经存在，可以加入或者创建其它名称的聊天室</string>
+    <string name="reconnection_fail">重新连接失败！请重新登录！</string>
+    <string name="send_message_is_null">发送信息不能为空</string>
+    <string name="record_auto_choose">根据网络自动选择</string>
+    <string name="record_type_cloud">仅使用云端</string>
+    <string name="record_type_mix">云端和本地混合</string>
+    <string name="record_type_local">仅使用本地</string>
+    <string name="point">.</string>
+    <string name="server_status">服务器地址</string>
+    <!-- end add by anshe 2015.7.5 -->
 </resources>
